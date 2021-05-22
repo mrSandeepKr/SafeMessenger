@@ -9,14 +9,16 @@ import UIKit
 
 class LogInViewController: UIViewController {
     //MARK: Elements
-    private lazy var emailTextField: CustomTextField = {
-        let label = CustomTextField(placeholder: "Enter Email..")
+    private lazy var emailTextField: RounderCornerTextField = {
+        let label = RounderCornerTextField(placeholder: "Enter Email..")
+        label.returnKeyType = .next
         return label
     }()
     
-    private lazy var passwordField: CustomTextField = {
-        let label = CustomTextField(placeholder: "Password",
-                                    isPassword: true)
+    private lazy var passwordField: RounderCornerTextField = {
+        let label = RounderCornerTextField(placeholder: "Password",
+                                           isPassword: true)
+        label.returnKeyType = .continue
         return label
     }()
     
@@ -27,14 +29,12 @@ class LogInViewController: UIViewController {
         return imageView
     }()
     
-    private lazy var logInBtn: CustomBaseButton = {
-        let btn = CustomBaseButton(cornerRad: 10)
-        btn.setTitle("Log In", for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
-        btn.backgroundColor = .systemBlue
+    private lazy var logInBtn: RoundedCornerButton = {
+        let btn = RoundedCornerButton(cornerRad: 12,
+                                      btnTitle: "Log In",
+                                      btnColor: .systemBlue,
+                                      borderColor: UIColor.label)
         btn.addTarget(self, action: #selector(didTapSignInBtn), for: .touchUpInside)
-        btn.layer.borderColor = UIColor.label.cgColor
-        btn.layer.borderWidth = 1
         return btn
     }()
     
@@ -57,6 +57,9 @@ class LogInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        emailTextField.delegate = self
+        passwordField.delegate = self
+        
         view.addSubview(logoImageView)
         view.addSubview(scrollView)
         scrollView.addSubview(emailTextField)
@@ -97,6 +100,18 @@ class LogInViewController: UIViewController {
     }
 }
 
+extension LogInViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == emailTextField {
+            passwordField.becomeFirstResponder()
+        }
+        else if textField == passwordField {
+            didTapSignInBtn()
+        }
+        return true
+    }
+}
+
 extension LogInViewController {
     @objc private func didTapCreateAccount() {
         let vc = RegisterViewController()
@@ -104,6 +119,11 @@ extension LogInViewController {
     }
     
     @objc private func didTapSignInBtn() {
+        print("LogInViewController: Attempting LogIn")
+        
+        emailTextField.resignFirstResponder()
+        passwordField.resignFirstResponder()
+        
         guard let email = emailTextField.text, let pswd = passwordField.text,
               !email.isEmpty, !pswd.isEmpty
         else {

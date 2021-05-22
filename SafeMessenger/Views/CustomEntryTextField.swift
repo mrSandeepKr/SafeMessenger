@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CustomTextField: UITextField {
+class RounderCornerTextField: UITextField {
     private func setupTextField() {
         self.autocapitalizationType = .none
         self.autocorrectionType = .no
