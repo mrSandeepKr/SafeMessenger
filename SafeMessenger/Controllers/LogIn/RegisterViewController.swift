@@ -9,17 +9,19 @@ import UIKit
 
 class RegisterViewController: UIViewController {
     
+    private var viewModel = RegisterViewModel()
+    
     //MARK: Elements
     private lazy var backgroundImage: UIImageView = {
         let backgroundImage = UIImageView(frame: UIScreen.main.bounds)
         
-        backgroundImage.image = UITraitCollection.current.userInterfaceStyle == .dark ? UIImage(named: "registerBackgroundDark"): UIImage(named: "registerBackground")
+        backgroundImage.image = viewModel.backgroundImage
         backgroundImage.contentMode = UIView.ContentMode.scaleAspectFill
         return backgroundImage
     }()
     
     private lazy var profileImage: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "personPlaceholder"))
+        let imageView = UIImageView(image: viewModel.profileImage)
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = view.width/6
         imageView.layer.masksToBounds = true
@@ -133,32 +135,17 @@ class RegisterViewController: UIViewController {
 
 extension RegisterViewController {
     @objc private func didTapCreateAccount() {
-        print("RegisterViewController: Create account tapped")
-        
-        guard handleFieldValidation()
-        else {
-            return
+        viewModel.handleAccountCreation(firstName: firstName.text,
+                                        secondName: secondName.text,
+                                        email: emailField.text,
+                                        password: passwordField.text,
+                                        verifyPassword: verifyPasswordField.text) { [weak self] msg in
+            guard msg.isEmpty else {
+                self?.showAlertWithMessage(msg: msg)
+                return
+            }
+            self?.navigationController?.popToRootViewController(animated: false)
         }
-    }
-    
-    private func handleFieldValidation() -> Bool {
-        var msg = ""
-        guard let fn = firstName.text, let sn = secondName.text, let email = emailField.text,
-           let pswd = passwordField.text, let verifiedPswd = verifyPasswordField.text,
-           !fn.isEmpty, !sn.isEmpty, !email.isEmpty, !pswd.isEmpty, !verifiedPswd.isEmpty
-        else {
-            msg = "Non of the fields should be empty"
-            showAlertWithMessage(msg: msg)
-            return !msg.isEmpty
-        }
-        
-        if pswd.count < 5 {msg = "Password should be 5 letters long"}
-        else if pswd != verifiedPswd {msg = "Password and verified Password don't match"}
-        else if !email.isValidEmail() {msg = "Enter a valid email Id"}
-        else if !fn.isValidName(), !sn.isValidName() {msg = "Enter appropriate Name and Second Name"}
-        
-        showAlertWithMessage(msg: msg)
-        return !msg.isEmpty
     }
     
     private func showAlertWithMessage(msg: String) {
@@ -226,7 +213,6 @@ extension RegisterViewController {
     }
     
     @objc private func didTapProfileImageView() {
-
         presentProfileImagePicker()
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class LogInViewController: UIViewController {
     //MARK: Elements
@@ -131,18 +132,35 @@ extension LogInViewController {
         emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
         
+        //TODO: Move all logic into a View Model
         guard let email = emailField.text, let pswd = passwordField.text,
               !email.isEmpty, !pswd.isEmpty
         else {
-            alertForWrongLogin()
+            alertForWrongLogin(msg: "User email and password can't be empty")
             return
+        }
+        
+        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: pswd) {[weak self] res, err in
+            guard let response = res , err == nil else {
+                if err != nil {
+                    self?.alertForWrongLogin(msg:err!.localizedDescription)
+                }
+                else {
+                    self?.alertForWrongLogin(msg:"Try again")
+                }
+                return
+            }
+            
+            UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
+            print("LogInViewController: Successful Login with \(response.user)")
+            self?.navigationController?.popToRootViewController(animated: false)
         }
     }
     
-    private func alertForWrongLogin() {
+    private func alertForWrongLogin(msg: String) {
         print("LoginViewController: email or password were empty")
         let alert = UIAlertController(title: "Oops..",
-                                      message: "User email and password can't be empty",
+                                      message: msg,
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Okay", style: .destructive, handler: nil))
         self.present(alert, animated: true, completion: nil)
