@@ -20,8 +20,9 @@
 		6D18700B2656F88000CE46D9 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D18700A2656F88000CE46D9 /* ProfileViewController.swift */; };
 		6D1870112657C35E00CE46D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D1870102657C35E00CE46D9 /* Assets.xcassets */; };
 		6D1870142657F80F00CE46D9 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1870132657F80F00CE46D9 /* Extensions.swift */; };
-		6D3BAC38265828A5007C5BDF /* CustomEntryTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D3BAC37265828A5007C5BDF /* CustomEntryTextField.swift */; };
+		6D3BAC38265828A5007C5BDF /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D3BAC37265828A5007C5BDF /* CustomTextField.swift */; };
 		6D3BAC3A2658D2B2007C5BDF /* RoundedCornerButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D3BAC392658D2B2007C5BDF /* RoundedCornerButton.swift */; };
+		6D3BAC3E2659686A007C5BDF /* LineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D3BAC3D2659686A007C5BDF /* LineView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,8 +41,9 @@
 		6D18700A2656F88000CE46D9 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		6D1870102657C35E00CE46D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6D1870132657F80F00CE46D9 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		6D3BAC37265828A5007C5BDF /* CustomEntryTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomEntryTextField.swift; sourceTree = "<group>"; };
+		6D3BAC37265828A5007C5BDF /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		6D3BAC392658D2B2007C5BDF /* RoundedCornerButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedCornerButton.swift; sourceTree = "<group>"; };
+		6D3BAC3D2659686A007C5BDF /* LineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,8 +76,8 @@
 		6D186FE52656F60F00CE46D9 /* SafeMessenger */ = {
 			isa = PBXGroup;
 			children = (
-				6D1870122657F7FD00CE46D9 /* Helpers */,
 				6D186FF42656F61100CE46D9 /* Info.plist */,
+				6D1870122657F7FD00CE46D9 /* Helpers */,
 				6D186FFE2656F72600CE46D9 /* Resources */,
 				6D186FFD2656F72000CE46D9 /* Models */,
 				6D186FFC2656F70900CE46D9 /* ViewModels */,
@@ -102,8 +104,9 @@
 			isa = PBXGroup;
 			children = (
 				6D186FFF2656F75400CE46D9 /* Storyboards */,
-				6D3BAC37265828A5007C5BDF /* CustomEntryTextField.swift */,
+				6D3BAC37265828A5007C5BDF /* CustomTextField.swift */,
 				6D3BAC392658D2B2007C5BDF /* RoundedCornerButton.swift */,
+				6D3BAC3D2659686A007C5BDF /* LineView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -228,10 +231,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6D3BAC38265828A5007C5BDF /* CustomEntryTextField.swift in Sources */,
+				6D3BAC38265828A5007C5BDF /* CustomTextField.swift in Sources */,
 				6D1870052656F85600CE46D9 /* ImageViewerViewController.swift in Sources */,
 				6D1870012656F82400CE46D9 /* LogInViewController.swift in Sources */,
 				6D1870092656F87600CE46D9 /* NewChatViewController.swift in Sources */,
+				6D3BAC3E2659686A007C5BDF /* LineView.swift in Sources */,
 				6D1870032656F82D00CE46D9 /* RegisterViewController.swift in Sources */,
 				6D1870072656F86300CE46D9 /* VideoPlayerViewController.swift in Sources */,
 				6D1870142657F80F00CE46D9 /* Extensions.swift in Sources */,

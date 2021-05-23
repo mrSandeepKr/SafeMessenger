@@ -9,7 +9,7 @@ import UIKit
 
 class LogInViewController: UIViewController {
     //MARK: Elements
-    private lazy var emailTextField: RounderCornerTextField = {
+    private lazy var emailField: RounderCornerTextField = {
         let label = RounderCornerTextField(placeholder: "Enter Email..")
         label.returnKeyType = .next
         return label
@@ -57,15 +57,22 @@ class LogInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        emailTextField.delegate = self
+        emailField.delegate = self
         passwordField.delegate = self
         
         view.addSubview(logoImageView)
         view.addSubview(scrollView)
-        scrollView.addSubview(emailTextField)
+        scrollView.addSubview(emailField)
         scrollView.addSubview(passwordField)
         scrollView.addSubview(logInBtn)
         scrollView.addSubview(createAccountBtn)
+        
+        addKeyboardDismissGesture()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        emailField.becomeFirstResponder()
     }
     
     override func viewDidLayoutSubviews() {
@@ -77,17 +84,17 @@ class LogInViewController: UIViewController {
                                      width: logoSize,
                                      height: logoSize)
         
-        emailTextField.frame = CGRect(x: view.width/15,
+        emailField.frame = CGRect(x: view.width/15,
                                       y: logoImageView.bottom + view.height/10,
                                       width:  (13.0/15.0) * view.width,
                                       height: logoSize/3)
         
-        passwordField.frame = CGRect(x: emailTextField.left,
-                                     y: emailTextField.bottom + 10,
-                                     width: emailTextField.width,
-                                     height: emailTextField.height)
+        passwordField.frame = CGRect(x: emailField.left,
+                                     y: emailField.bottom + 10,
+                                     width: emailField.width,
+                                     height: emailField.height)
         
-        let logInbtnWidth = emailTextField.width * 0.8
+        let logInbtnWidth = emailField.width * 0.8
         logInBtn.frame = CGRect(x: (view.width - logInbtnWidth)/2,
                                 y: passwordField.bottom + 30,
                                 width: logInbtnWidth,
@@ -102,7 +109,7 @@ class LogInViewController: UIViewController {
 
 extension LogInViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == emailTextField {
+        if textField == emailField {
             passwordField.becomeFirstResponder()
         }
         else if textField == passwordField {
@@ -121,10 +128,10 @@ extension LogInViewController {
     @objc private func didTapSignInBtn() {
         print("LogInViewController: Attempting LogIn")
         
-        emailTextField.resignFirstResponder()
+        emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
         
-        guard let email = emailTextField.text, let pswd = passwordField.text,
+        guard let email = emailField.text, let pswd = passwordField.text,
               !email.isEmpty, !pswd.isEmpty
         else {
             alertForWrongLogin()
@@ -139,5 +146,14 @@ extension LogInViewController {
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Okay", style: .destructive, handler: nil))
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    private func addKeyboardDismissGesture() {
+        let tap: UIGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 }
