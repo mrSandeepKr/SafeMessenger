@@ -12,7 +12,6 @@ class ChatListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .red
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -27,7 +26,10 @@ class ChatListViewController: UIViewController {
 extension ChatListViewController {
     private func presetLoginScreen() {
         let vc = LogInViewController()
-        vc.navigationItem.largeTitleDisplayMode = .always
-        self.navigationController?.pushViewController(vc, animated: false)
+        let nav = UINavigationController(rootViewController: vc)
+        nav.navigationBar.prefersLargeTitles = true
+        nav.viewControllers.first?.navigationItem.largeTitleDisplayMode = .always
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true)
     }
 }

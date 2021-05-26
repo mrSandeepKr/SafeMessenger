@@ -13,8 +13,11 @@ import FirebaseDatabase
 struct ChatAppUserModel {
     let firstName: String
     let secondName: String
-    let formattedEmailAddress: String
-    //let profileImageURL
+    let email: String
+    
+    var safeEmail: String {
+        return (email.replacingOccurrences(of: ".", with: "-"))
+    }
 }
 
 final class ApiHandler {
@@ -23,7 +26,7 @@ final class ApiHandler {
     private let database = Database.database(url: Constants.databaseURL).reference()
     
     public func insertUser(user: ChatAppUserModel) {
-        database.child(user.formattedEmailAddress).setValue([
+        database.child(user.safeEmail).setValue([
             Constants.firstName: user.firstName,
             Constants.secondName: user.secondName
         ])

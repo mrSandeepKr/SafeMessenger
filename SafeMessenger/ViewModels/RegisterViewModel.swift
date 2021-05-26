@@ -27,7 +27,9 @@ class RegisterViewModel {
                                       verifyPassword:String?,
                                       completion: @escaping  CreateAccountCompletion) {
         var msg = ""
-        guard let fn = firstName, let sn = secondName, let email = emailAddress,
+        guard let fn = firstName?.trimmingCharacters(in: .whitespaces),
+              let sn = secondName?.trimmingCharacters(in: .whitespaces),
+              let email = emailAddress?.trimmingCharacters(in: .whitespaces),
               let pswd = password, let vpswd = verifyPassword,
               !fn.isEmpty, !sn.isEmpty, !email.isEmpty, !pswd.isEmpty, !vpswd.isEmpty
         else {
@@ -45,23 +47,17 @@ class RegisterViewModel {
             completion(msg)
             return
         }
-        handleUserCreation(email: email, pswd: pswd) {[weak self] msg in
+        
+        handleUserCreation(email: email, pswd: pswd) { msg in
             if msg.isEmpty {
                 ApiHandler.shared.insertUser(user: ChatAppUserModel(firstName: fn,
                                                                     secondName: sn,
-                                                                    formattedEmailAddress:self?.getFormattedEmailAddress(email: email) ?? ""))
+                                                                    email:email))
                 completion("")
                 return
             }
             completion(msg)
         }
-    }
-    
-    private func getFormattedEmailAddress(email: String?) -> String {
-        if email != nil {
-            return (email?.replacingOccurrences(of: ".", with: "-"))!
-        }
-        return ""
     }
     
     private func handleUserCreation(email: String, pswd: String, completion: @escaping CreateAccountCompletion) {
