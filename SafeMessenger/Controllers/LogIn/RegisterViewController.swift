@@ -137,13 +137,14 @@ extension RegisterViewController {
     @objc private func didTapCreateAccount() {
         viewModel.handleAccountCreation(firstName: firstName.text,
                                         secondName: secondName.text,
-                                        email: emailField.text,
+                                        emailAddress: emailField.text,
                                         password: passwordField.text,
                                         verifyPassword: verifyPasswordField.text) { [weak self] msg in
             guard msg.isEmpty else {
                 self?.showAlertWithMessage(msg: msg)
                 return
             }
+            print("RegisterViewController: User Registered Successfully")
             self?.navigationController?.popToRootViewController(animated: false)
         }
     }

@@ -9,6 +9,8 @@ import UIKit
 import FirebaseAuth
 
 class LogInViewController: UIViewController {
+    private let viewModel = LogInViewModel()
+    
     //MARK: Elements
     private lazy var emailField: RounderCornerTextField = {
         let label = RounderCornerTextField(placeholder: "Enter Email..")
@@ -133,26 +135,14 @@ extension LogInViewController {
         passwordField.resignFirstResponder()
         
         //TODO: Move all logic into a View Model
-        guard let email = emailField.text, let pswd = passwordField.text,
-              !email.isEmpty, !pswd.isEmpty
-        else {
-            alertForWrongLogin(msg: "User email and password can't be empty")
-            return
-        }
-        
-        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: pswd) {[weak self] res, err in
-            guard let response = res , err == nil else {
-                if err != nil {
-                    self?.alertForWrongLogin(msg:err!.localizedDescription)
-                }
-                else {
-                    self?.alertForWrongLogin(msg:"Try again")
-                }
+        viewModel.logInUser(with: emailField.text,
+                            password: passwordField.text) {[weak self] msg in
+            if let alertMsg = msg, !alertMsg.isEmpty {
+                self?.alertForWrongLogin(msg: alertMsg)
                 return
             }
             
-            UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
-            print("LogInViewController: Successful Login with \(response.user)")
+            print("LogInViewController: Successful Login")
             self?.navigationController?.popToRootViewController(animated: false)
         }
     }

@@ -22,12 +22,12 @@ class RegisterViewModel {
     
     public func handleAccountCreation(firstName: String?,
                                       secondName: String?,
-                                      email: String?,
+                                      emailAddress: String?,
                                       password: String?,
                                       verifyPassword:String?,
                                       completion: @escaping  CreateAccountCompletion) {
         var msg = ""
-        guard let fn = firstName, let sn = secondName, let email = email,
+        guard let fn = firstName, let sn = secondName, let email = emailAddress,
               let pswd = password, let vpswd = verifyPassword,
               !fn.isEmpty, !sn.isEmpty, !email.isEmpty, !pswd.isEmpty, !vpswd.isEmpty
         else {
@@ -45,7 +45,23 @@ class RegisterViewModel {
             completion(msg)
             return
         }
-        handleUserCreation(email: email, pswd: pswd, completion: completion)
+        handleUserCreation(email: email, pswd: pswd) {[weak self] msg in
+            if msg.isEmpty {
+                ApiHandler.shared.insertUser(user: ChatAppUserModel(firstName: fn,
+                                                                    secondName: sn,
+                                                                    formattedEmailAddress:self?.getFormattedEmailAddress(email: email) ?? ""))
+                completion("")
+                return
+            }
+            completion(msg)
+        }
+    }
+    
+    private func getFormattedEmailAddress(email: String?) -> String {
+        if email != nil {
+            return (email?.replacingOccurrences(of: ".", with: "-"))!
+        }
+        return ""
     }
     
     private func handleUserCreation(email: String, pswd: String, completion: @escaping CreateAccountCompletion) {
@@ -56,8 +72,6 @@ class RegisterViewModel {
             }
             
             UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
-            let user = authResult?.user
-            print("created user: \(String(describing: user))")
             completion("")
         }
     }
