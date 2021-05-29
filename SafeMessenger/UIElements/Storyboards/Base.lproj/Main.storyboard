@@ -32,74 +32,69 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ltf-fi-ZiH">
+                            <view alpha="0.20000000000000001" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ltf-fi-ZiH">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GnB-Ph-Nff">
+                                <rect key="frame" x="-240" y="0.0" width="240" height="896"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GnB-Ph-Nff">
-                                        <rect key="frame" x="0.0" y="0.0" width="230" height="896"/>
-                                        <subviews>
-                                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NTS-HY-cGq">
-                                                <rect key="frame" x="-290" y="88" width="290" height="808"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="290" id="6ud-4U-y7b"/>
-                                                </constraints>
-                                                <connections>
-                                                    <segue destination="Vep-kE-Fet" kind="embed" id="9Sq-83-875"/>
-                                                </connections>
-                                            </containerView>
-                                        </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="230" id="RWf-1Q-oqm"/>
-                                            <constraint firstItem="NTS-HY-cGq" firstAttribute="leading" secondItem="GnB-Ph-Nff" secondAttribute="leading" constant="-290" id="gyD-BU-ukL"/>
-                                            <constraint firstAttribute="bottom" secondItem="NTS-HY-cGq" secondAttribute="bottom" id="yHF-hW-AIl"/>
-                                        </constraints>
-                                    </view>
+                                    <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P35-sU-I1m">
+                                        <rect key="frame" x="0.0" y="0.0" width="240" height="896"/>
+                                        <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                        <connections>
+                                            <segue destination="lVn-oo-aZv" kind="embed" id="NGq-CV-07H"/>
+                                        </connections>
+                                    </containerView>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemGreenColor"/>
+                                <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                <color key="tintColor" systemColor="tertiarySystemGroupedBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="GnB-Ph-Nff" secondAttribute="bottom" id="Jo1-ak-yfU"/>
-                                    <constraint firstItem="GnB-Ph-Nff" firstAttribute="leading" secondItem="Ltf-fi-ZiH" secondAttribute="leading" id="MZh-Eh-cQd"/>
-                                    <constraint firstItem="GnB-Ph-Nff" firstAttribute="top" secondItem="Ltf-fi-ZiH" secondAttribute="top" id="jAH-bm-UpE"/>
+                                    <constraint firstItem="P35-sU-I1m" firstAttribute="leading" secondItem="GnB-Ph-Nff" secondAttribute="leading" id="2Nh-QK-bW3"/>
+                                    <constraint firstAttribute="width" constant="240" id="4Gi-1s-0T4"/>
+                                    <constraint firstAttribute="bottom" secondItem="P35-sU-I1m" secondAttribute="bottom" id="DUr-KV-QxW"/>
+                                    <constraint firstItem="P35-sU-I1m" firstAttribute="top" secondItem="GnB-Ph-Nff" secondAttribute="top" id="NAX-dk-7b3"/>
+                                    <constraint firstAttribute="trailing" secondItem="P35-sU-I1m" secondAttribute="trailing" id="sbf-tH-aUw"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="Ltf-fi-ZiH" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="3uA-HG-Nud"/>
-                            <constraint firstItem="NTS-HY-cGq" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="FaN-Pc-8LQ"/>
-                            <constraint firstItem="Ltf-fi-ZiH" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="HSu-jq-twv"/>
-                            <constraint firstItem="Ltf-fi-ZiH" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="UOy-8g-ews"/>
-                            <constraint firstAttribute="bottom" secondItem="Ltf-fi-ZiH" secondAttribute="bottom" id="w2v-c8-6Xt"/>
+                            <constraint firstAttribute="bottom" secondItem="Ltf-fi-ZiH" secondAttribute="bottom" id="O0G-wA-MfA"/>
+                            <constraint firstItem="GnB-Ph-Nff" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="OE6-Lp-bE6"/>
+                            <constraint firstItem="GnB-Ph-Nff" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="-240" id="cHt-Ti-E2h"/>
+                            <constraint firstItem="Ltf-fi-ZiH" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="coR-N6-u3t"/>
+                            <constraint firstItem="Ltf-fi-ZiH" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="dMQ-eT-DwE"/>
+                            <constraint firstItem="Ltf-fi-ZiH" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="dhW-TR-NRo"/>
+                            <constraint firstAttribute="bottom" secondItem="GnB-Ph-Nff" secondAttribute="bottom" id="qR4-wI-hNr"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="n35-jy-uU4"/>
                     <connections>
-                        <outlet property="hamburgerLeadingConstraint" destination="gyD-BU-ukL" id="5Tt-9i-jZC"/>
+                        <outlet property="hamburgerLeadingConstraint" destination="cHt-Ti-E2h" id="E2w-5O-1R0"/>
                         <outlet property="hamburgerSuperView" destination="Ltf-fi-ZiH" id="RJC-dq-oNZ"/>
                         <outlet property="hamburgerViewBackground" destination="GnB-Ph-Nff" id="K1W-bj-K30"/>
-                        <outlet property="hamburgerWidth" destination="RWf-1Q-oqm" id="zXn-8w-lLu"/>
+                        <outlet property="hamburgerWidth" destination="4Gi-1s-0T4" id="bS5-v6-Pln"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-380" y="16"/>
+            <point key="canvasLocation" x="-381.15942028985512" y="15.401785714285714"/>
         </scene>
         <!--Hamburger View Controller-->
-        <scene sceneID="f23-Nk-F0I">
+        <scene sceneID="hSw-MJ-IxM">
             <objects>
-                <viewController id="Vep-kE-Fet" customClass="HamburgerViewController" customModule="SafeMessenger" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="vB0-kg-Rqr">
-                        <rect key="frame" x="0.0" y="0.0" width="290" height="808"/>
+                <viewController id="lVn-oo-aZv" customClass="HamburgerViewController" customModule="SafeMessenger" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="OsM-EE-LlA">
+                        <rect key="frame" x="0.0" y="0.0" width="240" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="uCr-MH-7jF"/>
-                        <color key="backgroundColor" systemColor="systemBlueColor"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="5UH-Dn-vAw" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jb6-5T-LPn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="629" y="15"/>
+            <point key="canvasLocation" x="493" y="15"/>
         </scene>
     </scenes>
     <resources>
@@ -109,8 +104,8 @@
         <systemColor name="systemBlueColor">
             <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
-        <systemColor name="systemGreenColor">
-            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <systemColor name="tertiarySystemGroupedBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

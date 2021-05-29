@@ -9,7 +9,8 @@ import UIKit
 
 class ChatListViewController: UIViewController {
     
-    override func viewDidDisappear(_ animated: Bool) {
+    override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .systemPink
     }
 }

@@ -19,6 +19,7 @@ class HamburgerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .systemBlue
         view.addSubview(imageView)
     }
     

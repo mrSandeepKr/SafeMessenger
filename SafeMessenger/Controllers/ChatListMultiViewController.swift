@@ -11,6 +11,7 @@ class ChatListMultiViewController: UIViewController {
     
     private let viewModel = ChatListMultiViewModel()
     private lazy var hamburgerHeight = (self.navigationController?.navigationBar.frame.height ?? 0) * 0.9
+    
     @IBOutlet weak var hamburgerSuperView: UIView!
     @IBOutlet weak var hamburgerWidth: NSLayoutConstraint!
     @IBOutlet weak var hamburgerViewBackground: UIView!
@@ -18,7 +19,6 @@ class ChatListMultiViewController: UIViewController {
     
     private lazy var chatListViewController : ChatListViewController = {
         let viewController = ChatListViewController()
-        viewController.view.backgroundColor = .black
         return viewController
     }()
     
@@ -43,6 +43,7 @@ class ChatListMultiViewController: UIViewController {
         view.addSubview(hamburgerBtn)
         view.addSubview(chatListViewController.view)
         view.bringSubviewToFront(hamburgerSuperView)
+        view.bringSubviewToFront(hamburgerViewBackground)
     }
     
     override func viewDidLayoutSubviews() {
@@ -68,10 +69,12 @@ class ChatListMultiViewController: UIViewController {
     
     private func basicSetUp() {
         navigationController?.navigationBar.isHidden = true
-        hamburgerSuperView.backgroundColor = .clear
+        hamburgerSuperView.addGestureRecognizer(UITapGestureRecognizer(target: self,
+                                                                       action: #selector(singleTapHamburgerBackground)))
         hideHamburgerView()
     }
     
+    //MARK: Hamburger View Helper Methods
     private func hideHamburgerView() {
         hamburgerSuperView.isHidden = true
         hamburgerLeadingConstraint.constant = -1.0 * hamburgerWidth.constant
@@ -91,6 +94,10 @@ extension ChatListMultiViewController {
         nav.viewControllers.first?.navigationItem.largeTitleDisplayMode = .always
         nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true)
+    }
+    
+    @objc private func singleTapHamburgerBackground() {
+        hideHamburgerView()
     }
 }
 

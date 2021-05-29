@@ -130,11 +130,11 @@
 				6D18700D265783E000CE46D9 /* LogIn */,
 				6D1A43CD26623D130009C356 /* ChatListMultiViewController.swift */,
 				6D186FEA2656F60F00CE46D9 /* ChatListViewController.swift */,
+				6D1A43CF266268020009C356 /* HamburgerViewController.swift */,
 				6D1870042656F85600CE46D9 /* ImageViewerViewController.swift */,
 				6D1870062656F86300CE46D9 /* VideoPlayerViewController.swift */,
 				6D1870082656F87600CE46D9 /* NewChatViewController.swift */,
 				6D18700A2656F88000CE46D9 /* ProfileViewController.swift */,
-				6D1A43CF266268020009C356 /* HamburgerViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
