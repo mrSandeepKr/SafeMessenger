@@ -8,18 +8,6 @@
 import Foundation
 import FirebaseDatabase
 
-
-
-struct ChatAppUserModel {
-    let firstName: String
-    let secondName: String
-    let email: String
-    
-    var safeEmail: String {
-        return (email.replacingOccurrences(of: ".", with: "-"))
-    }
-}
-
 final class ApiHandler {
     static let shared = ApiHandler()
     
