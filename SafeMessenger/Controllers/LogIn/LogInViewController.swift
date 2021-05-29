@@ -143,7 +143,7 @@ extension LogInViewController {
             }
             
             print("LogInViewController: Successful Login")
-            self?.navigationController?.popToRootViewController(animated: false)
+            self?.dismiss(animated: true)
         }
     }
     

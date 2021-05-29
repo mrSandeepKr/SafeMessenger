@@ -145,7 +145,7 @@ extension RegisterViewController {
                 return
             }
             print("RegisterViewController: User Registered Successfully")
-            self?.navigationController?.popToRootViewController(animated: false)
+            self?.dismiss(animated: true)
         }
     }
     
