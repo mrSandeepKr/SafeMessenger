@@ -17,11 +17,22 @@ class HamburgerViewController: UIViewController {
         return imageView
     }()
     
+    private lazy var signOutBtn : UIButton = {
+        let btn = UIButton()
+        btn.backgroundColor = .clear
+        btn.setTitle("Sign Out", for: .normal)
+        btn.setTitleColor(.label, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        return btn
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.alpha = 0.95
-        view.backgroundColor = .systemBlue
+        view.alpha = 0.99
+        view.backgroundColor = UIColor(patternImage: viewModel.hamburgerBackground)
+        
         view.addSubview(imageView)
+        view.addSubview(signOutBtn)
     }
     
     override func viewDidLayoutSubviews() {
@@ -32,5 +43,9 @@ class HamburgerViewController: UIViewController {
                                  y: view.height / 15,
                                  width: imageViewSize,
                                  height: imageViewSize)
+        signOutBtn.frame = CGRect(x: (view.width - 100)/2 ,
+                                  y: view.height - 80,
+                                  width: 100,
+                                  height: 40)
     }
 }
