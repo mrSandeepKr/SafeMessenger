@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="93h-VW-W1x">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Navigation Controller-->
+        <scene sceneID="PIS-oH-r7P">
+            <objects>
+                <navigationController id="93h-VW-W1x" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="0N9-eb-9no">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="1a3-V5-22B"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="pRE-20-enP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1741" y="15"/>
+        </scene>
+        <!--Chat List Multi View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ChatListMultiViewController" customModule="SafeMessenger" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view alpha="0.40000000000000002" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ltf-fi-ZiH">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GnB-Ph-Nff">
+                                <rect key="frame" x="-240" y="0.0" width="240" height="896"/>
+                                <subviews>
+                                    <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P35-sU-I1m">
+                                        <rect key="frame" x="0.0" y="0.0" width="240" height="896"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <segue destination="lVn-oo-aZv" kind="embed" id="NGq-CV-07H"/>
+                                        </connections>
+                                    </containerView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" systemColor="tertiarySystemGroupedBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="P35-sU-I1m" firstAttribute="leading" secondItem="GnB-Ph-Nff" secondAttribute="leading" id="2Nh-QK-bW3"/>
+                                    <constraint firstAttribute="width" constant="240" id="4Gi-1s-0T4"/>
+                                    <constraint firstAttribute="bottom" secondItem="P35-sU-I1m" secondAttribute="bottom" id="DUr-KV-QxW"/>
+                                    <constraint firstItem="P35-sU-I1m" firstAttribute="top" secondItem="GnB-Ph-Nff" secondAttribute="top" id="NAX-dk-7b3"/>
+                                    <constraint firstAttribute="trailing" secondItem="P35-sU-I1m" secondAttribute="trailing" id="sbf-tH-aUw"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="Ltf-fi-ZiH" secondAttribute="bottom" id="O0G-wA-MfA"/>
+                            <constraint firstItem="GnB-Ph-Nff" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="OE6-Lp-bE6"/>
+                            <constraint firstItem="GnB-Ph-Nff" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="-240" id="cHt-Ti-E2h"/>
+                            <constraint firstItem="Ltf-fi-ZiH" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="coR-N6-u3t"/>
+                            <constraint firstItem="Ltf-fi-ZiH" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="dMQ-eT-DwE"/>
+                            <constraint firstItem="Ltf-fi-ZiH" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="dhW-TR-NRo"/>
+                            <constraint firstAttribute="bottom" secondItem="GnB-Ph-Nff" secondAttribute="bottom" id="qR4-wI-hNr"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="n35-jy-uU4"/>
+                    <connections>
+                        <outlet property="hamburgerLeadingConstraint" destination="cHt-Ti-E2h" id="E2w-5O-1R0"/>
+                        <outlet property="hamburgerSuperView" destination="Ltf-fi-ZiH" id="RJC-dq-oNZ"/>
+                        <outlet property="hamburgerViewBackground" destination="GnB-Ph-Nff" id="K1W-bj-K30"/>
+                        <outlet property="hamburgerWidth" destination="4Gi-1s-0T4" id="bS5-v6-Pln"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-381.15942028985512" y="15.401785714285714"/>
+        </scene>
+        <!--Hamburger View Controller-->
+        <scene sceneID="hSw-MJ-IxM">
+            <objects>
+                <viewController id="lVn-oo-aZv" customClass="HamburgerViewController" customModule="SafeMessenger" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="OsM-EE-LlA">
+                        <rect key="frame" x="0.0" y="0.0" width="240" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jb6-5T-LPn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="493" y="15"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="tertiarySystemGroupedBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
