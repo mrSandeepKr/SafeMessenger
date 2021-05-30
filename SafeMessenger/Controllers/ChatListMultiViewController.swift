@@ -74,6 +74,8 @@ class ChatListMultiViewController: UIViewController {
     
     private func basicSetUp() {
         navigationController?.navigationBar.isHidden = true
+        hamburgerWidth.constant = view.width * 0.75
+        hamburgerLeadingConstraint.constant = -1 * hamburgerWidth.constant
         hamburgerSuperView.isHidden = true
         hamburgerSuperView.addGestureRecognizer(UITapGestureRecognizer(target: self,
                                                                        action: #selector(singleTapHamburgerBackground)))
@@ -102,7 +104,7 @@ extension ChatListMultiViewController {
     // Hamburger View Helper Methods
     private func hideHamburgerViewWithAnimation() {
         UIView.animate(
-            withDuration: 0.2,
+            withDuration: 0.1,
             animations: { [weak self] in
                 self?.hamburgerLeadingConstraint.constant = 10
                 self?.view.layoutIfNeeded()
@@ -113,8 +115,7 @@ extension ChatListMultiViewController {
                     self?.hamburgerLeadingConstraint.constant = -1.0 * (self?.hamburgerWidth.constant)!
                     self?.view.layoutIfNeeded()
                 }) { [weak self] _ in
-                self?.hamburgerSuperView.isHidden = true
-                self?.isHamburgerOnScreen = false
+                self?.hideHamburgerView()
             }
         }
     }
@@ -127,15 +128,26 @@ extension ChatListMultiViewController {
                 self?.view.layoutIfNeeded()
             }) { _ in
             UIView.animate(
-                withDuration: 0.2,
+                withDuration: 0.1,
                 animations: { [weak self] in
                     self?.hamburgerLeadingConstraint.constant = 0
                     self?.view.layoutIfNeeded()
                 }) { [weak self] _ in
-                self?.hamburgerSuperView.isHidden = false
-                self?.isHamburgerOnScreen = true
+                self?.showHamburgerView()
             }
         }
+    }
+    
+    private func hideHamburgerView() {
+        hamburgerLeadingConstraint.constant = -1.0 * hamburgerWidth.constant
+        hamburgerSuperView.isHidden = true
+        isHamburgerOnScreen = false
+    }
+    
+    private func showHamburgerView() {
+        hamburgerLeadingConstraint.constant = 0
+        hamburgerSuperView.isHidden = false
+        isHamburgerOnScreen = true
     }
     
     // Hamburger movement code
@@ -144,20 +156,51 @@ extension ChatListMultiViewController {
             if let touch = touches.first {
                 let location = touch.location(in: hamburgerSuperView)
                 touchesBeginPoint = location.x
-                
             }
         }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if isHamburgerOnScreen {
-            
+            if let touch = touches.first {
+                let location = touch.location(in: hamburgerSuperView)
+                let diff = location.x - touchesBeginPoint
+                let minValue = -1 * hamburgerWidth.constant
+                if diff <= 0 && diff >= minValue {
+                    hamburgerLeadingConstraint.constant =  diff
+                }
+            }
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if isHamburgerOnScreen {
-            
+            if let touch = touches.first {
+                let location = touch.location(in: hamburgerSuperView)
+                let diff = location.x - touchesBeginPoint
+                let minValue = -1.0 * hamburgerWidth.constant
+                
+                guard diff <= 0, diff >= minValue else {
+                    return
+                }
+                let shouldHide = abs(diff) > (hamburgerWidth.constant * 0.30)
+                
+                if !shouldHide {
+                    hamburgerSuperView.isHidden = true
+                }
+                
+                UIView.animate(withDuration: 0.1,
+                               animations: {[weak self] in
+                                if shouldHide {
+                                    self?.hideHamburgerView()
+                                    self?.view.layoutIfNeeded()
+                                }
+                                else {
+                                    self?.showHamburgerView()
+                                    self?.view.layoutIfNeeded()
+                                }
+                               })
+            }
         }
     }
 }
