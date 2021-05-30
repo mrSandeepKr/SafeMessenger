@@ -70,9 +70,11 @@ class ChatListMultiViewController: UIViewController {
             presetLoginScreen()
             return
         }
+        hideViewsIfNotLoggedIn()
     }
     
     private func basicSetUp() {
+        hideViewsIfNotLoggedIn()
         navigationController?.navigationBar.isHidden = true
         hamburgerWidth.constant = view.width * 0.75
         hamburgerLeadingConstraint.constant = -1 * hamburgerWidth.constant
@@ -99,6 +101,12 @@ extension ChatListMultiViewController {
         nav.viewControllers.first?.navigationItem.largeTitleDisplayMode = .always
         nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true)
+    }
+    
+    private func hideViewsIfNotLoggedIn() {
+        let isHidden = !viewModel.isLoggedIn
+        hamburgerBtn.isHidden = isHidden
+        chatListViewController.view.isHidden = isHidden
     }
     
     // Hamburger View Helper Methods

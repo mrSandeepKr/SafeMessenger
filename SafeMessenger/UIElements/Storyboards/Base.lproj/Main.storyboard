@@ -11,7 +11,7 @@
         <!--Navigation Controller-->
         <scene sceneID="PIS-oH-r7P">
             <objects>
-                <navigationController id="93h-VW-W1x" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="chatMultiViewControllerSt" id="93h-VW-W1x" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="0N9-eb-9no">
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -89,6 +89,7 @@
                     <view key="view" contentMode="scaleToFill" id="OsM-EE-LlA">
                         <rect key="frame" x="0.0" y="0.0" width="240" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="060-8S-6FR"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                 </viewController>

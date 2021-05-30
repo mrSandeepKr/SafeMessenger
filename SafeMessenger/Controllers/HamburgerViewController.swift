@@ -23,6 +23,7 @@ class HamburgerViewController: UIViewController {
         btn.setTitle("Sign Out", for: .normal)
         btn.setTitleColor(.label, for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        btn.addTarget(self, action: #selector(signOutTapped), for: .touchUpInside)
         return btn
     }()
     
@@ -47,5 +48,21 @@ class HamburgerViewController: UIViewController {
                                   y: view.height - 80,
                                   width: 100,
                                   height: 40)
+    }
+}
+
+extension HamburgerViewController {
+    @objc private func signOutTapped() {
+        viewModel.handleSignOutTapped { success in
+            if success {
+                print("HamburgerViewController: Sign out successful")
+                let vc = self.storyboard?.instantiateViewController(identifier: "chatMultiViewControllerSt")
+                vc?.modalPresentationStyle = .fullScreen
+                self.present(vc!, animated: true, completion: nil)
+            }
+            else {
+                print("HamburgerViewController: Sign out failed")
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-
+import FirebaseAuth
 class HamburgerViewModel {
     // MARK: Properties
     public var profileImage: UIImage?
@@ -16,5 +16,16 @@ class HamburgerViewModel {
     init() {
         profileImage = UIImage(named: "personPlaceholder")
         hamburgerBackground = UIImage(named: "hamburgerBackground")!
+    }
+    
+    public func handleSignOutTapped(completion: (Bool)->()) {
+        do {
+            try FirebaseAuth.Auth.auth().signOut()
+            UserDefaults.standard.setValue(false, forKey: "isLoggedIn")
+            completion(true)
+        }
+        catch {
+            completion(false)
+        }
     }
 }

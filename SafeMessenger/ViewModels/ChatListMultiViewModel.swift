@@ -9,6 +9,6 @@ import Foundation
 
 class ChatListMultiViewModel {
     public var isLoggedIn: Bool {
-        return UserDefaults.standard.bool(forKey: "isLoggedIn")
+        return UserDefaults.standard.bool(forKey: "isLoggedIn") 
     }
 }
