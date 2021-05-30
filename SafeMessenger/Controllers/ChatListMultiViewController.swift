@@ -74,6 +74,7 @@ class ChatListMultiViewController: UIViewController {
     
     private func basicSetUp() {
         navigationController?.navigationBar.isHidden = true
+        hamburgerSuperView.isHidden = true
         hamburgerSuperView.addGestureRecognizer(UITapGestureRecognizer(target: self,
                                                                        action: #selector(singleTapHamburgerBackground)))
     }
