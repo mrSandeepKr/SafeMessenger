@@ -8,10 +8,15 @@
 import UIKit
 
 class ChatListMultiViewController: UIViewController {
-    
+    // View Model for ChatList MultiViewController
     private let viewModel = ChatListMultiViewModel()
-    private lazy var hamburgerHeight = (self.navigationController?.navigationBar.frame.height ?? 0) * 0.9
     
+    //Hamburger Support
+    private lazy var hamburgerHeight = (self.navigationController?.navigationBar.frame.height ?? 0) * 0.9
+    private var isHamburgerOnScreen: Bool = false
+    private var touchesBeginPoint: CGFloat = 0.0
+    
+    // Elements
     @IBOutlet weak var hamburgerSuperView: UIView!
     @IBOutlet weak var hamburgerWidth: NSLayoutConstraint!
     @IBOutlet weak var hamburgerViewBackground: UIView!
@@ -31,7 +36,7 @@ class ChatListMultiViewController: UIViewController {
         imageView.layer.borderWidth = 1
         imageView.layer.borderColor = UIColor.label.cgColor
         imageView.isUserInteractionEnabled = true
-        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showHamburgerView)))
+        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(hamburgerBtnTapped)))
         imageView.isUserInteractionEnabled = true
         return imageView
     }()
@@ -71,21 +76,18 @@ class ChatListMultiViewController: UIViewController {
         navigationController?.navigationBar.isHidden = true
         hamburgerSuperView.addGestureRecognizer(UITapGestureRecognizer(target: self,
                                                                        action: #selector(singleTapHamburgerBackground)))
-        hideHamburgerView()
     }
     
-    //MARK: Hamburger View Helper Methods
-    private func hideHamburgerView() {
-        hamburgerSuperView.isHidden = true
-        hamburgerLeadingConstraint.constant = -1.0 * hamburgerWidth.constant
+    @objc private func hamburgerBtnTapped() {
+        showHamburgerViewWithAnimation()
     }
     
-    @objc func showHamburgerView() {
-        hamburgerSuperView.isHidden = false
-        hamburgerLeadingConstraint.constant = 0
+    @objc private func singleTapHamburgerBackground() {
+        hideHamburgerViewWithAnimation()
     }
 }
 
+//MARK: Login & Hamburger Helpers
 extension ChatListMultiViewController {
     private func presetLoginScreen() {
         let vc = LogInViewController()
@@ -96,8 +98,66 @@ extension ChatListMultiViewController {
         self.present(nav, animated: true)
     }
     
-    @objc private func singleTapHamburgerBackground() {
-        hideHamburgerView()
+    // Hamburger View Helper Methods
+    private func hideHamburgerViewWithAnimation() {
+        UIView.animate(
+            withDuration: 0.2,
+            animations: { [weak self] in
+                self?.hamburgerLeadingConstraint.constant = 10
+                self?.view.layoutIfNeeded()
+            }) { _ in
+            UIView.animate(
+                withDuration: 0.1,
+                animations: { [weak self] in
+                    self?.hamburgerLeadingConstraint.constant = -1.0 * (self?.hamburgerWidth.constant)!
+                    self?.view.layoutIfNeeded()
+                }) { [weak self] _ in
+                self?.hamburgerSuperView.isHidden = true
+                self?.isHamburgerOnScreen = false
+            }
+        }
+    }
+    
+    private func showHamburgerViewWithAnimation() {
+        UIView.animate(
+            withDuration: 0.1,
+            animations: { [weak self] in
+                self?.hamburgerLeadingConstraint.constant = 10
+                self?.view.layoutIfNeeded()
+            }) { _ in
+            UIView.animate(
+                withDuration: 0.2,
+                animations: { [weak self] in
+                    self?.hamburgerLeadingConstraint.constant = 0
+                    self?.view.layoutIfNeeded()
+                }) { [weak self] _ in
+                self?.hamburgerSuperView.isHidden = false
+                self?.isHamburgerOnScreen = true
+            }
+        }
+    }
+    
+    // Hamburger movement code
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if isHamburgerOnScreen {
+            if let touch = touches.first {
+                let location = touch.location(in: hamburgerSuperView)
+                touchesBeginPoint = location.x
+                
+            }
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if isHamburgerOnScreen {
+            
+        }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if isHamburgerOnScreen {
+            
+        }
     }
 }
 
