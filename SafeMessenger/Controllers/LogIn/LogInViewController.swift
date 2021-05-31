@@ -6,10 +6,11 @@
 //
 
 import UIKit
-import FirebaseAuth
+import GoogleSignIn
 
 class LogInViewController: UIViewController {
     private let viewModel = LogInViewModel()
+    private var logInObserver: NSObjectProtocol?
     
     //MARK: Elements
     private lazy var emailField: RounderCornerTextField = {
@@ -41,6 +42,26 @@ class LogInViewController: UIViewController {
         return btn
     }()
     
+    private lazy var googleSignInButton : UIButton = {
+        let btn = UIButton()
+        btn.backgroundColor = UIColor.init(cgColor: #colorLiteral(red: 0.9162556529, green: 0.9164093733, blue: 0.9162355065, alpha: 1))
+        btn.setTitleShadowColor(.blue, for: .normal)
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = UIColor.lightGray.cgColor
+        btn.layer.cornerRadius = 5
+        
+        btn.setTitleColor(UIColor(cgColor: #colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1)), for: .normal)
+        btn.setTitle("Google Sign In", for: .normal)
+        btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 40, bottom: 0, right: 0)
+        btn.contentHorizontalAlignment = .left
+       
+        btn.setImage(UIImage(named: "googleIcon"), for: .normal)
+        btn.imageEdgeInsets =  UIEdgeInsets(top: 29.5, left: 30, bottom: 29.5, right: 200)
+        
+        btn.addTarget(self, action: #selector(didTapGoogleSignIn), for: .touchUpInside)
+        return btn
+    }()
+    
     private lazy var createAccountBtn: UIButton = {
         let btn = UIButton(type: .custom)
         btn.backgroundColor = .systemBackground
@@ -62,6 +83,13 @@ class LogInViewController: UIViewController {
         view.backgroundColor = .systemBackground
         emailField.delegate = self
         passwordField.delegate = self
+        GIDSignIn.sharedInstance().presentingViewController = self
+        
+        logInObserver = NotificationCenter.default.addObserver(forName: .didLogInNotification,
+                                                               object: nil, queue: .main, using: { [weak self] _ in
+                                                                self?.viewModel.setUserDefaultsForLogin()
+                                                                self?.navigationController?.dismiss(animated: true)
+                                                               })
         
         view.addSubview(logoImageView)
         view.addSubview(scrollView)
@@ -69,8 +97,15 @@ class LogInViewController: UIViewController {
         scrollView.addSubview(passwordField)
         scrollView.addSubview(logInBtn)
         scrollView.addSubview(createAccountBtn)
+        scrollView.addSubview(googleSignInButton)
         
         addKeyboardDismissGesture()
+    }
+    
+    deinit {
+        if let observer = logInObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -103,9 +138,14 @@ class LogInViewController: UIViewController {
                                 width: logInbtnWidth,
                                 height: view.height/18)
         
-        createAccountBtn.frame = CGRect(x: 0,
+        googleSignInButton.frame = CGRect(x: (view.width - logInbtnWidth * 0.95 )/2.0 ,
                                         y: logInBtn.bottom + 5,
-                                        width: view.width,
+                                        width: logInbtnWidth * 0.95,
+                                        height: view.height/20)
+        
+        createAccountBtn.frame = CGRect(x: (view.width - logInbtnWidth * 0.95 )/2.0,
+                                        y: googleSignInButton.bottom + 5,
+                                        width: logInbtnWidth * 0.95,
                                         height: 30)
     }
 }
@@ -123,6 +163,10 @@ extension LogInViewController: UITextFieldDelegate {
 }
 
 extension LogInViewController {
+    @objc private func didTapGoogleSignIn() {
+        viewModel.googleSignUser()
+    }
+    
     @objc private func didTapCreateAccount() {
         let vc = RegisterViewController()
         navigationController?.pushViewController(vc, animated: true)

@@ -227,6 +227,7 @@
 				6D186FE02656F60F00CE46D9 /* Frameworks */,
 				6D186FE12656F60F00CE46D9 /* Resources */,
 				8AE6DF991D57290348C38430 /* [CP] Embed Pods Frameworks */,
+				8060FD7774DBB873F26AD610 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -284,6 +285,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		8060FD7774DBB873F26AD610 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SafeMessenger/Pods-SafeMessenger-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SafeMessenger/Pods-SafeMessenger-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SafeMessenger/Pods-SafeMessenger-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		8AE6DF991D57290348C38430 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

@@ -58,3 +58,7 @@ extension UIViewController {
         self.navigationController?.view.backgroundColor = .clear
     }
 }
+
+extension Notification.Name {
+    static let didLogInNotification =  Notification.Name("didLogInNotification")
+}
