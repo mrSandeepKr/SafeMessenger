@@ -23,7 +23,8 @@ class ChatListMultiViewController: UIViewController {
     @IBOutlet weak var hamburgerLeadingConstraint: NSLayoutConstraint!
     
     private lazy var chatListViewController : ChatListViewController = {
-        let viewController = ChatListViewController()
+        let viewController = ChatListViewController(viewModel: ChatListViewModel())
+        viewController.delegate = self
         return viewController
     }()
     
@@ -64,13 +65,24 @@ class ChatListMultiViewController: UIViewController {
                                                    height: view.height - safeAreaTop)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+        view.layoutIfNeeded()
+        hideViewsIfNotLoggedIn()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(false)
         guard viewModel.isLoggedIn else{
             presetLoginScreen()
             return
         }
-        hideViewsIfNotLoggedIn()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        navigationController?.navigationBar.isHidden = false
     }
     
     private func basicSetUp() {
@@ -210,6 +222,13 @@ extension ChatListMultiViewController {
                                })
             }
         }
+    }
+}
+
+extension ChatListMultiViewController: ChatListViewProtocol {
+    func didSelectChatFromChatList(viewData: [String: Any]) {
+        let vc = ChatViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 

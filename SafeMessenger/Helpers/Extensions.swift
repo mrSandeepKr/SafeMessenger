@@ -62,3 +62,9 @@ extension UIViewController {
 extension Notification.Name {
     static let didLogInNotification =  Notification.Name("didLogInNotification")
 }
+
+extension UITableViewCell {
+    static var reusableIdentifier: String {
+        return String(describing: self)
+    }
+}
