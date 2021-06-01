@@ -6,12 +6,15 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 class RegisterViewController: UIViewController {
     
     private var viewModel = RegisterViewModel()
     
     //MARK: Elements
+    private lazy var spinner = JGProgressHUD(style: .dark)
+    
     private lazy var backgroundImage: UIImageView = {
         let backgroundImage = UIImageView(frame: UIScreen.main.bounds)
         
@@ -135,11 +138,13 @@ class RegisterViewController: UIViewController {
 
 extension RegisterViewController {
     @objc private func didTapCreateAccount() {
+        spinner.show(in: view)
         viewModel.handleAccountCreation(firstName: firstName.text,
                                         secondName: secondName.text,
                                         emailAddress: emailField.text,
                                         password: passwordField.text,
                                         verifyPassword: verifyPasswordField.text) { [weak self] msg in
+            self?.spinner.dismiss()
             guard msg.isEmpty else {
                 self?.showAlertWithMessage(msg: msg)
                 return

@@ -7,12 +7,15 @@
 
 import UIKit
 import GoogleSignIn
+import JGProgressHUD
 
 class LogInViewController: UIViewController {
     private let viewModel = LogInViewModel()
     private var logInObserver: NSObjectProtocol?
     
     //MARK: Elements
+    private lazy var spinner = JGProgressHUD(style: .dark)
+    
     private lazy var emailField: RounderCornerTextField = {
         let label = RounderCornerTextField(placeholder: "Enter Email..")
         label.returnKeyType = .next
@@ -178,9 +181,10 @@ extension LogInViewController {
         emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
         
-        //TODO: Move all logic into a View Model
+        self.spinner.show(in: view)
         viewModel.logInUser(with: emailField.text,
                             password: passwordField.text) {[weak self] msg in
+            self?.spinner.dismiss()
             if let alertMsg = msg, !alertMsg.isEmpty {
                 self?.alertForWrongLogin(msg: alertMsg)
                 return
