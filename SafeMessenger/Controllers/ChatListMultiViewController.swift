@@ -42,25 +42,55 @@ class ChatListMultiViewController: UIViewController {
         return imageView
     }()
     
+    private lazy var appTitle: UILabel = {
+        let label = UILabel()
+        label.text = "Safe Messenger"
+        label.font = .systemFont(ofSize: 30, weight: .bold)
+        label.textColor = .label
+        return label
+    }()
+    
+    private lazy var newChatButton: UIImageView = {
+        let imgBtn = UIImageView(image: UIImage(systemName: "square.and.pencil"))
+        imgBtn.contentMode = .scaleAspectFill
+        imgBtn.isUserInteractionEnabled = true
+        imgBtn.addGestureRecognizer(UITapGestureRecognizer(target: self,
+                                                           action: #selector(newChatButtonTapped)))
+        return imgBtn
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         basicSetUp()
         
         view.addSubview(hamburgerBtn)
         view.addSubview(chatListViewController.view)
+        view.addSubview(appTitle)
+        view.addSubview(newChatButton)
         view.bringSubviewToFront(hamburgerSuperView)
         view.bringSubviewToFront(hamburgerViewBackground)
     }
     
     override func viewDidLayoutSubviews() {
+        appTitle.sizeToFit()
         super.viewDidLayoutSubviews()
         let safeAreaTop = view.safeAreaInsets.top
         hamburgerBtn.frame = CGRect(x: 10,
                                     y: safeAreaTop,
                                     width: hamburgerHeight,
                                     height: hamburgerHeight)
+        appTitle.frame = CGRect(x: hamburgerBtn.right + 30,
+                                y: safeAreaTop,
+                                width: appTitle.width,
+                                height: hamburgerHeight)
+        
+        let newChatButtonSize = hamburgerHeight - 13
+        newChatButton.frame = CGRect(x: view.right - 15 - newChatButtonSize,
+                                     y: safeAreaTop + ((hamburgerHeight - newChatButtonSize) / 2.0),
+                                     width: newChatButtonSize,
+                                     height: newChatButtonSize)
         chatListViewController.view.frame = CGRect(x: 0,
-                                                   y: safeAreaTop + hamburgerHeight + 5,
+                                                   y: safeAreaTop + hamburgerHeight + 40,
                                                    width: view.width,
                                                    height: view.height - safeAreaTop)
     }
@@ -101,6 +131,12 @@ class ChatListMultiViewController: UIViewController {
     
     @objc private func singleTapHamburgerBackground() {
         hideHamburgerViewWithAnimation()
+    }
+    
+    @objc private func newChatButtonTapped() {
+        let vc = NewChatViewController()
+        vc.view.backgroundColor = .green
+        navigationController?.present(vc, animated: true)
     }
 }
 

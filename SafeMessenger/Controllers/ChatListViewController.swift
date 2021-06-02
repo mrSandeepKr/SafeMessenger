@@ -10,7 +10,7 @@ import JGProgressHUD
 
 class ChatListViewController: UIViewController {
     private lazy var tableView: UITableView = {
-        let table = UITableView(frame: .zero, style: .grouped)
+        let table = UITableView()
         table.isHidden = true
         return table
     }()
@@ -44,6 +44,7 @@ class ChatListViewController: UIViewController {
                 tableView.isHidden = false
             }
         }
+        view.backgroundColor = .clear
         
         view.addSubview(tableView)
         view.addSubview(noChatsLabel)
@@ -52,12 +53,12 @@ class ChatListViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        tableView.frame = view.bounds
+        tableView.frame = CGRect(x: 0, y: 0, width: view.width, height: view.height)
         //TODO:
+        // Add tableview via anchors could be easier to control.
         // 1. Add the no chats label.
         // 2. Add Spinner for no chats area.
     }
-    
 }
 
 extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -70,6 +71,7 @@ extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         cell.textLabel?.text = "Hi Brooo"
+        cell.accessoryType = .disclosureIndicator
         return cell
     }
     
