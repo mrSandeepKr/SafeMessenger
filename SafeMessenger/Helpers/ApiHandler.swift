@@ -7,6 +7,11 @@
 
 import Foundation
 import FirebaseDatabase
+import FirebaseAuth
+import GoogleSignIn
+
+
+typealias CreateAccountCompletion = (String) -> Void
 
 final class ApiHandler {
     static let shared = ApiHandler()
@@ -14,19 +19,61 @@ final class ApiHandler {
     private let database = Database.database(url: Constants.databaseURL).reference()
     
     static func safeEmail(emailAddress: String) -> String {
-        var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "-")
-        return safeEmail
+        return emailAddress.replacingOccurrences(of: ".", with: "-")
     }
 }
 
 extension ApiHandler {
-    public func insertUser(user: ChatAppUserModel) {
+    /// Adds user's firstName, Second Name to Database
+    public func insertUserToDatabase(user: ChatAppUserModel) {
         database.child(user.safeEmail).setValue([
             Constants.firstName: user.firstName,
             Constants.secondName: user.secondName
         ])
     }
+    
+    func createUserOnFirebase(email: String, pswd: String, completion: @escaping CreateAccountCompletion) {
+        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: pswd) { _, err in
+            guard err == nil else {
+                completion(err!.localizedDescription)
+                return
+            }
+            completion("")
+        }
+    }
+    
+    func fireBaseSignIn(email: String, pswd: String, completion: @escaping (String?) -> Void) {
+        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: pswd) { _, err in
+            guard err == nil else {
+                if err != nil {
+                    completion(err?.localizedDescription)
+                }
+                else {
+                    completion("Something went wrong try Again")
+                }
+                return
+            }
+            completion(nil)
+        }
+    }
+    
+    func signOutUser(completion: (Bool)->()) {
+        do {
+            GIDSignIn.sharedInstance().signOut()
+            try FirebaseAuth.Auth.auth().signOut()
+            completion(true)
+        }
+        catch {
+            completion(false)
+        }
+    }
+    
+    func googleSignInUser() {
+        GIDSignIn.sharedInstance().signIn()
+    }
+}
 
+extension ApiHandler {
     public func userExists(with email: String,
                            completion: @escaping ((Bool) -> Void)) {
         
@@ -36,7 +83,6 @@ extension ApiHandler {
                 completion(false)
                 return
             }
-            
             completion(true)
         })
         

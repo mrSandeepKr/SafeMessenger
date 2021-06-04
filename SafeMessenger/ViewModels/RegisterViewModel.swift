@@ -7,12 +7,10 @@
 
 import Foundation
 import UIKit
-import FirebaseAuth
 
 class RegisterViewModel {
     public let backgroundImage: UIImage?
     public let profileImage: UIImage?
-    typealias CreateAccountCompletion = (String) -> Void
     
     init() {
         let isDarkMode = (UITraitCollection.current.userInterfaceStyle == .dark)
@@ -48,27 +46,27 @@ class RegisterViewModel {
             return
         }
         
-        handleUserCreation(email: email, pswd: pswd) { msg in
+        handleUserCreation(email: email, pswd: pswd,firstName: fn, secondName: sn) { msg in
             if msg.isEmpty {
-                ApiHandler.shared.insertUser(user: ChatAppUserModel(firstName: fn,
-                                                                    secondName: sn,
-                                                                    email:email))
-                completion("")
-                return
+                UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
             }
+            // Return whatever the msg might be
             completion(msg)
         }
     }
     
-    private func handleUserCreation(email: String, pswd: String, completion: @escaping CreateAccountCompletion) {
-        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: pswd) { authResult, err in
-            guard err == nil else {
-                completion(err!.localizedDescription)
-                return
+    private func handleUserCreation(email: String,
+                                    pswd: String,
+                                    firstName: String,
+                                    secondName: String,
+                                    completion: @escaping CreateAccountCompletion) {
+        ApiHandler.shared.createUserOnFirebase(email: email, pswd: pswd) { msg in
+            if msg.isEmpty {
+                ApiHandler.shared.insertUserToDatabase(user: ChatAppUserModel(firstName: firstName,
+                                                                              secondName: secondName,
+                                                                              email:email))
             }
-            
-            UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
-            completion("")
+            completion(msg)
         }
     }
 }

@@ -7,8 +7,6 @@
 
 import Foundation
 import UIKit
-import GoogleSignIn
-import FirebaseAuth
 
 class HamburgerViewModel {
     // MARK: Properties
@@ -21,15 +19,14 @@ class HamburgerViewModel {
     }
     
     public func handleSignOutTapped(completion: (Bool)->()) {
-        
-        GIDSignIn.sharedInstance().signOut()
-        do {
-            try FirebaseAuth.Auth.auth().signOut()
+        ApiHandler.shared.signOutUser { success in
+            guard success else {
+                completion(false)
+                return
+            }
+            
             UserDefaults.standard.setValue(false, forKey: "isLoggedIn")
             completion(true)
-        }
-        catch {
-            completion(false)
         }
     }
 }

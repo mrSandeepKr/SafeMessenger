@@ -57,7 +57,7 @@ class LogInViewController: UIViewController {
         btn.setTitle("Google Sign In", for: .normal)
         btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 40, bottom: 0, right: 0)
         btn.contentHorizontalAlignment = .left
-       
+        
         btn.setImage(UIImage(named: "googleIcon"), for: .normal)
         btn.imageEdgeInsets =  UIEdgeInsets(top: 29.5, left: 30, bottom: 29.5, right: 200)
         
@@ -89,7 +89,10 @@ class LogInViewController: UIViewController {
         GIDSignIn.sharedInstance().presentingViewController = self
         
         logInObserver = NotificationCenter.default.addObserver(forName: .didLogInNotification,
-                                                               object: nil, queue: .main, using: { [weak self] _ in
+                                                               object: nil,
+                                                               queue: .main,
+                                                               using: { [weak self] _ in
+                                                                self?.spinner.dismiss()
                                                                 self?.viewModel.setUserDefaultsForLogin()
                                                                 self?.navigationController?.dismiss(animated: true)
                                                                })
@@ -126,9 +129,9 @@ class LogInViewController: UIViewController {
                                      height: logoSize)
         
         emailField.frame = CGRect(x: view.width/15,
-                                      y: logoImageView.bottom + view.height/10,
-                                      width:  (13.0/15.0) * view.width,
-                                      height: logoSize/3)
+                                  y: logoImageView.bottom + view.height/10,
+                                  width:  (13.0/15.0) * view.width,
+                                  height: logoSize/3)
         
         passwordField.frame = CGRect(x: emailField.left,
                                      y: emailField.bottom + 10,
@@ -142,9 +145,9 @@ class LogInViewController: UIViewController {
                                 height: view.height/18)
         
         googleSignInButton.frame = CGRect(x: (view.width - logInbtnWidth * 0.95 )/2.0 ,
-                                        y: logInBtn.bottom + 5,
-                                        width: logInbtnWidth * 0.95,
-                                        height: view.height/20)
+                                          y: logInBtn.bottom + 5,
+                                          width: logInbtnWidth * 0.95,
+                                          height: view.height/20)
         
         createAccountBtn.frame = CGRect(x: (view.width - logInbtnWidth * 0.95 )/2.0,
                                         y: googleSignInButton.bottom + 5,
@@ -167,6 +170,7 @@ extension LogInViewController: UITextFieldDelegate {
 
 extension LogInViewController {
     @objc private func didTapGoogleSignIn() {
+        spinner.show(in: view)
         viewModel.googleSignUser()
     }
     
