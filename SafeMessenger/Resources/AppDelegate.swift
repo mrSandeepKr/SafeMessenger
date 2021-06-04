@@ -35,6 +35,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
     
+    //FIXME: This whole functions order is to be questioned because of the multiple API calls that are being made
+    // A single failure shall corrupt the DataBase.
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
         guard error == nil else {
             print("AppDelegate: Failed to Sign in with Google with \(String(describing: error))")
@@ -48,36 +50,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             return
         }
         
-        print("AppDelegate: \(firstName) signed In")
+        print("AppDelegate: \(firstName)'s info recieved from Google")
         
         ApiHandler.shared.userExists(with: email) { exists in
             if !exists {
                 let userInfo = ChatAppUserModel(firstName: firstName,
                                                 secondName: secondName ,
                                                 email: email)
-                ApiHandler.shared.insertUserToDatabase(user: userInfo) { success in
+                ApiHandler.shared.insertUserToDatabase(user: userInfo) {[weak self] success in
                     if success {
+                        let fileName = userInfo.profileImageString
                         guard user.profile.hasImage, let url = user.profile.imageURL(withDimension: 200)
                         else {
                             print("AppDelegate: Google doens't have user profile Image")
+                            let data = UIImage(named: "personPlaceholder")?.pngData()
+                            self?.uploadImage(with: data!, fileName: fileName)
                             return
                         }
                         
-                        URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, err in
+                        URLSession.shared.dataTask(with: URLRequest(url: url)) {[weak self] data, _, err in
                             guard err == nil, let data = data else {
                                 return
                             }
                             print("AppDelegate: Fetched Google Profile Image")
-                            let fileName = userInfo.profileImageString
-                            StorageManager.shared.uploadProfileImage(with: data, fileName: fileName) { res in
-                                switch res {
-                                case .success(let downloadURL) :
-                                    UserDefaults.standard.setValue(downloadURL, forKey: Constants.profileImageUrl)
-                                    break
-                                case .failure(_) :
-                                    break
-                                }
-                            }
+                            self?.uploadImage(with: data, fileName: fileName)
                         }.resume()
                     }
                 }
@@ -98,6 +94,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                 return
             }
             print("AppDelegat: Successful Sign In")
+            UserDefaults.standard.setValue(email, forKey: UserDefaultConstant.userEmail)
             NotificationCenter.default.post(name: .didLogInNotification, object: nil)
         }
     }
@@ -108,5 +105,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     
     func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
         return GIDSignIn.sharedInstance().handle(url)
+    }
+}
+
+extension AppDelegate {
+    private func uploadImage(with data: Data,fileName: String) {
+        StorageManager.shared.uploadProfileImage(with: data, fileName: fileName) { res in
+            switch res {
+            case .success(let downloadURL) :
+                UserDefaults.standard.setValue(downloadURL, forKey: UserDefaultConstant.profileImageUrl)
+                break
+            case .failure(_) :
+                break
+            }
+        }
     }
 }

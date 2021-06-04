@@ -18,6 +18,11 @@ class HamburgerViewModel {
         hamburgerBackground = UIImage(named: "hamburgerBackground")!
     }
     
+    func updateImageView(for imageView:UIImageView) {
+        StorageManager.shared.downloadImageURLandUpdateView(for: imageView,
+                                                            path: StorageManager.profileImagePath)
+    }
+    
     public func handleSignOutTapped(completion: (Bool)->()) {
         ApiHandler.shared.signOutUser { success in
             guard success else {
@@ -25,7 +30,7 @@ class HamburgerViewModel {
                 return
             }
             
-            UserDefaults.standard.setValue(false, forKey: "isLoggedIn")
+            UserDefaults.standard.setValue(false, forKey: UserDefaultConstant.isLoggedIn)
             completion(true)
         }
     }

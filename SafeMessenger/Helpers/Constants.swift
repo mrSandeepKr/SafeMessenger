@@ -14,5 +14,10 @@ class URLStrings {
 class Constants {
     static let firstName = "firstName"
     static let secondName = "secondName"
+}
+
+class UserDefaultConstant {
+    static let isLoggedIn = "isLoggedIn"
     static let profileImageUrl = "profileImageUrl"
+    static let userEmail = "email"
 }

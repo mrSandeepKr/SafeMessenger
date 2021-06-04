@@ -27,7 +27,7 @@ class LogInViewModel {
     }
     
     func setUserDefaultsForLogin() {
-        UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
+        UserDefaults.standard.setValue(true, forKey: UserDefaultConstant.isLoggedIn)
     }
     
     func googleSignUser() {

@@ -51,7 +51,7 @@ class RegisterViewModel {
         
         handleUserCreation(email: email, pswd: pswd,firstName: fn, secondName: sn, profileImageData: data) { msg in
             if msg.isEmpty {
-                UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
+                UserDefaults.standard.setValue(true, forKey: UserDefaultConstant.isLoggedIn)
             }
             // Return whatever the msg might be
             completion(msg)
@@ -84,7 +84,7 @@ class RegisterViewModel {
                                                          fileName: userInfo.profileImageString) { res in
                     switch res {
                     case .success(let downloadUrl):
-                        UserDefaults.standard.setValue(downloadUrl, forKey: Constants.profileImageUrl)
+                        UserDefaults.standard.setValue(downloadUrl, forKey: UserDefaultConstant.profileImageUrl)
                         completion("")
                     case .failure(_):
                         completion("Oops!! Failed to upload your profile Image to Database")

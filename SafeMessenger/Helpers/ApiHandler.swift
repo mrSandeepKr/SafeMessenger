@@ -46,6 +46,7 @@ extension ApiHandler {
                 completion(err!.localizedDescription)
                 return
             }
+            UserDefaults.standard.setValue(email, forKey: UserDefaultConstant.userEmail)
             completion("")
         }
     }
@@ -61,6 +62,7 @@ extension ApiHandler {
                 }
                 return
             }
+            UserDefaults.standard.setValue(email, forKey: UserDefaultConstant.userEmail)
             completion(nil)
         }
     }
@@ -69,6 +71,7 @@ extension ApiHandler {
         do {
             GIDSignIn.sharedInstance().signOut()
             try FirebaseAuth.Auth.auth().signOut()
+            resetUserDefaults()
             completion(true)
         }
         catch {
@@ -84,8 +87,8 @@ extension ApiHandler {
 extension ApiHandler {
     public func userExists(with email: String,
                            completion: @escaping ((Bool) -> Void)) {
-        
         let safeEmail = ApiHandler.safeEmail(emailAddress: email)
+        
         database.child(safeEmail).observeSingleEvent(of: .value, with: { snapshot in
             guard snapshot.value as? [String: Any] != nil else {
                 completion(false)
@@ -93,6 +96,13 @@ extension ApiHandler {
             }
             completion(true)
         })
-        
+    }
+    
+    private func resetUserDefaults() {
+        let defaults = UserDefaults.standard
+            let dictionary = defaults.dictionaryRepresentation()
+            dictionary.keys.forEach { key in
+                defaults.removeObject(forKey: key)
+            }
     }
 }

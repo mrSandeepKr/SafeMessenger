@@ -32,6 +32,7 @@ class HamburgerViewController: UIViewController {
         view.alpha = 0.99
         view.backgroundColor = UIColor(patternImage: viewModel.hamburgerBackground)
         
+        viewModel.updateImageView(for: imageView)
         view.addSubview(imageView)
         view.addSubview(signOutBtn)
     }
