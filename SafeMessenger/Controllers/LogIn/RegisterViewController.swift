@@ -143,7 +143,8 @@ extension RegisterViewController {
                                         secondName: secondName.text,
                                         emailAddress: emailField.text,
                                         password: passwordField.text,
-                                        verifyPassword: verifyPasswordField.text) { [weak self] msg in
+                                        verifyPassword: verifyPasswordField.text,
+                                        profileImage: profileImage.image) { [weak self] msg in
             self?.spinner.dismiss()
             guard msg.isEmpty else {
                 self?.showAlertWithMessage(msg: msg)

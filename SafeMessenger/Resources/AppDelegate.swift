@@ -52,9 +52,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         
         ApiHandler.shared.userExists(with: email) { exists in
             if !exists {
-                ApiHandler.shared.insertUserToDatabase(user: ChatAppUserModel(firstName: firstName,
-                                                                              secondName: secondName ,
-                                                                              email: email))
+                let userInfo = ChatAppUserModel(firstName: firstName,
+                                                secondName: secondName ,
+                                                email: email)
+                ApiHandler.shared.insertUserToDatabase(user: userInfo) { success in
+                    if success {
+                        guard user.profile.hasImage, let url = user.profile.imageURL(withDimension: 200)
+                        else {
+                            print("AppDelegate: Google doens't have user profile Image")
+                            return
+                        }
+                        
+                        URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, err in
+                            guard err == nil, let data = data else {
+                                return
+                            }
+                            print("AppDelegate: Fetched Google Profile Image")
+                            let fileName = userInfo.profileImageString
+                            StorageManager.shared.uploadProfileImage(with: data, fileName: fileName) { res in
+                                switch res {
+                                case .success(let downloadURL) :
+                                    UserDefaults.standard.setValue(downloadURL, forKey: Constants.profileImageUrl)
+                                    break
+                                case .failure(_) :
+                                    break
+                                }
+                            }
+                        }.resume()
+                    }
+                }
             }
         }
         

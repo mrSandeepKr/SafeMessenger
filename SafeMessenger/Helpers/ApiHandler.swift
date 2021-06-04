@@ -16,7 +16,7 @@ typealias CreateAccountCompletion = (String) -> Void
 final class ApiHandler {
     static let shared = ApiHandler()
     
-    private let database = Database.database(url: Constants.databaseURL).reference()
+    private let database = Database.database(url: URLStrings.databaseURL).reference()
     
     static func safeEmail(emailAddress: String) -> String {
         return emailAddress.replacingOccurrences(of: ".", with: "-")
@@ -25,11 +25,19 @@ final class ApiHandler {
 
 extension ApiHandler {
     /// Adds user's firstName, Second Name to Database
-    public func insertUserToDatabase(user: ChatAppUserModel) {
+    public func insertUserToDatabase(user: ChatAppUserModel, completion: @escaping (Bool) -> Void) {
         database.child(user.safeEmail).setValue([
             Constants.firstName: user.firstName,
             Constants.secondName: user.secondName
-        ])
+        ]) { err, _ in
+            guard err == nil else {
+                print("ApiHandler: User insertion to database Failed")
+                completion(false)
+                return
+            }
+            print("ApiHandler: User insertion to database Success")
+            completion(true)
+        }
     }
     
     func createUserOnFirebase(email: String, pswd: String, completion: @escaping CreateAccountCompletion) {

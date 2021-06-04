@@ -22,13 +22,16 @@ class RegisterViewModel {
                                       secondName: String?,
                                       emailAddress: String?,
                                       password: String?,
-                                      verifyPassword:String?,
+                                      verifyPassword: String?,
+                                      profileImage: UIImage?,
                                       completion: @escaping  CreateAccountCompletion) {
         var msg = ""
         guard let fn = firstName?.trimmingCharacters(in: .whitespaces),
               let sn = secondName?.trimmingCharacters(in: .whitespaces),
               let email = emailAddress?.trimmingCharacters(in: .whitespaces),
               let pswd = password, let vpswd = verifyPassword,
+              let image = profileImage,
+              let data = image.pngData(),
               !fn.isEmpty, !sn.isEmpty, !email.isEmpty, !pswd.isEmpty, !vpswd.isEmpty
         else {
             msg = "Non of the fields should be empty"
@@ -46,7 +49,7 @@ class RegisterViewModel {
             return
         }
         
-        handleUserCreation(email: email, pswd: pswd,firstName: fn, secondName: sn) { msg in
+        handleUserCreation(email: email, pswd: pswd,firstName: fn, secondName: sn, profileImageData: data) { msg in
             if msg.isEmpty {
                 UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
             }
@@ -59,14 +62,36 @@ class RegisterViewModel {
                                     pswd: String,
                                     firstName: String,
                                     secondName: String,
+                                    profileImageData: Data,
                                     completion: @escaping CreateAccountCompletion) {
         ApiHandler.shared.createUserOnFirebase(email: email, pswd: pswd) { msg in
-            if msg.isEmpty {
-                ApiHandler.shared.insertUserToDatabase(user: ChatAppUserModel(firstName: firstName,
-                                                                              secondName: secondName,
-                                                                              email:email))
+            guard msg.isEmpty else {
+                completion(msg)
+                return
             }
-            completion(msg)
+            print("RegisterViewModel: Firebase user Creation was a success")
+            let userInfo = ChatAppUserModel(firstName: firstName,
+                                            secondName: secondName,
+                                            email:email)
+            ApiHandler.shared.insertUserToDatabase(user: userInfo) { success in
+                guard success else {
+                    completion("Oops!! Failed to add user Info to Database Try Again.")
+                    // TODO: add a call to remove user form database
+                    return
+                }
+                print("RegisterViewModel: Added User Info to Database")
+                StorageManager.shared.uploadProfileImage(with: profileImageData,
+                                                         fileName: userInfo.profileImageString) { res in
+                    switch res {
+                    case .success(let downloadUrl):
+                        UserDefaults.standard.setValue(downloadUrl, forKey: Constants.profileImageUrl)
+                        completion("")
+                    case .failure(_):
+                        completion("Oops!! Failed to upload your profile Image to Database")
+                    // TODO: add a call to remove user form database
+                    }
+                }
+            }
         }
     }
 }
