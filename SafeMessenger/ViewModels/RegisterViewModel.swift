@@ -7,30 +7,32 @@
 
 import Foundation
 import UIKit
-import FirebaseAuth
 
 class RegisterViewModel {
-    public let backgroundImage: UIImage?
-    public let profileImage: UIImage?
-    typealias CreateAccountCompletion = (String) -> Void
+    var backgroundImageName: String?
+    var profileImageName: String?
     
     init() {
         let isDarkMode = (UITraitCollection.current.userInterfaceStyle == .dark)
-        backgroundImage = isDarkMode  ? UIImage(named: "registerBackgroundDark"): UIImage(named: "registerBackground")
-        profileImage = UIImage(named: "personPlaceholder")
+        backgroundImageName = isDarkMode  ? "registerBackgroundDark": "registerBackground"
+        profileImageName = "personPlaceholder"
     }
     
+    ///
     public func handleAccountCreation(firstName: String?,
                                       secondName: String?,
                                       emailAddress: String?,
                                       password: String?,
-                                      verifyPassword:String?,
+                                      verifyPassword: String?,
+                                      profileImage: UIImage?,
                                       completion: @escaping  CreateAccountCompletion) {
         var msg = ""
         guard let fn = firstName?.trimmingCharacters(in: .whitespaces),
               let sn = secondName?.trimmingCharacters(in: .whitespaces),
               let email = emailAddress?.trimmingCharacters(in: .whitespaces),
               let pswd = password, let vpswd = verifyPassword,
+              let image = profileImage,
+              let data = image.pngData(),
               !fn.isEmpty, !sn.isEmpty, !email.isEmpty, !pswd.isEmpty, !vpswd.isEmpty
         else {
             msg = "Non of the fields should be empty"
@@ -48,27 +50,51 @@ class RegisterViewModel {
             return
         }
         
-        handleUserCreation(email: email, pswd: pswd) { msg in
+        handleUserCreation(email: email, pswd: pswd,firstName: fn, secondName: sn, profileImageData: data) { msg in
             if msg.isEmpty {
-                ApiHandler.shared.insertUser(user: ChatAppUserModel(firstName: fn,
-                                                                    secondName: sn,
-                                                                    email:email))
-                completion("")
-                return
+                UserDefaults.standard.setValue(true, forKey: UserDefaultConstant.isLoggedIn)
             }
+            // Return whatever the msg might be
             completion(msg)
         }
     }
-    
-    private func handleUserCreation(email: String, pswd: String, completion: @escaping CreateAccountCompletion) {
-        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: pswd) { authResult, err in
-            guard err == nil else {
-                completion(err!.localizedDescription)
+}
+
+extension RegisterViewModel {
+    private func handleUserCreation(email: String,
+                                    pswd: String,
+                                    firstName: String,
+                                    secondName: String,
+                                    profileImageData: Data,
+                                    completion: @escaping CreateAccountCompletion) {
+        ApiHandler.shared.createUserOnFirebase(email: email, pswd: pswd) { msg in
+            guard msg.isEmpty else {
+                completion(msg)
                 return
             }
-            
-            UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
-            completion("")
+            print("RegisterViewModel: Firebase user Creation was a success")
+            let userInfo = ChatAppUserModel(firstName: firstName,
+                                            secondName: secondName,
+                                            email:email)
+            ApiHandler.shared.insertUserToDatabase(user: userInfo) { success in
+                guard success else {
+                    completion("Oops!! Failed to add user Info to Database Try Again.")
+                    // TODO: add a call to remove user form database
+                    return
+                }
+                print("RegisterViewModel: Added User Info to Database")
+                StorageManager.shared.uploadProfileImage(with: profileImageData,
+                                                         fileName: userInfo.profileImageString) { res in
+                    switch res {
+                    case .success(let downloadUrl):
+                        UserDefaults.standard.setValue(downloadUrl, forKey: UserDefaultConstant.profileImageUrl)
+                        completion("")
+                    case .failure(_):
+                        completion("Oops!! Failed to upload your profile Image to Database")
+                    // TODO: add a call to remove user form database
+                    }
+                }
+            }
         }
     }
 }

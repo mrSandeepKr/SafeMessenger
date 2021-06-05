@@ -23,13 +23,14 @@ class ChatListMultiViewController: UIViewController {
     @IBOutlet weak var hamburgerLeadingConstraint: NSLayoutConstraint!
     
     private lazy var chatListViewController : ChatListViewController = {
-        let viewController = ChatListViewController()
+        let viewController = ChatListViewController(viewModel: ChatListViewModel())
+        viewController.delegate = self
         return viewController
     }()
     
     private lazy var hamburgerBtn: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "personPlaceholder")
+        imageView.image = UIImage(named: viewModel.hamburgerBtnImagePlaceholder!)
         imageView.contentMode = .scaleAspectFill
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = hamburgerHeight / 2
@@ -41,27 +42,65 @@ class ChatListMultiViewController: UIViewController {
         return imageView
     }()
     
+    private lazy var appTitle: UILabel = {
+        let label = UILabel()
+        label.text = "Safe Messenger"
+        label.font = .systemFont(ofSize: 30, weight: .bold)
+        label.textColor = .label
+        return label
+    }()
+    
+    private lazy var newChatButton: UIImageView = {
+        let imgBtn = UIImageView(image: UIImage(systemName: "square.and.pencil"))
+        imgBtn.contentMode = .scaleAspectFill
+        imgBtn.isUserInteractionEnabled = true
+        imgBtn.addGestureRecognizer(UITapGestureRecognizer(target: self,
+                                                           action: #selector(newChatButtonTapped)))
+        return imgBtn
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         basicSetUp()
         
         view.addSubview(hamburgerBtn)
         view.addSubview(chatListViewController.view)
+        view.addSubview(appTitle)
+        view.addSubview(newChatButton)
+        
         view.bringSubviewToFront(hamburgerSuperView)
         view.bringSubviewToFront(hamburgerViewBackground)
     }
     
     override func viewDidLayoutSubviews() {
+        appTitle.sizeToFit()
         super.viewDidLayoutSubviews()
         let safeAreaTop = view.safeAreaInsets.top
         hamburgerBtn.frame = CGRect(x: 10,
                                     y: safeAreaTop,
                                     width: hamburgerHeight,
                                     height: hamburgerHeight)
+        appTitle.frame = CGRect(x: hamburgerBtn.right + 30,
+                                y: safeAreaTop,
+                                width: appTitle.width,
+                                height: hamburgerHeight)
+        
+        let newChatButtonSize = hamburgerHeight - 13
+        newChatButton.frame = CGRect(x: view.right - 15 - newChatButtonSize,
+                                     y: safeAreaTop + ((hamburgerHeight - newChatButtonSize) / 2.0),
+                                     width: newChatButtonSize,
+                                     height: newChatButtonSize)
         chatListViewController.view.frame = CGRect(x: 0,
-                                                   y: safeAreaTop + hamburgerHeight + 5,
+                                                   y: safeAreaTop + hamburgerHeight + 40,
                                                    width: view.width,
                                                    height: view.height - safeAreaTop)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+        view.layoutIfNeeded()
+        updateViewForLogginIn()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -70,11 +109,19 @@ class ChatListMultiViewController: UIViewController {
             presetLoginScreen()
             return
         }
-        hideViewsIfNotLoggedIn()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        navigationController?.navigationBar.isHidden = false
     }
     
     private func basicSetUp() {
-        hideViewsIfNotLoggedIn()
+        updateViewForLogginIn()
+        if viewModel.isLoggedIn {
+            viewModel.updateHamburgerBtnImageView(for: hamburgerBtn)
+        }
+        
         navigationController?.navigationBar.isHidden = true
         hamburgerWidth.constant = view.width * 0.75
         hamburgerLeadingConstraint.constant = -1 * hamburgerWidth.constant
@@ -90,6 +137,13 @@ class ChatListMultiViewController: UIViewController {
     @objc private func singleTapHamburgerBackground() {
         hideHamburgerViewWithAnimation()
     }
+    
+    @objc private func newChatButtonTapped() {
+        let vc = NewChatViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        vc.view.backgroundColor = .green
+        navigationController?.present(nav, animated: true)
+    }
 }
 
 //MARK: Login & Hamburger Helpers
@@ -103,8 +157,11 @@ extension ChatListMultiViewController {
         self.present(nav, animated: true)
     }
     
-    private func hideViewsIfNotLoggedIn() {
+    private func updateViewForLogginIn() {
         let isHidden = !viewModel.isLoggedIn
+        if isHidden {
+            viewModel.updateHamburgerBtnImageView(for: hamburgerBtn)
+        }
         hamburgerBtn.isHidden = isHidden
         chatListViewController.view.isHidden = isHidden
     }
@@ -210,6 +267,13 @@ extension ChatListMultiViewController {
                                })
             }
         }
+    }
+}
+
+extension ChatListMultiViewController: ChatListViewProtocol {
+    func didSelectChatFromChatList(viewData: [String: Any]) {
+        let vc = ChatViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 

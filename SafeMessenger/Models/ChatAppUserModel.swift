@@ -15,4 +15,8 @@ struct ChatAppUserModel {
     var safeEmail: String {
         return (email.replacingOccurrences(of: ".", with: "-"))
     }
+    
+    var profileImageString: String {
+        return "\(safeEmail)_profile_image.png"
+    }
 }

@@ -7,29 +7,31 @@
 
 import Foundation
 import UIKit
-import GoogleSignIn
-import FirebaseAuth
 
 class HamburgerViewModel {
     // MARK: Properties
-    public var profileImage: UIImage?
-    public var hamburgerBackground: UIImage
+    var profileImageName: String?
+    var hamburgerBackgroundImageName: String?
     
     init() {
-        profileImage = UIImage(named: "personPlaceholder")
-        hamburgerBackground = UIImage(named: "hamburgerBackground")!
+        profileImageName = "personPlaceholder"
+        hamburgerBackgroundImageName = "hamburgerBackground"
+    }
+    
+    func updateProfileImageView(for imageView:UIImageView) {
+        StorageManager.shared.downloadImageURLandUpdateView(for: imageView,
+                                                            path: StorageManager.profileImagePath)
     }
     
     public func handleSignOutTapped(completion: (Bool)->()) {
-        
-        GIDSignIn.sharedInstance().signOut()
-        do {
-            try FirebaseAuth.Auth.auth().signOut()
-            UserDefaults.standard.setValue(false, forKey: "isLoggedIn")
+        ApiHandler.shared.signOutUser { success in
+            guard success else {
+                completion(false)
+                return
+            }
+            
+            UserDefaults.standard.setValue(false, forKey: UserDefaultConstant.isLoggedIn)
             completion(true)
-        }
-        catch {
-            completion(false)
         }
     }
 }

@@ -18,13 +18,13 @@ class RegisterViewController: UIViewController {
     private lazy var backgroundImage: UIImageView = {
         let backgroundImage = UIImageView(frame: UIScreen.main.bounds)
         
-        backgroundImage.image = viewModel.backgroundImage
+        backgroundImage.image =  UIImage(named: viewModel.backgroundImageName!)
         backgroundImage.contentMode = UIView.ContentMode.scaleAspectFill
         return backgroundImage
     }()
     
     private lazy var profileImage: UIImageView = {
-        let imageView = UIImageView(image: viewModel.profileImage)
+        let imageView = UIImageView(image: UIImage(named: viewModel.profileImageName!))
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = view.width/6
         imageView.layer.masksToBounds = true
@@ -143,7 +143,8 @@ extension RegisterViewController {
                                         secondName: secondName.text,
                                         emailAddress: emailField.text,
                                         password: passwordField.text,
-                                        verifyPassword: verifyPasswordField.text) { [weak self] msg in
+                                        verifyPassword: verifyPasswordField.text,
+                                        profileImage: profileImage.image) { [weak self] msg in
             self?.spinner.dismiss()
             guard msg.isEmpty else {
                 self?.showAlertWithMessage(msg: msg)

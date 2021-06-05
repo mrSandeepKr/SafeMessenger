@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import FirebaseAuth
-import GoogleSignIn
 
 class LogInViewModel {
     public func logInUser(with email:String?, password: String?,completion: @escaping (String?)->Void) {
@@ -18,27 +16,21 @@ class LogInViewModel {
             return
         }
         
-        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: pswd) {[weak self] res, err in
-            guard err == nil else {
-                if err != nil {
-                    completion(err?.localizedDescription)
-                }
-                else {
-                    completion("Something went wrong try Again")
-                }
+        ApiHandler.shared.fireBaseSignIn(email: email, pswd: pswd) {[weak self] msg in
+            guard msg == nil else {
+                completion(msg)
                 return
             }
-            
             self?.setUserDefaultsForLogin()
             completion(nil)
         }
     }
     
     func setUserDefaultsForLogin() {
-        UserDefaults.standard.setValue(true, forKey: "isLoggedIn")
+        UserDefaults.standard.setValue(true, forKey: UserDefaultConstant.isLoggedIn)
     }
     
     func googleSignUser() {
-        GIDSignIn.sharedInstance().signIn()
+        ApiHandler.shared.googleSignInUser()
     }
 }
