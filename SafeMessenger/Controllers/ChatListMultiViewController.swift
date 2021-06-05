@@ -30,7 +30,7 @@ class ChatListMultiViewController: UIViewController {
     
     private lazy var hamburgerBtn: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "personPlaceholder")
+        imageView.image = UIImage(named: viewModel.hamburgerBtnImagePlaceholder!)
         imageView.contentMode = .scaleAspectFill
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = hamburgerHeight / 2
@@ -67,6 +67,7 @@ class ChatListMultiViewController: UIViewController {
         view.addSubview(chatListViewController.view)
         view.addSubview(appTitle)
         view.addSubview(newChatButton)
+        
         view.bringSubviewToFront(hamburgerSuperView)
         view.bringSubviewToFront(hamburgerViewBackground)
     }
@@ -99,7 +100,7 @@ class ChatListMultiViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
         view.layoutIfNeeded()
-        hideViewsIfNotLoggedIn()
+        updateViewForLogginIn()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -116,7 +117,11 @@ class ChatListMultiViewController: UIViewController {
     }
     
     private func basicSetUp() {
-        hideViewsIfNotLoggedIn()
+        updateViewForLogginIn()
+        if viewModel.isLoggedIn {
+            viewModel.updateHamburgerBtnImageView(for: hamburgerBtn)
+        }
+        
         navigationController?.navigationBar.isHidden = true
         hamburgerWidth.constant = view.width * 0.75
         hamburgerLeadingConstraint.constant = -1 * hamburgerWidth.constant
@@ -152,8 +157,11 @@ extension ChatListMultiViewController {
         self.present(nav, animated: true)
     }
     
-    private func hideViewsIfNotLoggedIn() {
+    private func updateViewForLogginIn() {
         let isHidden = !viewModel.isLoggedIn
+        if isHidden {
+            viewModel.updateHamburgerBtnImageView(for: hamburgerBtn)
+        }
         hamburgerBtn.isHidden = isHidden
         chatListViewController.view.isHidden = isHidden
     }

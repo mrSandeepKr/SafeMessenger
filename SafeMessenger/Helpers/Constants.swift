@@ -14,6 +14,8 @@ class URLStrings {
 class Constants {
     static let firstName = "firstName"
     static let secondName = "secondName"
+    static let email = "email"
+    static let name = "name"
 }
 
 class UserDefaultConstant {

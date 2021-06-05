@@ -28,15 +28,21 @@ final class StorageManager {
     }
     
     static func profileImageFilename(for safeEmail: String) -> String {
+        if safeEmail.isEmpty {
+            return ""
+        }
         return "\(safeEmail)_profile_image.png"
     }
     
     static func profileImageRefPath(fileName: String) -> String {
+        if fileName.isEmpty {
+            return ""
+        }
         return "images/\(fileName)"
     }
     
     static var profileImagePath : String {
-        let email: String = UserDefaults.standard.value(forKey: UserDefaultConstant.userEmail) as! String
+        let email: String = (UserDefaults.standard.value(forKey: UserDefaultConstant.userEmail) ?? "") as! String
         let safeEmail = StorageManager.safeEmail(for: email)
         let fileName = StorageManager.profileImageFilename(for: safeEmail)
         let path = StorageManager.profileImageRefPath(fileName: fileName)
@@ -77,6 +83,10 @@ extension StorageManager {
     }
     
     public func downloadImageURLandUpdateView(for imageView: UIImageView, path: String ) {
+        if path.isEmpty {
+            return
+        }
+        
         downloadURL(for: path) { res in
             switch res {
             case .success(let url):

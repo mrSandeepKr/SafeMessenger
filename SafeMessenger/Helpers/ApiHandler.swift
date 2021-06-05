@@ -21,6 +21,7 @@ final class ApiHandler {
     static func safeEmail(emailAddress: String) -> String {
         return emailAddress.replacingOccurrences(of: ".", with: "-")
     }
+    let DBUserPath: String = "users"
 }
 
 extension ApiHandler {
@@ -29,14 +30,57 @@ extension ApiHandler {
         database.child(user.safeEmail).setValue([
             Constants.firstName: user.firstName,
             Constants.secondName: user.secondName
-        ]) { err, _ in
+        ]) { [weak self] err, _ in
             guard err == nil else {
                 print("ApiHandler: User insertion to database Failed")
                 completion(false)
                 return
             }
             print("ApiHandler: User insertion to database Success")
-            completion(true)
+            self?.insertUserToUserArray(user: user, completion: completion)
+        }
+    }
+    
+    /// Add user Info to user Array, This is required to enable the user search.
+    /// User Array ->
+    /// [
+    ///     [
+    ///     name : "SK",
+    ///     email : "sk@gmail.com"
+    ///     ]
+    /// ]
+    public func insertUserToUserArray(user: ChatAppUserModel, completion: @escaping (Bool) -> Void ) {
+        self.database.child(DBUserPath).observeSingleEvent(of: .value) {[weak self] snapshot in
+            guard let strongSelf = self else {
+                completion(false)
+                return
+            }
+            let newElement = [
+                Constants.name: user.firstName + " " + user.secondName,
+                Constants.email: user.email
+            ]
+            
+            var collections = [[String:String]]()
+            
+            if var userCollection = snapshot.value as? [[String: String]] {
+                // Append to users Array
+                userCollection.append(newElement)
+                collections = userCollection
+            }
+            else {
+                // create the user Array
+                collections = [newElement]
+            }
+            
+            strongSelf.database.child(strongSelf.DBUserPath).setValue(collections) { err, _ in
+                guard err == nil else {
+                    print("ApiHandler: User insertion to Users Array Failed")
+                    completion(false)
+                    return
+                }
+                print("ApiHandler: User insertion to Users Array Success")
+                completion(true)
+            }
         }
     }
     

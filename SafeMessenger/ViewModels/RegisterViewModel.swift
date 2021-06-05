@@ -9,15 +9,16 @@ import Foundation
 import UIKit
 
 class RegisterViewModel {
-    public let backgroundImage: UIImage?
-    public let profileImage: UIImage?
+    var backgroundImageName: String?
+    var profileImageName: String?
     
     init() {
         let isDarkMode = (UITraitCollection.current.userInterfaceStyle == .dark)
-        backgroundImage = isDarkMode  ? UIImage(named: "registerBackgroundDark"): UIImage(named: "registerBackground")
-        profileImage = UIImage(named: "personPlaceholder")
+        backgroundImageName = isDarkMode  ? "registerBackgroundDark": "registerBackground"
+        profileImageName = "personPlaceholder"
     }
     
+    ///
     public func handleAccountCreation(firstName: String?,
                                       secondName: String?,
                                       emailAddress: String?,
@@ -57,7 +58,9 @@ class RegisterViewModel {
             completion(msg)
         }
     }
-    
+}
+
+extension RegisterViewModel {
     private func handleUserCreation(email: String,
                                     pswd: String,
                                     firstName: String,

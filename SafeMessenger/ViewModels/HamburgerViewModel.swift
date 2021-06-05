@@ -10,15 +10,15 @@ import UIKit
 
 class HamburgerViewModel {
     // MARK: Properties
-    public var profileImage: UIImage?
-    public var hamburgerBackground: UIImage
+    var profileImageName: String?
+    var hamburgerBackgroundImageName: String?
     
     init() {
-        profileImage = UIImage(named: "personPlaceholder")
-        hamburgerBackground = UIImage(named: "hamburgerBackground")!
+        profileImageName = "personPlaceholder"
+        hamburgerBackgroundImageName = "hamburgerBackground"
     }
     
-    func updateImageView(for imageView:UIImageView) {
+    func updateProfileImageView(for imageView:UIImageView) {
         StorageManager.shared.downloadImageURLandUpdateView(for: imageView,
                                                             path: StorageManager.profileImagePath)
     }

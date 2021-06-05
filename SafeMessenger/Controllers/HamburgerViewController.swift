@@ -11,7 +11,8 @@ class HamburgerViewController: UIViewController {
     private var viewModel = HamburgerViewModel()
     
     private lazy var imageView : UIImageView = {
-        let imageView = UIImageView(image: viewModel.profileImage)
+        let image = UIImage(named: viewModel.profileImageName!)
+        let imageView = UIImageView(image: image)
         imageView.layer.masksToBounds = true
         imageView.contentMode = .scaleAspectFill
         return imageView
@@ -30,9 +31,9 @@ class HamburgerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.alpha = 0.99
-        view.backgroundColor = UIColor(patternImage: viewModel.hamburgerBackground)
+        view.backgroundColor = UIColor(patternImage: UIImage(named: viewModel.hamburgerBackgroundImageName!)!)
         
-        viewModel.updateImageView(for: imageView)
+        viewModel.updateProfileImageView(for: imageView)
         view.addSubview(imageView)
         view.addSubview(signOutBtn)
     }
