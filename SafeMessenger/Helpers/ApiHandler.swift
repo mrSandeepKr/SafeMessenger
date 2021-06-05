@@ -133,9 +133,11 @@ extension ApiHandler {
     func fetchAllUsers(completion: @escaping FetchAllUsersCompletion) {
         database.child(DBUserPath).observeSingleEvent(of: .value) { snapshot in
             guard let value = snapshot.value as? UsersList else {
+                print("ApiHandler: Fetch All users Failed")
                 completion(.failure(ApiHandlerErrors.fetchAllUsersFailed))
                 return
             }
+            print("ApiHandler: Fetch All users Success")
             completion(.success(value))
         }
     }

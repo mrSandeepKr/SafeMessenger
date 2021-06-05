@@ -139,7 +139,8 @@ class ChatListMultiViewController: UIViewController {
     }
     
     @objc private func newChatButtonTapped() {
-        let vc = NewChatViewController(viewModel: NewChatViewModel())
+        let vc = SearchUserViewController(viewModel: SearchUserViewModel())
+        vc.delegate = self
         let nav = UINavigationController(rootViewController: vc)
         navigationController?.present(nav, animated: true)
     }
@@ -271,7 +272,19 @@ extension ChatListMultiViewController {
 
 extension ChatListMultiViewController: ChatListViewProtocol {
     func didSelectChatFromChatList(viewData: [String: Any]) {
-        let vc = ChatViewController()
+        let vc = ChatViewController(memberEmail: "asad", memberName: "asad")
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+extension ChatListMultiViewController: SearchUserViewProtocol {
+    func openChatForUser(user: User) {
+        guard let memberName = user[Constants.name], let memberEmail = user[Constants.email] else {
+            return
+        }
+        let vc = ChatViewController(memberEmail: memberEmail, memberName: memberName)
+        vc.title = user[Constants.name]
+        vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }
 }
