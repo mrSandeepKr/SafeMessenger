@@ -10,8 +10,9 @@ import FirebaseDatabase
 import FirebaseAuth
 import GoogleSignIn
 
-
-typealias CreateAccountCompletion = (String) -> Void
+public enum ApiHandlerErrors: Error {
+    case fetchAllUsersFailed
+}
 
 final class ApiHandler {
     static let shared = ApiHandler()
@@ -125,6 +126,18 @@ extension ApiHandler {
     
     func googleSignInUser() {
         GIDSignIn.sharedInstance().signIn()
+    }
+}
+
+extension ApiHandler {
+    func fetchAllUsers(completion: @escaping FetchAllUsersCompletion) {
+        database.child(DBUserPath).observeSingleEvent(of: .value) { snapshot in
+            guard let value = snapshot.value as? UsersList else {
+                completion(.failure(ApiHandlerErrors.fetchAllUsersFailed))
+                return
+            }
+            completion(.success(value))
+        }
     }
 }
 

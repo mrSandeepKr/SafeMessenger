@@ -139,9 +139,8 @@ class ChatListMultiViewController: UIViewController {
     }
     
     @objc private func newChatButtonTapped() {
-        let vc = NewChatViewController()
+        let vc = NewChatViewController(viewModel: NewChatViewModel())
         let nav = UINavigationController(rootViewController: vc)
-        vc.view.backgroundColor = .green
         navigationController?.present(nav, animated: true)
     }
 }
