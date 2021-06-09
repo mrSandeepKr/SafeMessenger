@@ -272,18 +272,21 @@ extension ChatListMultiViewController {
 
 extension ChatListMultiViewController: ChatListViewProtocol {
     func didSelectChatFromChatList(viewData: [String: Any]) {
-        let vc = ChatViewController(memberEmail: "asad", memberName: "asad")
+        let vm = ChatViewModel(memberEmail: "asad", memberName: "asad")
+        let vc = ChatViewController(viewModel: vm)
         navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 extension ChatListMultiViewController: SearchUserViewProtocol {
     func openChatForUser(user: User) {
-        guard let memberName = user[Constants.name], let memberEmail = user[Constants.email] else {
+        guard let memberName = user[Constants.name] as? String,
+              let memberEmail = user[Constants.email] as? String else {
             return
         }
-        let vc = ChatViewController(memberEmail: memberEmail, memberName: memberName)
-        vc.title = user[Constants.name]
+        let vm = ChatViewModel(memberEmail: memberEmail, memberName: memberName)
+        let vc = ChatViewController(viewModel: vm)
+        vc.title = memberName
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }

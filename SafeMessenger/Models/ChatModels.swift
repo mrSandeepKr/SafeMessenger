@@ -13,10 +13,24 @@ struct Message: MessageType {
     var messageId: String
     var sentDate: Date
     var kind: MessageKind
+    var content: String
+    var is_read: Bool = false
 }
 
 struct Sender: SenderType {
     var imageURL: String
     var senderId: String
     var displayName: String
+}
+
+struct ConversationObject {
+    var id: String
+    var lastMessage: Message
+    var memberEmail: [String]
+    var topic: String = ""
+    var convoType: String = "oneToOne"
+}
+
+struct ConversationThread {
+    var messages: [Message]
 }

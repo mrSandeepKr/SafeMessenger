@@ -105,8 +105,12 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = (tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier) ?? UITableViewCell()) as UITableViewCell
-        cell.textLabel?.text = results[indexPath.row][Constants.name]
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier) as? UITableViewCell,
+              let text = results[indexPath.row][Constants.name] as? String
+        else {
+            return UITableViewCell()
+        }
+        cell.textLabel?.text = text
         return cell
     }
     
@@ -134,10 +138,11 @@ extension SearchUserViewController: UISearchBarDelegate {
     
     private func searchUsers(query: String) {
         self.results = self.usersSet.filter { user in
-            guard let name = user[Constants.name]?.lowercased(), let email = user[Constants.email] else {
+            guard let name = user[Constants.name] as? String,
+                  let email = user[Constants.email] as? String else {
                 return false
             }
-            let split = name.split(separator: " ")
+            let split = name.lowercased().split(separator: " ")
             let fn = split.count > 0 ? split[0] : ""
             let sn = split.count > 1 ? split[1] : ""
             return fn.hasPrefix(query) || sn.hasPrefix(query) || email.hasPrefix(query)

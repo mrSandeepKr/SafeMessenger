@@ -10,19 +10,11 @@ import MessageKit
 import InputBarAccessoryView
 
 class ChatViewController: MessagesViewController {
-    private var messages = [Message]()
     
-    private let selfSender = Sender(imageURL: "",
-                                    senderId: "1",
-                                    displayName: "Joe Smith")
+    private let viewModel: ChatViewModel
     
-    private let memberEmail: String
-    private let memberName: String
-    private let isNewConversation = false
-    
-    init(memberEmail: String,memberName: String) {
-        self.memberEmail = memberEmail
-        self.memberName = memberName
+    init(viewModel: ChatViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -47,15 +39,15 @@ class ChatViewController: MessagesViewController {
 
 extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate {
     func currentSender() -> SenderType {
-        return selfSender
+        return viewModel.selfSender
     }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {
-        return messages[indexPath.section]
+        return viewModel.messages[indexPath.section]
     }
     
     func numberOfSections(in messagesCollectionView: MessagesCollectionView) -> Int {
-        return messages.count
+        return viewModel.messages.count
     }
 }
 
@@ -65,5 +57,6 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             print("ChatViewController: Trying to send empty message")
             return
         }
+        
     }
 }
