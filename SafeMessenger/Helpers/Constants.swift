@@ -16,10 +16,14 @@ class Constants {
     static let secondName = "secondName"
     static let email = "email"
     static let name = "name"
+    static let unknownUser = "Unknown User"
+    static let conversations = "conversations"
+    static let users = "users"
 }
 
 class UserDefaultConstant {
     static let isLoggedIn = "isLoggedIn"
     static let profileImageUrl = "profileImageUrl"
     static let userEmail = "email"
+    static let userName = "name"
 }
