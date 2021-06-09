@@ -45,25 +45,51 @@ class LogInViewController: UIViewController {
         return btn
     }()
     
-    private lazy var googleSignInButton : UIButton = {
-        let btn = UIButton()
-        btn.backgroundColor = UIColor.init(cgColor: #colorLiteral(red: 0.9162556529, green: 0.9164093733, blue: 0.9162355065, alpha: 1))
-        btn.setTitleShadowColor(.blue, for: .normal)
-        btn.layer.borderWidth = 1
-        btn.layer.borderColor = UIColor.lightGray.cgColor
-        btn.layer.cornerRadius = 5
+    class googleSignInButtonView: UIView {
+        private lazy var titleView: UILabel = {
+            let title = UILabel()
+            title.textColor = UIColor(cgColor: #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1))
+            title.text = "Sign In"
+            title.font = .systemFont(ofSize: 17, weight: .medium)
+            title.textAlignment = .left
+            return title
+            
+        }()
         
-        btn.setTitleColor(UIColor(cgColor: #colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1)), for: .normal)
-        btn.setTitle("Google Sign In", for: .normal)
-        btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 40, bottom: 0, right: 0)
-        btn.contentHorizontalAlignment = .left
+        private lazy var imageView :UIImageView = {
+            let imageView = UIImageView(image: UIImage(named: "googleIcon"))
+            imageView.contentMode = .scaleAspectFit
+            return imageView
+        }()
         
-        btn.setImage(UIImage(named: "googleIcon"), for: .normal)
-        btn.imageEdgeInsets =  UIEdgeInsets(top: 29.5, left: 30, bottom: 29.5, right: 200)
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            backgroundColor = UIColor.init(cgColor: #colorLiteral(red: 0.9162556529, green: 0.9164093733, blue: 0.9162355065, alpha: 1))
+            layer.borderWidth = 1
+            layer.borderColor = UIColor.lightGray.cgColor
+            layer.cornerRadius = 5
+            
+            addSubview(titleView)
+            addSubview(imageView)
+        }
         
-        btn.addTarget(self, action: #selector(didTapGoogleSignIn), for: .touchUpInside)
-        return btn
-    }()
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            titleView.sizeToFit()
+            let imageSize = height * 0.8
+            let pad: CGFloat = 10.0
+            let imageTop = (height - imageSize) / 2.0
+            let imageLeft = (width - (imageSize + pad + titleView.width)) / 2.0
+            imageView.frame = CGRect(x: imageLeft, y: imageTop, width: imageSize, height: imageSize)
+            titleView.frame = CGRect(x: imageView.right + pad, y: 0, width: titleView.width, height: height)
+        }
+    }
+    
+    private lazy var googleSignInButton = googleSignInButtonView()
     
     private lazy var createAccountBtn: UIButton = {
         let btn = UIButton(type: .custom)
@@ -96,6 +122,7 @@ class LogInViewController: UIViewController {
                                                                 self?.viewModel.setUserDefaultsForLogin()
                                                                 self?.navigationController?.dismiss(animated: true)
                                                                })
+        googleSignInButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapGoogleSignIn)))
         
         view.addSubview(logoImageView)
         view.addSubview(scrollView)
