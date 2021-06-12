@@ -63,7 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                         guard user.profile.hasImage, let url = user.profile.imageURL(withDimension: 200)
                         else {
                             print("AppDelegate: Google doens't have user profile Image")
-                            let data = UIImage(named: "personPlaceholder")?.pngData()
+                            let data = UIImage(named: Constants.ImageNamePersonPlaceholder)?.pngData()
                             self?.uploadImage(with: data!, fileName: fileName)
                             return
                         }

@@ -31,7 +31,7 @@ class LogInViewController: UIViewController {
     
     private lazy var logoImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "logo")
+        imageView.image = UIImage(named: Constants.ImageNameLogo)
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
@@ -57,7 +57,7 @@ class LogInViewController: UIViewController {
         }()
         
         private lazy var imageView :UIImageView = {
-            let imageView = UIImageView(image: UIImage(named: "googleIcon"))
+            let imageView = UIImageView(image: UIImage(named: Constants.ImageNameGoogleIcon))
             imageView.contentMode = .scaleAspectFit
             return imageView
         }()
