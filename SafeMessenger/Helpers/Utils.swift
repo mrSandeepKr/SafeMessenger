@@ -10,6 +10,13 @@ import Foundation
 class Utils {
     static let shared = Utils()
     
+    public static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .long
+        return formatter
+    }()
+    
     func getLoggedInUserEmail() -> String? {
         let email = (UserDefaults.standard.value(forKey: UserDefaultConstant.userEmail) ?? "") as! String
         return email

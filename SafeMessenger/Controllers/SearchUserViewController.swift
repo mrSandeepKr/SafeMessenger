@@ -139,9 +139,10 @@ extension SearchUserViewController: UISearchBarDelegate {
     private func searchUsers(query: String) {
         self.results = self.usersSet.filter { user in
             guard let name = user[Constants.name] as? String,
-                  let email = user[Constants.email] as? String else {
+                  let em = user[Constants.email] as? String else {
                 return false
             }
+            let email = em.lowercased()
             let split = name.lowercased().split(separator: " ")
             let fn = split.count > 0 ? split[0] : ""
             let sn = split.count > 1 ? split[1] : ""

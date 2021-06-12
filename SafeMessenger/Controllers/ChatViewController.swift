@@ -57,6 +57,10 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             print("ChatViewController: Trying to send empty message")
             return
         }
-        
+        viewModel.sendMessage(to: viewModel.memberEmail, msg: text) { success in
+            if success {
+                print("Success")
+            }
+        }
     }
 }

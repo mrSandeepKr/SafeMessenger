@@ -8,29 +8,92 @@
 import Foundation
 import MessageKit
 
-struct Message: MessageType {
+// Doing this over Encodable as wanted something custom that doesn't throw randomly
+protocol Serialisable {
+    func serialisedObject() -> [String: Any]
+}
+
+struct Sender: SenderType, Serialisable {
+    var imageURL: String
+    var senderId: String
+    var displayName: String
+    
+    func serialisedObject() -> [String : Any] {
+        return [
+            Constants.imageURL: imageURL,
+            Constants.senderID: senderId,
+            Constants.displatName: displayName
+        ]
+    }
+}
+
+extension SenderType {
+    func serialisedObject() -> [String : Any] {
+        return [
+            Constants.senderID: senderId,
+            Constants.displatName: displayName
+        ]
+    }
+}
+
+struct Message: MessageType, Serialisable {
     var sender: SenderType
     var messageId: String
     var sentDate: Date
     var kind: MessageKind
-    var content: String
-    var is_read: Bool = false
+    var isRead: Bool = false
+    
+    func serialisedObject() -> [String : Any] {
+        var message = ""
+        var type = ""
+        switch kind {
+        case .text(let msg):
+            message = msg
+            type = Constants.MessageTypeText
+        default:
+            break
+        }
+        
+        return [
+            Constants.sender: sender.serialisedObject(),
+            Constants.messageID: messageId,
+            Constants.sendDate: Utils.dateFormatter.string(from: sentDate),
+            Constants.isRead: isRead,
+            Constants.msgContent: message,
+            Constants.msgType: type
+        ]
+    }
 }
 
-struct Sender: SenderType {
-    var imageURL: String
-    var senderId: String
-    var displayName: String
-}
-
-struct ConversationObject {
-    var id: String
+struct ConversationObject: Serialisable {
+    var convoID: String
     var lastMessage: Message
-    var memberEmail: [String]
+    var members: [String]
     var topic: String = ""
     var convoType: String = "oneToOne"
+    
+    func serialisedObject() -> [String : Any] {
+        return [
+            Constants.convoID: convoID,
+            Constants.lastMessage: lastMessage.serialisedObject(),
+            Constants.members: members,
+            Constants.topic: topic,
+            Constants.convoType: convoType
+        ]
+    }
 }
 
-struct ConversationThread {
+struct ConversationThread: Serialisable {
+    var convoID: String
     var messages: [Message]
+    
+    func serialisedObject() -> [String : Any] {
+        var msgs = [[:]]
+        messages.forEach { msg in
+            msgs.append(msg.serialisedObject())
+        }
+        return [
+            Constants.messages: msgs
+        ]
+    }
 }
