@@ -15,7 +15,7 @@ class RegisterViewModel {
     init() {
         let isDarkMode = (UITraitCollection.current.userInterfaceStyle == .dark)
         backgroundImageName = isDarkMode  ? "registerBackgroundDark": "registerBackground"
-        profileImageName = "personPlaceholder"
+        profileImageName =  Constants.ImageNamePersonPlaceholder
     }
     
     ///

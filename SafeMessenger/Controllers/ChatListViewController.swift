@@ -12,6 +12,7 @@ class ChatListViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let table = UITableView()
         table.isHidden = true
+        table.rowHeight = UITableView.automaticDimension
         return table
     }()
     
@@ -63,21 +64,33 @@ class ChatListViewController: UIViewController {
 
 extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return 2
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier) else {
+        print(ChatListTableViewCell.reusableIdentifier)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChatListTableViewCell.reusableIdentifier) as? ChatListTableViewCell
+        else {
             return UITableViewCell()
         }
-        cell.textLabel?.text = "Hi Brooo"
-        cell.accessoryType = .disclosureIndicator
+        cell.configureCell(with: ChatListTableViewCellViewModel(convo: ConversationObject(convoID: "",
+                                                                                          lastMessage: Message(sender: Sender(imageURL: "",
+                                                                                                                              senderId: "",
+                                                                                                                              displayName: ""),
+                                                                                                               messageId: "",
+                                                                                                               sentDate: Date(timeInterval: -10000, since: Date()),
+                                                                                                               kind: .text("last message of a peronsnjabsifa bjhjnsjk fn hj bjdnfjbnjvh njfh b")),
+                                                                                          members: ["rand@gmail.com"])))
         return cell
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 100
+    }
+    
     private func setUpTableView() {
-        tableView.register(UITableViewCell.self,
-                           forCellReuseIdentifier: UITableViewCell.reusableIdentifier)
+        tableView.register(ChatListTableViewCell.self,
+                           forCellReuseIdentifier: ChatListTableViewCell.reusableIdentifier)
         tableView.delegate = self
         tableView.dataSource = self
     }

@@ -38,7 +38,7 @@ extension ChatViewModel {
             return nil
         }
         
-        let dateString = Utils.dateFormatter.string(from: Date())
+        let dateString = Utils.networkDateFormatter.string(from: Date())
         let id = "\(loggedInUserSafeEmail)\(memberSafeEmail)\(dateString)"
         return id
     }

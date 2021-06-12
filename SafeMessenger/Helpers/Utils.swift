@@ -10,10 +10,19 @@ import Foundation
 class Utils {
     static let shared = Utils()
     
-    public static let dateFormatter: DateFormatter = {
+    public static let networkDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .long
+        return formatter
+    }()
+    
+    public static let hrMinDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
+        
         return formatter
     }()
     

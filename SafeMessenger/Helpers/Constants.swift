@@ -43,6 +43,8 @@ class Constants {
     static let ImageNamePersonPlaceholder = "personPlaceholder"
     static let ImageNameLogo = "logo"
     static let ImageNameGoogleIcon = "googleIcon"
+    static let ImageNameMemberPlaceholder = "memberPlaceholder"
+    static let ImageNameHamburgerBackgroud = "hamburgerBackground"
 }
 
 class UserDefaultConstant {

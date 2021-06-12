@@ -98,8 +98,10 @@ class ChatListMultiViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
-        view.layoutIfNeeded()
+        if navigationController?.navigationBar.isHidden == false {
+            navigationController?.navigationBar.isHidden = true
+            view.layoutIfNeeded()
+        }
         updateViewForLogginIn()
     }
     
@@ -182,7 +184,7 @@ extension ChatListMultiViewController {
                 }) { [weak self] _ in
                 self?.hideHamburgerView()
             }
-        }
+            }
     }
     
     private func showHamburgerViewWithAnimation() {
@@ -200,7 +202,7 @@ extension ChatListMultiViewController {
                 }) { [weak self] _ in
                 self?.showHamburgerView()
             }
-        }
+            }
     }
     
     private func hideHamburgerView() {

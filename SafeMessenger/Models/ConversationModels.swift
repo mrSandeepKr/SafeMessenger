@@ -57,11 +57,20 @@ struct Message: MessageType, Serialisable {
         return [
             Constants.sender: sender.serialisedObject(),
             Constants.messageID: messageId,
-            Constants.sendDate: Utils.dateFormatter.string(from: sentDate),
+            Constants.sendDate: Utils.networkDateFormatter.string(from: sentDate),
             Constants.isRead: isRead,
             Constants.msgContent: message,
             Constants.msgType: type
         ]
+    }
+    
+    func getMessagePreviewText() -> String? {
+        switch kind {
+        case .text(let msg):
+            return msg
+        default:
+            return nil
+        }
     }
 }
 
