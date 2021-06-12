@@ -22,17 +22,38 @@ struct Sender: SenderType, Serialisable {
         return [
             Constants.imageURL: imageURL,
             Constants.senderID: senderId,
-            Constants.displatName: displayName
+            Constants.displayName: displayName
         ]
+    }
+    
+    static func getObject(from dict: [String: Any]) -> Sender? {
+        guard let imageURL = dict[Constants.imageURL] as? String,
+              let displayName = dict[Constants.displayName] as? String,
+              let senderID = dict[Constants.senderID] as? String
+        else {
+            return nil
+        }
+        return Sender(imageURL: imageURL,
+                      senderId: senderID,
+                      displayName: displayName)
     }
 }
 
 extension SenderType {
     func serialisedObject() -> [String : Any] {
         return [
+            Constants.imageURL: Utils.shared.getStorageUrlForEmail(for: senderId),
             Constants.senderID: senderId,
-            Constants.displatName: displayName
+            Constants.displayName: displayName
         ]
+    }
+    
+    func getSenderFirstName() -> String? {
+        let split = displayName.split(separator: " ").map { return String($0)}
+        guard split.count > 0 else {
+            return nil
+        }
+        return split[0]
     }
 }
 
@@ -72,6 +93,40 @@ struct Message: MessageType, Serialisable {
             return nil
         }
     }
+    
+    func isSenderLoggedIn() -> Bool {
+        guard let loggedInUserEmail = Utils.shared.getLoggedInUserEmail()
+        else {
+            return false
+        }
+        return loggedInUserEmail == sender.senderId
+    }
+    
+    static func getObject(from dict: [String: Any]) -> Message? {
+        guard let senderDict = dict[Constants.sender] as? [String: Any],
+              let messageID = dict[Constants.messageID] as? String,
+              let sentDateString = dict[Constants.sendDate] as? String,
+              let msgType = dict[Constants.msgType] as? String,
+              let msgContent = dict[Constants.msgContent] as? String,
+              let sentDate = Utils.networkDateFormatter.date(from: sentDateString),
+              let msgKind = getMessageKind(from: msgType, content: msgContent),
+              let sender = Sender.getObject(from: senderDict)
+        else {
+            return nil
+        }
+        
+        return Message(sender: sender,
+                       messageId: messageID,
+                       sentDate: sentDate,
+                       kind: msgKind)
+    }
+    
+    static func getMessageKind(from msgType: String, content: String) -> MessageKind? {
+        if msgType == Constants.MessageTypeText {
+            return .text(content)
+        }
+        return nil
+    }
 }
 
 struct ConversationObject: Serialisable {
@@ -89,6 +144,22 @@ struct ConversationObject: Serialisable {
             Constants.topic: topic,
             Constants.convoType: convoType
         ]
+    }
+    
+    static func getObject(from dict: [String: Any]) -> ConversationObject? {
+        guard let lastMessageDict = dict[Constants.lastMessage] as? [String: Any],
+              let convoID = dict[Constants.convoID] as? String,
+              let members = dict[Constants.members] as? [String],
+//              let _ = dict[Constants.topic] as? String,
+//              let _ = dict[Constants.convoType] as? String,
+              let lastMsg = Message.getObject(from: lastMessageDict)
+        else {
+            return nil
+        }
+        
+        return ConversationObject(convoID: convoID,
+                                  lastMessage: lastMsg,
+                                  members: members)
     }
 }
 

@@ -37,10 +37,16 @@ class ChatListTableViewCellViewModel {
     
     func getLastMessageText() -> String {
         let msg = convo.lastMessage
-        guard let msgPreview =  msg.getMessagePreviewText()
+        guard let msgPreview =  msg.getMessagePreviewText(),
+              let firstName = msg.sender.getSenderFirstName()
         else {
             return ""
         }
-        return msgPreview
+        
+        if msg.isSenderLoggedIn() {
+            return "You: \(msgPreview)"
+        }
+        
+        return "\(firstName): \(msgPreview)"
     }
 }

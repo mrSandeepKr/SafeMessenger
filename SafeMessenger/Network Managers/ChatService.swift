@@ -10,6 +10,7 @@ import FirebaseDatabase
 
 enum ChatServiceError: Error {
     case FailedToCreateThread
+    case FailedToFetchAllConvoObjects
 }
 
 final class ChatService {
@@ -19,8 +20,30 @@ final class ChatService {
 }
 
 extension ChatService {
-    func getAllConversations(with member: String, completion: (Result<Bool, Error>) -> Void) {
+    func getAllConversations(with member: String, completion:@escaping (Result<[ConversationObject], Error>) -> Void) {
+        print("ChatService: GetAllConversation Initiated")
+        guard let member = Utils.shared.safeEmail(email: member) else {
+            completion(.failure(ChatServiceError.FailedToFetchAllConvoObjects))
+            return
+        }
         
+        database.child("\(member)/\(Constants.conversations)").observeSingleEvent(of: .value) { snapshot in
+            guard let value = snapshot.value as? [[String: Any]] else {
+                completion(.failure(ChatServiceError.FailedToFetchAllConvoObjects))
+                print("ChatService: GetAllConversation Failed")
+                
+                return
+            }
+            let convos = value.compactMap { convoObject in
+                return ConversationObject.getObject(from: convoObject)
+            }
+            if convos.count != value.count {
+                print("ChatService: Some Objects couldn't be parsed while fetching")
+            }
+            print("ChatService: GetAllConversation Success")
+            
+            completion(.success(convos))
+        }
     }
     
     func createNewConversation(with members: [String],

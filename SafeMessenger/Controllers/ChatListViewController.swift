@@ -40,11 +40,19 @@ class ChatListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.fetchData { success in
-            if success {
-                tableView.isHidden = false
+        spinner.show(in: view)
+        DispatchQueue.background( background: {[weak self] in
+            self?.viewModel.fetchData {[weak self] success in
+                if success {
+                    DispatchQueue.main.async {
+                        self?.tableView.isHidden = false
+                        self?.spinner.dismiss()
+                        self?.tableView.reloadData()
+                    }
+                }
             }
-        }
+        })
+        
         view.backgroundColor = .clear
         
         view.addSubview(tableView)
@@ -60,27 +68,23 @@ class ChatListViewController: UIViewController {
         // 1. Add the no chats label.
         // 2. Add Spinner for no chats area.
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        spinner.dismiss()
+    }
 }
 
 extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
+        return viewModel.fetchedChats.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print(ChatListTableViewCell.reusableIdentifier)
         guard let cell = tableView.dequeueReusableCell(withIdentifier: ChatListTableViewCell.reusableIdentifier) as? ChatListTableViewCell
         else {
             return UITableViewCell()
         }
-        cell.configureCell(with: ChatListTableViewCellViewModel(convo: ConversationObject(convoID: "",
-                                                                                          lastMessage: Message(sender: Sender(imageURL: "",
-                                                                                                                              senderId: "",
-                                                                                                                              displayName: ""),
-                                                                                                               messageId: "",
-                                                                                                               sentDate: Date(timeInterval: -10000, since: Date()),
-                                                                                                               kind: .text("last message of a peronsnjabsifa bjhjnsjk fn hj bjdnfjbnjvh njfh b")),
-                                                                                          members: ["rand@gmail.com"])))
+        cell.configureCell(with: ChatListTableViewCellViewModel(convo: viewModel.fetchedChats[indexPath.row]))
         return cell
     }
     

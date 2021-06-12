@@ -24,7 +24,7 @@ class Constants {
     static let isRead = "isRead"
     static let msgContent = "msgContent"
     static let senderID = "senderID"
-    static let displatName = "displayName"
+    static let displayName = "displayName"
     static let imageURL = "imageURL"
     static let messages = "messages"
     static let lastMessage = "lastMessage"

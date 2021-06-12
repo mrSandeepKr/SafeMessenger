@@ -24,7 +24,7 @@ class ChatViewModel {
              selfSender = Sender(imageURL: "", senderId: "1", displayName: Constants.unknownUser)
         }
         else {
-            selfSender = Sender(imageURL: "", senderId: loggedInUserEmail , displayName: "Someone")
+            selfSender = Sender(imageURL: "", senderId: loggedInUserEmail , displayName: "Random Ran")
         }
     }
 }
