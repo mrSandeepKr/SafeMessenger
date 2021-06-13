@@ -8,5 +8,5 @@
 import Foundation
 
 protocol ChatListViewProtocol: AnyObject {
-    func didSelectChatFromChatList(viewData: [String: Any])
+    func didSelectChatFromChatList(with convo: ConversationObject)
 }

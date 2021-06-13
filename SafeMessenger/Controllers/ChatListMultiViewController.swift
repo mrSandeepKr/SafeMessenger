@@ -273,9 +273,11 @@ extension ChatListMultiViewController {
 }
 
 extension ChatListMultiViewController: ChatListViewProtocol {
-    func didSelectChatFromChatList(viewData: [String: Any]) {
-        let vm = ChatViewModel(memberEmail: "asad", memberName: "asad")
+    func didSelectChatFromChatList(with convo: ConversationObject) {
+        guard let vm = viewModel.getChatViewModel(for: convo)
+        else {return}
         let vc = ChatViewController(viewModel: vm)
+        vc.navigationItem.largeTitleDisplayMode = .always
         navigationController?.pushViewController(vc, animated: true)
     }
 }

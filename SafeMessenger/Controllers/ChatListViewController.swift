@@ -115,7 +115,7 @@ extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        delegate?.didSelectChatFromChatList(viewData: [:])
+        delegate?.didSelectChatFromChatList(with: viewModel.fetchedChats[indexPath.row])
     }
 }
 
