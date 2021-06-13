@@ -11,8 +11,9 @@ import FirebaseAuth
 import GoogleSignIn
 
 public enum ApiHandlerErrors: Error {
-    case fetchAllUsersFailed
-    case userNotFound
+    case FailedToFetchAllUsers
+    case FailedSafeEmailGnrtn
+    case FailedToGetUser
 }
 
 final class ApiHandler {
@@ -129,7 +130,7 @@ extension ApiHandler {
         database.child(Constants.users).observeSingleEvent(of: .value) { snapshot in
             guard let value = snapshot.value as? UsersDictList else {
                 print("ApiHandler: Fetch All users Failed")
-                completion(.failure(ApiHandlerErrors.fetchAllUsersFailed))
+                completion(.failure(ApiHandlerErrors.FailedToFetchAllUsers))
                 return
             }
             let userObjects = value.compactMap{return ChatAppUserModel.getObject(from: $0)}
@@ -138,6 +139,32 @@ extension ApiHandler {
             }
             print("ApiHandler: Fetch All users Success")
             completion(.success(userObjects))
+        }
+    }
+    
+    func fetchUserInfo(for email:String, completion: @escaping FetchUserCompletion) {
+        guard let safeEmail = Utils.shared.safeEmail(email: email) else {
+            completion(.failure(ApiHandlerErrors.FailedSafeEmailGnrtn))
+            return
+        }
+        let ref = database.child("\(safeEmail)")
+        ref.observeSingleEvent(of: .value) { snapshot in
+            guard let value = snapshot.value as? [String: Any] else {
+                print("ApiHandler: Fetch UserInfo Failed - to find userInfo")
+                completion(.failure(ApiHandlerErrors.FailedToGetUser))
+                return
+            }
+            guard let firstName = value[Constants.firstName] as? String,
+                  let secondName = value[Constants.secondName] as? String
+            else {
+                print("ApiHandler: Fetch UserInfo Failed - unable to parse data")
+                completion(.failure(ApiHandlerErrors.FailedToGetUser))
+                return
+            }
+            print("ApiHandler: Fetch UserInfo Success")
+            completion(.success(ChatAppUserModel(firstName: firstName,
+                                                 secondName: secondName,
+                                                 email: email)))
         }
     }
 }
@@ -161,6 +188,7 @@ extension ApiHandler {
     }
     
     private func resetUserDefaults() {
+        print("ApiHandler: Resetting User Defaults")
         let defaults = UserDefaults.standard
         let dictionary = defaults.dictionaryRepresentation()
         dictionary.keys.forEach { key in
