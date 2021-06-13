@@ -50,7 +50,7 @@ class RegisterViewModel {
             return
         }
         
-        handleUserCreation(email: email, pswd: pswd,firstName: fn, secondName: sn, profileImageData: data) { msg in
+        handleUserCreation(email: email.lowercased(), pswd: pswd,firstName: fn, secondName: sn, profileImageData: data) { msg in
             if msg.isEmpty {
                 UserDefaults.standard.setValue(true, forKey: UserDefaultConstant.isLoggedIn)
             }
