@@ -35,6 +35,14 @@ class ChatViewController: MessagesViewController {
                     strongSelf.title = strongSelf.viewModel.memberModel?.firstName
                 }
             }
+            self?.viewModel.getMessages(completion: { [weak self] success in
+                guard let strongSelf = self else {
+                    return
+                }
+                DispatchQueue.main.async {
+                    strongSelf.updateViewIfNotMessages(gotMessages: success)
+                }
+            })
         })
         
         messagesCollectionView.messagesDataSource = self
@@ -74,5 +82,12 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                 print("Success")
             }
         }
+    }
+}
+
+extension ChatViewController {
+    private func updateViewIfNotMessages(gotMessages: Bool) {
+        messagesCollectionView.reloadDataAndKeepOffset()
+        view.layoutIfNeeded()
     }
 }

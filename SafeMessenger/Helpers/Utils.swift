@@ -27,7 +27,7 @@ class Utils {
     }()
     
     func getLoggedInUserEmail() -> String? {
-        let email = (UserDefaults.standard.value(forKey: UserDefaultConstant.userEmail) ?? "") as! String
+        let email = (UserDefaults.standard.string(forKey: UserDefaultConstant.userEmail) ?? "")
         return email
     }
     

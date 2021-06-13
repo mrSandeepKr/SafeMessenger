@@ -277,7 +277,7 @@ extension ChatListMultiViewController: ChatListViewProtocol {
         guard let vm = viewModel.getChatViewModel(for: convo)
         else {return}
         let vc = ChatViewController(viewModel: vm)
-        vc.navigationItem.largeTitleDisplayMode = .always
+        vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }
 }
@@ -286,7 +286,7 @@ extension ChatListMultiViewController: SearchUserViewProtocol {
     func openChatForUser(user: ChatAppUserModel) {
         let memberEmail = user.email
         
-        let vm = ChatViewModel(memberEmail: memberEmail)
+        let vm = ChatViewModel(memberEmail: memberEmail, convoId: nil)
         let vc = ChatViewController(viewModel: vm)
         
         vc.navigationItem.largeTitleDisplayMode = .never

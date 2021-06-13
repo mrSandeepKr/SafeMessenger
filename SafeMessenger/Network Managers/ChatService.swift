@@ -12,6 +12,7 @@ enum ChatServiceError: Error {
     case FailedToCreateThread
     case FailedToFetchAllConvoObjects
     case FailedToGetUser
+    case FailedToGetThread
 }
 
 final class ChatService {
@@ -56,8 +57,22 @@ extension ChatService {
         }
         updateConversationThread(for: convoThread, completion: completion)
     }
-    func getAllMessagesForConversation(with id: String, completion: (Result<Bool, Error>) -> Void) {
-        
+    
+    func getAllMessagesForConversation(with id: String, completion: @escaping (Result<ConversationThread, Error>) -> Void) {
+        database.child(id).child(Constants.messages).observeSingleEvent(of: .value) { snapshot in
+            guard let messages = snapshot.value as? [MessageDict]
+            else {
+                print("ChatService: get messages for thread Failed")
+                completion(.failure(ChatServiceError.FailedToGetThread))
+                return
+            }
+            let convoThread = ConversationThread.getObject(for: id, dictArray: messages)
+            if convoThread.messages.count != messages.count {
+                print("ChatService: Could resolve few messages for Thread :\(id)")
+            }
+            print("ChatService: get messages for thread Success")
+            completion(.success(convoThread))
+        }
     }
     
     func sendMessage(to conversation: String, message: Message, completion: (Result<Bool, Error>) -> Void) {
@@ -105,9 +120,11 @@ extension ChatService {
                                           completion: @escaping (Result<Bool,Error>) -> Void) {
         database.child(thread.convoID).setValue(thread.serialisedObject()) { err, _ in
             guard err != nil else {
+                print("ChatService: Update Conversation Thread Failed for msg: \(String(describing: thread.messages.last))")
                 completion(.failure(ChatServiceError.FailedToCreateThread))
                 return
             }
+            print("ChatService: Update Conversation Thread Failed")
             completion(.success(true))
         }
     }

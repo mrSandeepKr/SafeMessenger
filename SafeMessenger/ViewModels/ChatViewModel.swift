@@ -9,21 +9,34 @@ import Foundation
 
 class ChatViewModel {
     let memberEmail: String
-    var memberModel: ChatAppUserModel?
-    let selfSender: Sender
+    var convoId: String?
     let loggedInUserEmail: String
     var isNewConversation: Bool
+    
+    //Get populated on Opening the View
+    var memberModel: ChatAppUserModel?
+    var selfSender: Sender
+    
+    // Gets populated if the viewModel has a convo Id
     var messages = [Message]()
     
-    init(memberEmail: String) {
-        self.isNewConversation = true
+    init(memberEmail: String, convoId: String?) {
         self.memberEmail = memberEmail
+        
         self.loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
         if loggedInUserEmail.isEmpty {
              selfSender = Sender(imageURL: "", senderId: "1", displayName: Constants.unknownUser)
         }
         else {
             selfSender = Sender(imageURL: "", senderId: loggedInUserEmail , displayName: "h j h j j j")
+        }
+        
+        if convoId != nil {
+            isNewConversation = false
+            self.convoId = convoId!
+        }
+        else {
+            isNewConversation = true
         }
     }
 }
@@ -34,7 +47,28 @@ extension ChatViewModel {
             switch res {
             case .success(let model):
                 self?.memberModel = model
+                self?.selfSender = Sender(imageURL: model.profileImageRefPathForUser,
+                                          senderId: model.email,
+                                          displayName: model.displayName)
                 completion(true)
+            case .failure(_):
+                completion(false)
+            }
+        }
+    }
+    
+    func getMessages(completion: @escaping (Bool)->Void) {
+        guard let id = convoId else {
+            completion(false)
+            return
+        }
+        
+        ChatService.shared.getAllMessagesForConversation(with: id) {[weak self] res in
+            switch res {
+            case .success(let thread):
+                self?.messages = thread.messages
+                completion(true)
+                break
             case .failure(_):
                 completion(false)
             }
