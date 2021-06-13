@@ -1,5 +1,5 @@
 //
-//  NewChatViewController.swift
+//  SearchUserViewController.swift
 //  SafeMessenger
 //
 //  Created by Sandeep Kumar on 21/05/21.
@@ -8,7 +8,11 @@
 import UIKit
 import JGProgressHUD
 
-class NewChatViewController: UIViewController {
+protocol SearchUserViewProtocol: AnyObject {
+    func openChatForUser(user:User)
+}
+
+class SearchUserViewController: UIViewController {
     
     //MARK: Elements
     private lazy var searchBar : UISearchBar = {
@@ -40,10 +44,11 @@ class NewChatViewController: UIViewController {
     private lazy var usersSet = UsersList()
     private lazy var results = UsersList()
     private lazy var areResultsFetch = false
-    private var viewModel: NewChatViewModel!
+    private var viewModel: SearchUserViewModel!
+    weak var delegate: SearchUserViewProtocol?
     
     //MARK: LifeCycle
-    init(viewModel: NewChatViewModel) {
+    init(viewModel: SearchUserViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -54,6 +59,7 @@ class NewChatViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .systemBackground
         searchBar.delegate = self
         searchBar.becomeFirstResponder()
         
@@ -93,19 +99,31 @@ class NewChatViewController: UIViewController {
     }
 }
 
-extension NewChatViewController: UITableViewDelegate, UITableViewDataSource {
+extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return results.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = (tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier) ?? UITableViewCell()) as UITableViewCell
-        cell.textLabel?.text = results[indexPath.row][Constants.name]
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier) as? UITableViewCell,
+              let text = results[indexPath.row][Constants.name] as? String
+        else {
+            return UITableViewCell()
+        }
+        cell.textLabel?.text = text
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let selectedUser: User = results[indexPath.row]
+        dismiss(animated: true) {[weak self] in
+            self?.delegate?.openChatForUser(user: selectedUser)
+        }
     }
 }
 
-extension NewChatViewController: UISearchBarDelegate {
+extension SearchUserViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         hideAllElements()
     }
@@ -120,10 +138,12 @@ extension NewChatViewController: UISearchBarDelegate {
     
     private func searchUsers(query: String) {
         self.results = self.usersSet.filter { user in
-            guard let name = user[Constants.name]?.lowercased(), let email = user[Constants.email] else {
+            guard let name = user[Constants.name] as? String,
+                  let em = user[Constants.email] as? String else {
                 return false
             }
-            let split = name.split(separator: " ")
+            let email = em.lowercased()
+            let split = name.lowercased().split(separator: " ")
             let fn = split.count > 0 ? split[0] : ""
             let sn = split.count > 1 ? split[1] : ""
             return fn.hasPrefix(query) || sn.hasPrefix(query) || email.hasPrefix(query)

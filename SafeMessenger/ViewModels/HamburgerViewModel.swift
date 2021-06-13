@@ -14,8 +14,8 @@ class HamburgerViewModel {
     var hamburgerBackgroundImageName: String?
     
     init() {
-        profileImageName = "personPlaceholder"
-        hamburgerBackgroundImageName = "hamburgerBackground"
+        profileImageName = Constants.ImageNamePersonPlaceholder
+        hamburgerBackgroundImageName = Constants.ImageNameHamburgerBackgroud
     }
     
     func updateProfileImageView(for imageView:UIImageView) {
