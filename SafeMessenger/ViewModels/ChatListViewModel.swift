@@ -14,7 +14,13 @@ class ChatListViewModel {
         
     }
     
-    func fetchData(completion:@escaping (Bool)->Void) {
+    func startListeningForChats(completion:@escaping (Bool)->Void) {
+        DispatchQueue.background( background: {[weak self] in
+            self?.fetchData(completion: completion)
+        })
+    }
+    
+    private func fetchData(completion:@escaping (Bool)->Void) {
         guard let loggedInUser = Utils.shared.getLoggedInUserEmail(), !loggedInUser.isEmpty
         else {
             completion(false)

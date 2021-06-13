@@ -43,25 +43,9 @@ class ChatListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         spinner.show(in: view)
-        DispatchQueue.background( background: {[weak self] in
-            self?.viewModel.fetchData {[weak self] success in
-                if success {
-                    DispatchQueue.main.async {
-                        self?.tableView.isHidden = false
-                        self?.noChatsLabel.isHidden = true
-                        self?.spinner.dismiss()
-                        self?.tableView.reloadData()
-                    }
-                }
-                else {
-                    DispatchQueue.main.async {
-                        self?.tableView.isHidden = true
-                        self?.noChatsLabel.isHidden = false
-                        self?.spinner.dismiss()
-                    }
-                }
-            }
-        })
+        viewModel.startListeningForChats {[weak self] success in
+            self?.updateUIForFetch(if: success)
+        }
         
         view.backgroundColor = .clear
         
@@ -83,8 +67,17 @@ class ChatListViewController: UIViewController {
         // 2. Add Spinner for no chats area.
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        ChatService.shared.removeChatListObserver()
+        viewModel.startListeningForChats {[weak self] success in
+            self?.updateUIForFetch(if: success)
+        }
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         spinner.dismiss()
+        ChatService.shared.removeChatListObserver()
     }
 }
 
@@ -119,3 +112,22 @@ extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+extension ChatListViewController {
+    private func updateUIForFetch(if success:Bool) {
+        if success {
+            DispatchQueue.main.async {
+                self.tableView.isHidden = false
+                self.noChatsLabel.isHidden = true
+                self.spinner.dismiss()
+                self.tableView.reloadData()
+            }
+        }
+        else {
+            DispatchQueue.main.async {
+                self.tableView.isHidden = true
+                self.noChatsLabel.isHidden = false
+                self.spinner.dismiss()
+            }
+        }
+    }
+}

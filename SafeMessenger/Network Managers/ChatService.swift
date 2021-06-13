@@ -29,7 +29,7 @@ extension ChatService {
             return
         }
         
-        database.child("\(member)/\(Constants.conversations)").observeSingleEvent(of: .value) { snapshot in
+        database.child("\(member)/\(Constants.conversations)").observe(.value) { snapshot in
             guard let value = snapshot.value as? [[String: Any]] else {
                 completion(.failure(ChatServiceError.FailedToFetchAllConvoObjects))
                 print("ChatService: GetAllConversation Failed")
@@ -59,7 +59,7 @@ extension ChatService {
     }
     
     func getAllMessagesForConversation(with id: String, completion: @escaping (Result<ConversationThread, Error>) -> Void) {
-        database.child(id).child(Constants.messages).observeSingleEvent(of: .value) { snapshot in
+        database.child(id).child(Constants.messages).observe(.value) { snapshot in
             guard let messages = snapshot.value as? [MessageDict]
             else {
                 print("ChatService: get messages for thread Failed")
@@ -127,5 +127,53 @@ extension ChatService {
             print("ChatService: Update Conversation Thread Failed")
             completion(.success(true))
         }
+    }
+    
+//    private func updateLastMessage(for email: String,in convoId: String, completion: @escaping ((Result<Bool, Error>) -> Void)) {
+//        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
+//            print("ChatService: Add conversation Failed because of empty email")
+//            return
+//        }
+//        let ref = database.child("\(email)/\(Constants.conversations)")
+//        ref.observeSingleEvent(of: .value) { snapshot in
+//            guard var userNode = snapshot.value as? UserDict else {
+//                completion(.failure(ChatServiceError.FailedToGetUser))
+//                print("ChatService: Add conversation Failed because \(email) not found")
+//                return
+//            }
+//
+//            if var conversations = userNode[Constants.conversations] as? [[String: Any]] {
+//                conversations.append(convo.serialisedObject())
+//                userNode[Constants.conversations] = conversations
+//            }
+//            else {
+//                userNode[Constants.conversations] = [convo.serialisedObject()]
+//            }
+//
+//            ref.setValue(userNode) { err, databaseRef in
+//                guard err == nil else {
+//                    completion(.failure(err!))
+//                    return
+//                }
+//                print("ChatService: Add Conversation Successful")
+//                completion(.success(true))
+//            }
+//        }
+//    }
+}
+
+extension ChatService {
+    func removeChatListObserver() {
+        guard let safeEmail = Utils.shared.getLoggedInUserSafeEmail() else {
+            return
+        }
+        database.child("\(safeEmail)/\(Constants.conversations)").removeAllObservers()
+    }
+    
+    func removeMessagesObserver(for id: String?) {
+        guard let threadId = id else {
+            return
+        }
+        database.child(threadId).child(Constants.messages).removeAllObservers()
     }
 }
