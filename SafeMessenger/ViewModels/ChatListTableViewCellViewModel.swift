@@ -49,4 +49,21 @@ class ChatListTableViewCellViewModel {
         
         return "\(firstName): \(msgPreview)"
     }
+    
+    func updateImageView(for imageView:UIImageView) {
+        let convo = self.convo
+        DispatchQueue.background(background: {
+            guard let loggedInUser = Utils.shared.getLoggedInUserEmail() else {
+                return
+            }
+            let members = convo.members.filter{return $0 != loggedInUser}
+            guard members.count > 0 else {
+                return
+            }
+            
+            let path = Utils.shared.getStoragePathForEmail(for: members[0])
+            StorageManager.shared.downloadImageURLandUpdateView(for: imageView,
+                                                                path: path)
+        })
+    }
 }

@@ -284,13 +284,11 @@ extension ChatListMultiViewController: ChatListViewProtocol {
 
 extension ChatListMultiViewController: SearchUserViewProtocol {
     func openChatForUser(user: ChatAppUserModel) {
-        let memberName = user.displayName
         let memberEmail = user.email
         
-        let vm = ChatViewModel(memberEmail: memberEmail, memberName: memberName)
+        let vm = ChatViewModel(memberEmail: memberEmail)
         let vc = ChatViewController(viewModel: vm)
         
-        vc.title = memberName
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }

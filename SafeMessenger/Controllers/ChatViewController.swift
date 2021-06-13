@@ -25,6 +25,18 @@ class ChatViewController: MessagesViewController {
     //MARK: Overrides
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        DispatchQueue.background(background: {[weak self] in
+            self?.viewModel.getUserInfoForChat {[weak self] success in
+                guard let strongSelf = self else {
+                    return
+                }
+                DispatchQueue.main.async {
+                    strongSelf.title = strongSelf.viewModel.memberModel?.firstName
+                }
+            }
+        })
+        
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self

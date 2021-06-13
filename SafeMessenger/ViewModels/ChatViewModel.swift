@@ -9,22 +9,35 @@ import Foundation
 
 class ChatViewModel {
     let memberEmail: String
-    let memberName: String
+    var memberModel: ChatAppUserModel?
     let selfSender: Sender
     let loggedInUserEmail: String
     var isNewConversation: Bool
     var messages = [Message]()
     
-    init(memberEmail: String, memberName: String) {
+    init(memberEmail: String) {
         self.isNewConversation = true
         self.memberEmail = memberEmail
-        self.memberName = memberName
         self.loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
         if loggedInUserEmail.isEmpty {
              selfSender = Sender(imageURL: "", senderId: "1", displayName: Constants.unknownUser)
         }
         else {
-            selfSender = Sender(imageURL: "", senderId: loggedInUserEmail , displayName: "Random Ran")
+            selfSender = Sender(imageURL: "", senderId: loggedInUserEmail , displayName: "h j h j j j")
+        }
+    }
+}
+
+extension ChatViewModel {
+    func getUserInfoForChat(completion: @escaping (Bool)->Void) {
+        ApiHandler.shared.fetchUserInfo(for: memberEmail) {[weak self] res in
+            switch res {
+            case .success(let model):
+                self?.memberModel = model
+                completion(true)
+            case .failure(_):
+                completion(false)
+            }
         }
     }
 }

@@ -88,11 +88,13 @@ extension StorageManager {
         downloadURL(for: path) { res in
             switch res {
             case .success(let url):
+                print("StorageManager: download Url Success")
                 DispatchQueue.main.async {
                     imageView.sd_setImage(with: url, completed: nil)
                 }
                 break
             case .failure(_):
+                print("StorageManager: download Url Failed")
                 break
             }
         }

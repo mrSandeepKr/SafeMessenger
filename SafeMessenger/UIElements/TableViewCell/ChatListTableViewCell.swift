@@ -113,5 +113,6 @@ extension ChatListTableViewCell {
         chatTitle.text = model.getChatTitle()
         lastMsgTime.text = model.getLastMsgDateString()
         lastMsg.text = model.getLastMessageText()
+        model.updateImageView(for: chatIcon)
     }
 }
