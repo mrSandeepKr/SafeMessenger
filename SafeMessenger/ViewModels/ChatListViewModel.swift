@@ -8,29 +8,14 @@
 import Foundation
 
 class ChatListViewModel {
-    var fetchedChats: Array<ConversationObject> = []
+    var fetchedChats: Array<Any> = []
     
     init() {
         
     }
     
-    func fetchData(completion:@escaping (Bool)->Void) {
-        guard let loggedInUser = Utils.shared.getLoggedInUserEmail(), !loggedInUser.isEmpty
-        else {
-            completion(false)
-            return
-        }
-        
-        ChatService.shared.getAllConversations(with: loggedInUser) {[weak self] res in
-            switch res {
-            case .success(let convos):
-                self?.fetchedChats = convos
-                completion(true)
-                break
-            default:
-                completion(false)
-                
-            }
-        }
+    func fetchData(completion: (Bool)->Void) {
+        fetchedChats = ["data"]
+        completion(true)
     }
 }

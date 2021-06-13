@@ -12,7 +12,7 @@ class ChatListMultiViewModel {
     var hamburgerBtnImagePlaceholder: String?
     
     init() {
-        hamburgerBtnImagePlaceholder = Constants.ImageNamePersonPlaceholder
+        hamburgerBtnImagePlaceholder = "personPlaceholder"
     }
     
     public var isLoggedIn: Bool {

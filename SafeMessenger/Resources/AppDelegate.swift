@@ -13,7 +13,6 @@ import GoogleSignIn
 class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        FirebaseConfiguration.shared.setLoggerLevel(.min)
         FirebaseApp.configure()
         
         GIDSignIn.sharedInstance().delegate = self
@@ -64,7 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                         guard user.profile.hasImage, let url = user.profile.imageURL(withDimension: 200)
                         else {
                             print("AppDelegate: Google doens't have user profile Image")
-                            let data = UIImage(named: Constants.ImageNamePersonPlaceholder)?.pngData()
+                            let data = UIImage(named: "personPlaceholder")?.pngData()
                             self?.uploadImage(with: data!, fileName: fileName)
                             return
                         }
