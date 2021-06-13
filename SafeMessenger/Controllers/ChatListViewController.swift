@@ -22,7 +22,9 @@ class ChatListViewController: UIViewController {
         let label = UILabel()
         label.text = "No Conversations!"
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 25, weight: .medium)
+        label.isHidden = true
+        label.font = .systemFont(ofSize: 23, weight: .medium)
+        label.textColor = UIColor(cgColor: #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1))
         return label
     }()
     
@@ -46,8 +48,16 @@ class ChatListViewController: UIViewController {
                 if success {
                     DispatchQueue.main.async {
                         self?.tableView.isHidden = false
+                        self?.noChatsLabel.isHidden = true
                         self?.spinner.dismiss()
                         self?.tableView.reloadData()
+                    }
+                }
+                else {
+                    DispatchQueue.main.async {
+                        self?.tableView.isHidden = true
+                        self?.noChatsLabel.isHidden = false
+                        self?.spinner.dismiss()
                     }
                 }
             }
@@ -62,7 +72,11 @@ class ChatListViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        noChatsLabel.sizeToFit()
+        
         tableView.frame = CGRect(x: 0, y: 0, width: view.width, height: view.height)
+        noChatsLabel.frame = CGRect(x: 0, y: 0, width: noChatsLabel.width , height: noChatsLabel.height)
+        noChatsLabel.center = CGPoint(x: view.center.x, y: 100)
         //TODO:
         // Add tableview via anchors could be easier to control.
         // 1. Add the no chats label.

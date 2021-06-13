@@ -74,7 +74,7 @@ extension ChatService {
         }
         let ref = database.child(email)
         ref.observeSingleEvent(of: .value) { snapshot in
-            guard var userNode = snapshot.value as? User else {
+            guard var userNode = snapshot.value as? UserDict else {
                 completion(.failure(ApiHandlerErrors.userNotFound))
                 print("ChatService: Add conversation Failed because \(email) not found")
                 return

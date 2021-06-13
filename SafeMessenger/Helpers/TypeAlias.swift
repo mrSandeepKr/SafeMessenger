@@ -7,9 +7,9 @@
 
 import Foundation
 
-typealias UsersList = [[String: Any]]
-typealias User = [String: Any]
+typealias UserDict = [String: Any]
+typealias UsersDictList = [UserDict]
 typealias UploadPictureCompletion = (Result<String,Error>) -> Void
 typealias CreateAccountCompletion = (String) -> Void
-typealias FetchAllUsersCompletion = (Result<UsersList,Error>) -> Void
+typealias FetchAllUsersCompletion = (Result<[ChatAppUserModel],Error>) -> Void
 typealias CreateConversationCompletion = (Result<Bool,Error>) -> Void

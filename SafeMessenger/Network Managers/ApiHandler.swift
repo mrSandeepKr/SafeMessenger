@@ -53,14 +53,10 @@ extension ApiHandler {
                 completion(false)
                 return
             }
-            let newElement = [
-                Constants.name: user.firstName + " " + user.secondName,
-                Constants.email: user.email
-            ]
+            let newElement = user.serialisedObject()
+            var collections = UsersDictList()
             
-            var collections = UsersList()
-            
-            if var userCollection = snapshot.value as? UsersList {
+            if var userCollection = snapshot.value as? UsersDictList {
                 // Append to users Array
                 userCollection.append(newElement)
                 collections = userCollection
@@ -131,13 +127,17 @@ extension ApiHandler {
 extension ApiHandler {
     func fetchAllUsers(completion: @escaping FetchAllUsersCompletion) {
         database.child(Constants.users).observeSingleEvent(of: .value) { snapshot in
-            guard let value = snapshot.value as? UsersList else {
+            guard let value = snapshot.value as? UsersDictList else {
                 print("ApiHandler: Fetch All users Failed")
                 completion(.failure(ApiHandlerErrors.fetchAllUsersFailed))
                 return
             }
+            let userObjects = value.compactMap{return ChatAppUserModel.getObject(from: $0)}
+            if userObjects.count != value.count {
+                print("ApiHanlder: Fetch All User - Some Users not resolved")
+            }
             print("ApiHandler: Fetch All users Success")
-            completion(.success(value))
+            completion(.success(userObjects))
         }
     }
 }

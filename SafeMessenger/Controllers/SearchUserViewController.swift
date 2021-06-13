@@ -9,7 +9,7 @@ import UIKit
 import JGProgressHUD
 
 protocol SearchUserViewProtocol: AnyObject {
-    func openChatForUser(user:User)
+    func openChatForUser(user: ChatAppUserModel)
 }
 
 class SearchUserViewController: UIViewController {
@@ -41,9 +41,10 @@ class SearchUserViewController: UIViewController {
         return label
     }()
     
-    private lazy var usersSet = UsersList()
-    private lazy var results = UsersList()
+    private lazy var usersSet = [ChatAppUserModel]()
+    private lazy var results = [ChatAppUserModel]()
     private lazy var areResultsFetch = false
+    private let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
     private var viewModel: SearchUserViewModel!
     weak var delegate: SearchUserViewProtocol?
     
@@ -105,18 +106,17 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier) as? UITableViewCell,
-              let text = results[indexPath.row][Constants.name] as? String
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier)
         else {
             return UITableViewCell()
         }
-        cell.textLabel?.text = text
+        cell.textLabel?.text = results[indexPath.row].displayName
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let selectedUser: User = results[indexPath.row]
+        let selectedUser: ChatAppUserModel = results[indexPath.row]
         dismiss(animated: true) {[weak self] in
             self?.delegate?.openChatForUser(user: selectedUser)
         }
@@ -138,15 +138,12 @@ extension SearchUserViewController: UISearchBarDelegate {
     
     private func searchUsers(query: String) {
         self.results = self.usersSet.filter { user in
-            guard let name = user[Constants.name] as? String,
-                  let em = user[Constants.email] as? String else {
-                return false
-            }
-            let email = em.lowercased()
-            let split = name.lowercased().split(separator: " ")
-            let fn = split.count > 0 ? split[0] : ""
-            let sn = split.count > 1 ? split[1] : ""
-            return fn.hasPrefix(query) || sn.hasPrefix(query) || email.hasPrefix(query)
+            let email = user.email.lowercased()
+            let fn = user.firstName
+            let sn = user.secondName
+            
+            return (fn.hasPrefix(query) || sn.hasPrefix(query) || email.hasPrefix(query))
+                    && (email != loggedInUserEmail.lowercased())
         }
     }
     
