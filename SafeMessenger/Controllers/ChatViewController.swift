@@ -45,6 +45,7 @@ class ChatViewController: MessagesViewController {
             })
         })
         
+        messagesCollectionView.contentInset = UIEdgeInsets(top: 59, left: 0, bottom: 0, right: 10)
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
@@ -88,6 +89,5 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
 extension ChatViewController {
     private func updateViewIfNotMessages(gotMessages: Bool) {
         messagesCollectionView.reloadDataAndKeepOffset()
-        view.layoutIfNeeded()
     }
 }

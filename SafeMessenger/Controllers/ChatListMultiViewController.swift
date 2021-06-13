@@ -35,7 +35,7 @@ class ChatListMultiViewController: UIViewController {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = hamburgerHeight / 2
         imageView.layer.borderWidth = 1
-        imageView.layer.borderColor = UIColor.label.cgColor
+        imageView.layer.borderColor = #colorLiteral(red: 0.3647058904, green: 0.06666667014, blue: 0.9686274529, alpha: 1)
         imageView.isUserInteractionEnabled = true
         imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(hamburgerBtnTapped)))
         imageView.isUserInteractionEnabled = true
