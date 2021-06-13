@@ -9,11 +9,11 @@ import Foundation
 import UIKit
 
 class ChatListTableViewCell: UITableViewCell {
-    private let contentHeight: CGFloat = 100
+    private let contentHeight: CGFloat = 80
     
     private lazy var chatTitle: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 22, weight: .medium)
+        label.font = .systemFont(ofSize: 19.5, weight: .regular)
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -21,7 +21,7 @@ class ChatListTableViewCell: UITableViewCell {
     
     private lazy var lastMsg: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.font = .systemFont(ofSize: 15, weight: .light)
         
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -29,7 +29,7 @@ class ChatListTableViewCell: UITableViewCell {
     
     private lazy var lastMsgTime: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .light)
+        label.font = .systemFont(ofSize: 13, weight: .thin)
         label.numberOfLines = 1
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
