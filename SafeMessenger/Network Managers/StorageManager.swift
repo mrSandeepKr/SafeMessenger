@@ -88,21 +88,13 @@ extension StorageManager {
         downloadURL(for: path) { res in
             switch res {
             case .success(let url):
-                URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, err in
-                    guard err == nil, let data = data else {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        let image = UIImage(data: data)
-                        imageView.image = image
-                    }
-                }.resume()
+                DispatchQueue.main.async {
+                    imageView.sd_setImage(with: url, completed: nil)
+                }
                 break
             case .failure(_):
                 break
             }
         }
-            
-        
     }
 }
