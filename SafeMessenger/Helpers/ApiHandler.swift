@@ -10,18 +10,20 @@ import FirebaseDatabase
 import FirebaseAuth
 import GoogleSignIn
 
-public enum ApiHandlerErrors: Error {
-    case fetchAllUsersFailed
-    case userNotFound
-}
+
+typealias CreateAccountCompletion = (String) -> Void
 
 final class ApiHandler {
     static let shared = ApiHandler()
     
     private let database = Database.database(url: URLStrings.databaseURL).reference()
+    
+    static func safeEmail(emailAddress: String) -> String {
+        return emailAddress.replacingOccurrences(of: ".", with: "-")
+    }
+    let DBUserPath: String = "users"
 }
 
-//MARK: SignIn & SignOut Support
 extension ApiHandler {
     /// Adds user's firstName, Second Name to Database
     public func insertUserToDatabase(user: ChatAppUserModel, completion: @escaping (Bool) -> Void) {
@@ -48,7 +50,7 @@ extension ApiHandler {
     ///     ]
     /// ]
     public func insertUserToUserArray(user: ChatAppUserModel, completion: @escaping (Bool) -> Void ) {
-        self.database.child(Constants.users).observeSingleEvent(of: .value) {[weak self] snapshot in
+        self.database.child(DBUserPath).observeSingleEvent(of: .value) {[weak self] snapshot in
             guard let strongSelf = self else {
                 completion(false)
                 return
@@ -58,9 +60,9 @@ extension ApiHandler {
                 Constants.email: user.email
             ]
             
-            var collections = UsersList()
+            var collections = [[String:String]]()
             
-            if var userCollection = snapshot.value as? UsersList {
+            if var userCollection = snapshot.value as? [[String: String]] {
                 // Append to users Array
                 userCollection.append(newElement)
                 collections = userCollection
@@ -70,7 +72,7 @@ extension ApiHandler {
                 collections = [newElement]
             }
             
-            strongSelf.database.child(Constants.users).setValue(collections) { err, _ in
+            strongSelf.database.child(strongSelf.DBUserPath).setValue(collections) { err, _ in
                 guard err == nil else {
                     print("ApiHandler: User insertion to Users Array Failed")
                     completion(false)
@@ -126,30 +128,10 @@ extension ApiHandler {
     }
 }
 
-
-//MARK: Search Support APIs
-extension ApiHandler {
-    func fetchAllUsers(completion: @escaping FetchAllUsersCompletion) {
-        database.child(Constants.users).observeSingleEvent(of: .value) { snapshot in
-            guard let value = snapshot.value as? UsersList else {
-                print("ApiHandler: Fetch All users Failed")
-                completion(.failure(ApiHandlerErrors.fetchAllUsersFailed))
-                return
-            }
-            print("ApiHandler: Fetch All users Success")
-            completion(.success(value))
-        }
-    }
-}
-
-//MARK: Utils
 extension ApiHandler {
     public func userExists(with email: String,
                            completion: @escaping ((Bool) -> Void)) {
-        guard let safeEmail = Utils.shared.safeEmail(email: email) else {
-            completion(false)
-            return
-        }
+        let safeEmail = ApiHandler.safeEmail(emailAddress: email)
         
         database.child(safeEmail).observeSingleEvent(of: .value, with: { snapshot in
             guard snapshot.value as? [String: Any] != nil else {
@@ -162,9 +144,9 @@ extension ApiHandler {
     
     private func resetUserDefaults() {
         let defaults = UserDefaults.standard
-        let dictionary = defaults.dictionaryRepresentation()
-        dictionary.keys.forEach { key in
-            defaults.removeObject(forKey: key)
-        }
+            let dictionary = defaults.dictionaryRepresentation()
+            dictionary.keys.forEach { key in
+                defaults.removeObject(forKey: key)
+            }
     }
 }

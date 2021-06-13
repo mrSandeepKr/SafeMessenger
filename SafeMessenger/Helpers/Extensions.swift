@@ -52,7 +52,7 @@ extension String {
 
 extension UIViewController {
     func makeNavigationBarTransperant() {
-        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default) //UIImage.init(named: "transparent.png")
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.isTranslucent = true
         self.navigationController?.view.backgroundColor = .clear
@@ -66,18 +66,5 @@ extension Notification.Name {
 extension UITableViewCell {
     static var reusableIdentifier: String {
         return String(describing: self)
-    }
-}
-
-extension DispatchQueue {
-    static func background(delay: Double = 0.0, background: (()->Void)? = nil, completion: (() -> Void)? = nil) {
-        DispatchQueue.global(qos: .background).async {
-            background?()
-            if let completion = completion {
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: {
-                    completion()
-                })
-            }
-        }
     }
 }
