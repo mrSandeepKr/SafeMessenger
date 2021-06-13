@@ -47,7 +47,7 @@ class Utils {
         return email.replacingOccurrences(of: ".", with: "-")
     }
     
-    func getStorageUrlForEmail(for email:String) -> String {
+    func getStoragePathForEmail(for email:String) -> String {
         let safeEmail = StorageManager.safeEmail(for: email)
         let fileName = StorageManager.profileImageFilename(for: safeEmail)
         let path = StorageManager.profileImageRefPath(fileName: fileName)

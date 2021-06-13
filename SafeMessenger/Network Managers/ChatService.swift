@@ -11,6 +11,7 @@ import FirebaseDatabase
 enum ChatServiceError: Error {
     case FailedToCreateThread
     case FailedToFetchAllConvoObjects
+    case FailedToGetUser
 }
 
 final class ChatService {
@@ -75,7 +76,7 @@ extension ChatService {
         let ref = database.child(email)
         ref.observeSingleEvent(of: .value) { snapshot in
             guard var userNode = snapshot.value as? UserDict else {
-                completion(.failure(ApiHandlerErrors.userNotFound))
+                completion(.failure(ChatServiceError.FailedToGetUser))
                 print("ChatService: Add conversation Failed because \(email) not found")
                 return
             }
