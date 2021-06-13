@@ -13,8 +13,6 @@ public enum StorageError: Error {
     case failedToGetDownloadURL
 }
 
-public typealias UploadPictureCompletion = (Result<String,Error>) -> Void
-
 final class StorageManager {
     static let shared = StorageManager()
     private let storage = Storage.storage().reference()

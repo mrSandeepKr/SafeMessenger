@@ -98,8 +98,10 @@ class ChatListMultiViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
-        view.layoutIfNeeded()
+        if navigationController?.navigationBar.isHidden == false {
+            navigationController?.navigationBar.isHidden = true
+            view.layoutIfNeeded()
+        }
         updateViewForLogginIn()
     }
     
@@ -139,9 +141,9 @@ class ChatListMultiViewController: UIViewController {
     }
     
     @objc private func newChatButtonTapped() {
-        let vc = NewChatViewController()
+        let vc = SearchUserViewController(viewModel: SearchUserViewModel())
+        vc.delegate = self
         let nav = UINavigationController(rootViewController: vc)
-        vc.view.backgroundColor = .green
         navigationController?.present(nav, animated: true)
     }
 }
@@ -182,7 +184,7 @@ extension ChatListMultiViewController {
                 }) { [weak self] _ in
                 self?.hideHamburgerView()
             }
-        }
+            }
     }
     
     private func showHamburgerViewWithAnimation() {
@@ -200,7 +202,7 @@ extension ChatListMultiViewController {
                 }) { [weak self] _ in
                 self?.showHamburgerView()
             }
-        }
+            }
     }
     
     private func hideHamburgerView() {
@@ -272,7 +274,22 @@ extension ChatListMultiViewController {
 
 extension ChatListMultiViewController: ChatListViewProtocol {
     func didSelectChatFromChatList(viewData: [String: Any]) {
-        let vc = ChatViewController()
+        let vm = ChatViewModel(memberEmail: "asad", memberName: "asad")
+        let vc = ChatViewController(viewModel: vm)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
+extension ChatListMultiViewController: SearchUserViewProtocol {
+    func openChatForUser(user: User) {
+        guard let memberName = user[Constants.name] as? String,
+              let memberEmail = user[Constants.email] as? String else {
+            return
+        }
+        let vm = ChatViewModel(memberEmail: memberEmail, memberName: memberName)
+        let vc = ChatViewController(viewModel: vm)
+        vc.title = memberName
+        vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }
 }

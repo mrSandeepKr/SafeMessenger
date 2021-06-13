@@ -12,6 +12,7 @@ class ChatListViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let table = UITableView()
         table.isHidden = true
+        table.rowHeight = UITableView.automaticDimension
         return table
     }()
     
@@ -39,11 +40,19 @@ class ChatListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.fetchData { success in
-            if success {
-                tableView.isHidden = false
+        spinner.show(in: view)
+        DispatchQueue.background( background: {[weak self] in
+            self?.viewModel.fetchData {[weak self] success in
+                if success {
+                    DispatchQueue.main.async {
+                        self?.tableView.isHidden = false
+                        self?.spinner.dismiss()
+                        self?.tableView.reloadData()
+                    }
+                }
             }
-        }
+        })
+        
         view.backgroundColor = .clear
         
         view.addSubview(tableView)
@@ -59,25 +68,33 @@ class ChatListViewController: UIViewController {
         // 1. Add the no chats label.
         // 2. Add Spinner for no chats area.
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        spinner.dismiss()
+    }
 }
 
 extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return viewModel.fetchedChats.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier) else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChatListTableViewCell.reusableIdentifier) as? ChatListTableViewCell
+        else {
             return UITableViewCell()
         }
-        cell.textLabel?.text = "Hi Brooo"
-        cell.accessoryType = .disclosureIndicator
+        cell.configureCell(with: ChatListTableViewCellViewModel(convo: viewModel.fetchedChats[indexPath.row]))
         return cell
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 100
+    }
+    
     private func setUpTableView() {
-        tableView.register(UITableViewCell.self,
-                           forCellReuseIdentifier: UITableViewCell.reusableIdentifier)
+        tableView.register(ChatListTableViewCell.self,
+                           forCellReuseIdentifier: ChatListTableViewCell.reusableIdentifier)
         tableView.delegate = self
         tableView.dataSource = self
     }
