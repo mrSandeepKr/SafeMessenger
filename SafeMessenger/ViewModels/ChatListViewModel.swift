@@ -16,7 +16,13 @@ class ChatListViewModel {
     
     func startListeningForChats(completion:@escaping (Bool)->Void) {
         DispatchQueue.background( background: {[weak self] in
-            self?.fetchData(completion: completion)
+            self?.fetchData(completion: {[weak self] success in
+                guard let strongSelf = self else {
+                    completion(false)
+                    return
+                }
+                completion(success && (strongSelf.fetchedChats.count > 0))
+            })
         })
     }
     
@@ -35,7 +41,6 @@ class ChatListViewModel {
                 break
             default:
                 completion(false)
-                
             }
         }
     }

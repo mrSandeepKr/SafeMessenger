@@ -228,7 +228,7 @@ extension ChatService {
             return
         }
         database.child("\(safeEmail)/\(Constants.conversations)").removeAllObservers()
-        print("ChatService: Remove Converation List Observer")
+        //print("ChatService: Remove Converation List Observer")
     }
     
     func removeConversationThreadObserver(for id: String?) {
@@ -236,6 +236,6 @@ extension ChatService {
             return
         }
         database.child(threadId).child(Constants.messages).removeAllObservers()
-        print("ChatService: Remove Conversation Thread Observer")
+        //print("ChatService: Remove Conversation Thread Observer")
     }
 }
