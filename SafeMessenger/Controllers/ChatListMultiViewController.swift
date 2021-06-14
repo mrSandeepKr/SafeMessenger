@@ -10,6 +10,7 @@ import UIKit
 class ChatListMultiViewController: UIViewController {
     // View Model for ChatList MultiViewController
     private let viewModel = ChatListMultiViewModel()
+    private var logInObserver: NSObjectProtocol?
     
     //Hamburger Support
     private lazy var hamburgerHeight = (self.navigationController?.navigationBar.frame.height ?? 0) * 0.9
@@ -35,7 +36,7 @@ class ChatListMultiViewController: UIViewController {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = hamburgerHeight / 2
         imageView.layer.borderWidth = 1
-        imageView.layer.borderColor = UIColor.label.cgColor
+        imageView.layer.borderColor = #colorLiteral(red: 0.3647058904, green: 0.06666667014, blue: 0.9686274529, alpha: 1)
         imageView.isUserInteractionEnabled = true
         imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(hamburgerBtnTapped)))
         imageView.isUserInteractionEnabled = true
@@ -62,6 +63,14 @@ class ChatListMultiViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         basicSetUp()
+        
+        logInObserver = NotificationCenter.default.addObserver(forName: .didLogInNotification,
+                                                               object: nil,
+                                                               queue: .main,
+                                                               using: { [weak self] _ in
+                                                                self?.updateViewForLogginIn()
+                                                                
+                                                               })
         
         view.addSubview(hamburgerBtn)
         view.addSubview(chatListViewController.view)
@@ -93,7 +102,7 @@ class ChatListMultiViewController: UIViewController {
         chatListViewController.view.frame = CGRect(x: 0,
                                                    y: safeAreaTop + hamburgerHeight + 40,
                                                    width: view.width,
-                                                   height: view.height - safeAreaTop)
+                                                   height: view.height - (safeAreaTop + 40 + hamburgerHeight))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -102,11 +111,11 @@ class ChatListMultiViewController: UIViewController {
             navigationController?.navigationBar.isHidden = true
             view.layoutIfNeeded()
         }
-        updateViewForLogginIn()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(false)
+        chatListViewController.viewDidAppear(animated)
         guard viewModel.isLoggedIn else{
             presetLoginScreen()
             return
@@ -118,11 +127,14 @@ class ChatListMultiViewController: UIViewController {
         navigationController?.navigationBar.isHidden = false
     }
     
+    deinit {
+        if let observer = logInObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+    
     private func basicSetUp() {
         updateViewForLogginIn()
-        if viewModel.isLoggedIn {
-            viewModel.updateHamburgerBtnImageView(for: hamburgerBtn)
-        }
         
         navigationController?.navigationBar.isHidden = true
         hamburgerWidth.constant = view.width * 0.75
@@ -161,7 +173,7 @@ extension ChatListMultiViewController {
     
     private func updateViewForLogginIn() {
         let isHidden = !viewModel.isLoggedIn
-        if isHidden {
+        if !isHidden {
             viewModel.updateHamburgerBtnImageView(for: hamburgerBtn)
         }
         hamburgerBtn.isHidden = isHidden
@@ -273,22 +285,22 @@ extension ChatListMultiViewController {
 }
 
 extension ChatListMultiViewController: ChatListViewProtocol {
-    func didSelectChatFromChatList(viewData: [String: Any]) {
-        let vm = ChatViewModel(memberEmail: "asad", memberName: "asad")
+    func didSelectChatFromChatList(with convo: ConversationObject) {
+        guard let vm = viewModel.getChatViewModel(for: convo)
+        else {return}
         let vc = ChatViewController(viewModel: vm)
+        vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }
 }
 
 extension ChatListMultiViewController: SearchUserViewProtocol {
     func openChatForUser(user: ChatAppUserModel) {
-        let memberName = user.displayName
         let memberEmail = user.email
         
-        let vm = ChatViewModel(memberEmail: memberEmail, memberName: memberName)
+        let vm = ChatViewModel(memberEmail: memberEmail, convo: nil)
         let vc = ChatViewController(viewModel: vm)
         
-        vc.title = memberName
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }

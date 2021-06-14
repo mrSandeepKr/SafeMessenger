@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import SDWebImage
 
 class ChatListMultiViewModel {
     var hamburgerBtnImagePlaceholder: String?
@@ -16,11 +17,31 @@ class ChatListMultiViewModel {
     }
     
     public var isLoggedIn: Bool {
-        return UserDefaults.standard.bool(forKey: UserDefaultConstant.isLoggedIn)
+        return Utils.shared.isUserLoggedIn()
     }
     
-    func updateHamburgerBtnImageView(for imageVIew: UIImageView) {
-        StorageManager.shared.downloadImageURLandUpdateView(for: imageVIew,
-                                                            path: StorageManager.profileImagePath)
+    func updateHamburgerBtnImageView(for imageView: UIImageView) {
+        StorageManager.shared.downloadURL(for: StorageManager.profileImagePath) { res in
+            DispatchQueue.main.async {
+                switch res {
+                case .success(let url ):
+                    imageView.sd_setImage(with: url)
+                    break
+                case .failure(_):
+                    break
+                }
+            }
+        }
+    }
+    
+    func getChatViewModel(for convo: ConversationObject) -> ChatViewModel?  {
+        guard let loggedInUser = Utils.shared.getLoggedInUserEmail() else {
+            return nil
+        }
+        let members = convo.members.filter{return $0 != loggedInUser}
+        guard members.count > 0 else {
+            return nil
+        }
+        return ChatViewModel(memberEmail: members[0],convo: convo)
     }
 }

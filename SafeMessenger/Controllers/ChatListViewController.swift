@@ -42,28 +42,9 @@ class ChatListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        spinner.show(in: view)
-        DispatchQueue.background( background: {[weak self] in
-            self?.viewModel.fetchData {[weak self] success in
-                if success {
-                    DispatchQueue.main.async {
-                        self?.tableView.isHidden = false
-                        self?.noChatsLabel.isHidden = true
-                        self?.spinner.dismiss()
-                        self?.tableView.reloadData()
-                    }
-                }
-                else {
-                    DispatchQueue.main.async {
-                        self?.tableView.isHidden = true
-                        self?.noChatsLabel.isHidden = false
-                        self?.spinner.dismiss()
-                    }
-                }
-            }
-        })
-        
         view.backgroundColor = .clear
+        spinner.show(in: view)
+        addChatListener()
         
         view.addSubview(tableView)
         view.addSubview(noChatsLabel)
@@ -78,13 +59,23 @@ class ChatListViewController: UIViewController {
         noChatsLabel.frame = CGRect(x: 0, y: 0, width: noChatsLabel.width , height: noChatsLabel.height)
         noChatsLabel.center = CGPoint(x: view.center.x, y: 100)
         //TODO:
-        // Add tableview via anchors could be easier to control.
-        // 1. Add the no chats label.
-        // 2. Add Spinner for no chats area.
+        // 1.Add tableview via anchors could be easier to control.
+        // 2.Add Spinner for no chats area.
+    }
+    
+    override var shouldAutomaticallyForwardAppearanceMethods: Bool {
+        return true
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        viewModel.removeListerForConvo()
+        addChatListener()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         spinner.dismiss()
+        viewModel.removeListerForConvo()
     }
 }
 
@@ -115,7 +106,32 @@ extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        delegate?.didSelectChatFromChatList(viewData: [:])
+        delegate?.didSelectChatFromChatList(with: viewModel.fetchedChats[indexPath.row])
     }
 }
 
+extension ChatListViewController {
+    private func updateUIForFetch(if success:Bool) {
+        if success {
+            DispatchQueue.main.async {
+                self.tableView.isHidden = false
+                self.noChatsLabel.isHidden = true
+                self.spinner.dismiss()
+                self.tableView.reloadData()
+            }
+        }
+        else {
+            DispatchQueue.main.async {
+                self.tableView.isHidden = true
+                self.noChatsLabel.isHidden = false
+                self.spinner.dismiss()
+            }
+        }
+    }
+    
+    private func addChatListener() {
+        viewModel.startListeningForChats {[weak self] success in
+            self?.updateUIForFetch(if: success)
+        }
+    }
+}

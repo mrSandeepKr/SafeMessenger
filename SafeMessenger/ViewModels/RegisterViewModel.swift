@@ -25,7 +25,7 @@ class RegisterViewModel {
                                       password: String?,
                                       verifyPassword: String?,
                                       profileImage: UIImage?,
-                                      completion: @escaping  CreateAccountCompletion) {
+                                      completion: @escaping CreateAccountCompletion) {
         var msg = ""
         guard let fn = firstName?.trimmingCharacters(in: .whitespaces),
               let sn = secondName?.trimmingCharacters(in: .whitespaces),
@@ -50,13 +50,11 @@ class RegisterViewModel {
             return
         }
         
-        handleUserCreation(email: email, pswd: pswd,firstName: fn, secondName: sn, profileImageData: data) { msg in
-            if msg.isEmpty {
-                UserDefaults.standard.setValue(true, forKey: UserDefaultConstant.isLoggedIn)
-            }
-            // Return whatever the msg might be
-            completion(msg)
-        }
+        handleUserCreation(email: email.lowercased(),
+                           pswd: pswd,firstName:
+                            fn, secondName: sn,
+                           profileImageData: data,
+                           completion: completion)
     }
 }
 
@@ -83,15 +81,15 @@ extension RegisterViewModel {
                     return
                 }
                 print("RegisterViewModel: Added User Info to Database")
-                StorageManager.shared.uploadProfileImage(with: profileImageData,
-                                                         fileName: userInfo.profileImageString) { res in
+                StorageManager.shared.uploadUserProfileImage(with: profileImageData,
+                                                             fileName: userInfo.profileImageString) { res in
                     switch res {
                     case .success(let downloadUrl):
-                        UserDefaults.standard.setValue(downloadUrl, forKey: UserDefaultConstant.profileImageUrl)
+                        ApiHandler.shared.setUserLoggedInDefaults(user: userInfo,
+                                                                  downloadURL: downloadUrl)
                         completion("")
                     case .failure(_):
                         completion("Oops!! Failed to upload your profile Image to Database")
-                    // TODO: add a call to remove user form database
                     }
                 }
             }

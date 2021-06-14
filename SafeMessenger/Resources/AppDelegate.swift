@@ -44,8 +44,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             return
         }
         
-        guard let email = user.profile.email,
-              let firstName = user.profile.givenName,
+        let email = user.profile.email.lowercased()
+        guard let firstName = user.profile.givenName,
               let secondName = user.profile.familyName
         else {
             return
@@ -56,25 +56,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         ApiHandler.shared.userExists(with: email) { exists in
             if !exists {
                 let userInfo = ChatAppUserModel(firstName: firstName,
-                                                secondName: secondName ,
+                                                secondName: secondName,
                                                 email: email)
-                ApiHandler.shared.insertUserToDatabase(user: userInfo) {[weak self] success in
+                ApiHandler.shared.insertUserToDatabase(user: userInfo) { success in
                     if success {
                         let fileName = userInfo.profileImageString
                         guard user.profile.hasImage, let url = user.profile.imageURL(withDimension: 200)
                         else {
                             print("AppDelegate: Google doens't have user profile Image")
                             let data = UIImage(named: Constants.ImageNamePersonPlaceholder)?.pngData()
-                            self?.uploadImage(with: data!, fileName: fileName)
+                            StorageManager.shared.uploadUserProfileImage(with: data!, fileName: fileName) { _ in}
                             return
                         }
                         
-                        URLSession.shared.dataTask(with: URLRequest(url: url)) {[weak self] data, _, err in
+                        URLSession.shared.dataTask(with: URLRequest(url: url)) {data, _, err in
                             guard err == nil, let data = data else {
+                                print("AppDelegate: Fetch Google Profile Image Failed")
                                 return
                             }
-                            print("AppDelegate: Fetched Google Profile Image")
-                            self?.uploadImage(with: data, fileName: fileName)
+                            print("AppDelegate: Fetch Google Profile Image Success")
+                            StorageManager.shared.uploadUserProfileImage(with: data, fileName: fileName) { _ in}
                         }.resume()
                     }
                 }
@@ -89,14 +90,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
                                                        accessToken: authentication.accessToken)
         
+        //userDefauls are already set just sign the user in here.
+        //This is dicy, but thats how we roll
         FirebaseAuth.Auth.auth().signIn(with: credential) { authResult, err in
             guard authResult != nil, err == nil else {
                 print("AppDelegate: Auth Missing or there is and error in google SignIn")
                 return
             }
             print("AppDelegat: Successful Sign In")
-            UserDefaults.standard.setValue(email, forKey: UserDefaultConstant.userEmail)
-            NotificationCenter.default.post(name: .didLogInNotification, object: nil)
+            ApiHandler.shared.fetchLoggedInUserInfoAndSetDefaults(for: email) { success in
+                if success {
+                    NotificationCenter.default.post(name: .didLogInNotification, object: nil)
+                }
+            }
         }
     }
     
@@ -106,19 +112,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     
     func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
         return GIDSignIn.sharedInstance().handle(url)
-    }
-}
-
-extension AppDelegate {
-    private func uploadImage(with data: Data,fileName: String) {
-        StorageManager.shared.uploadProfileImage(with: data, fileName: fileName) { res in
-            switch res {
-            case .success(let downloadURL) :
-                UserDefaults.standard.setValue(downloadURL, forKey: UserDefaultConstant.profileImageUrl)
-                break
-            case .failure(_) :
-                break
-            }
-        }
     }
 }

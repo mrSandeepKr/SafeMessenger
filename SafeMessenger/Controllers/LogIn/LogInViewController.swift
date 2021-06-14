@@ -119,7 +119,6 @@ class LogInViewController: UIViewController {
                                                                queue: .main,
                                                                using: { [weak self] _ in
                                                                 self?.spinner.dismiss()
-                                                                self?.viewModel.setUserDefaultsForLogin()
                                                                 self?.navigationController?.dismiss(animated: true)
                                                                })
         googleSignInButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapGoogleSignIn)))
@@ -222,6 +221,7 @@ extension LogInViewController {
             }
             
             print("LogInViewController: Successful Login")
+            NotificationCenter.default.post(name: .didLogInNotification, object: nil)
             self?.dismiss(animated: true)
         }
     }

@@ -11,6 +11,8 @@ import FirebaseDatabase
 enum ChatServiceError: Error {
     case FailedToCreateThread
     case FailedToFetchAllConvoObjects
+    case FailedToGetUser
+    case FailedToGetThread
 }
 
 final class ChatService {
@@ -20,28 +22,31 @@ final class ChatService {
 }
 
 extension ChatService {
-    func getAllConversations(with member: String, completion:@escaping (Result<[ConversationObject], Error>) -> Void) {
-        print("ChatService: GetAllConversation Initiated")
+    func observeAllConversation(with member: String,
+                                completion:@escaping (Result<[ConversationObject], Error>) -> Void) {
         guard let member = Utils.shared.safeEmail(email: member) else {
             completion(.failure(ChatServiceError.FailedToFetchAllConvoObjects))
             return
         }
         
-        database.child("\(member)/\(Constants.conversations)").observeSingleEvent(of: .value) { snapshot in
-            guard let value = snapshot.value as? [[String: Any]] else {
-                completion(.failure(ChatServiceError.FailedToFetchAllConvoObjects))
-                print("ChatService: GetAllConversation Failed")
-                
-                return
+        let ref = database.child("\(member)/\(Constants.conversations)")
+        ref.observe(.value) { snapshot in
+            var convos = [ConversationObject]()
+            
+            for child in snapshot.children.allObjects {
+                guard let base = child as? DataSnapshot,
+                      let convoDict = base.value as? [String: Any],
+                      let convo = ConversationObject.getObject(from: convoDict)
+                else {
+                    continue
+                }
+                convos.append(convo)
             }
-            let convos = value.compactMap { convoObject in
-                return ConversationObject.getObject(from: convoObject)
-            }
-            if convos.count != value.count {
+            
+            if convos.count != snapshot.childrenCount {
                 print("ChatService: Some Objects couldn't be parsed while fetching")
             }
             print("ChatService: GetAllConversation Success")
-            
             completion(.success(convos))
         }
     }
@@ -50,64 +55,187 @@ extension ChatService {
                                convo: ConversationObject,
                                convoThread: ConversationThread,
                                completion: @escaping (Result<Bool, Error>) -> Void) {
+        guard let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() else {
+            completion(.failure(ChatServiceError.FailedToGetUser))
+            return
+        }
+        
         members.forEach { member in
+            var convo = convo
+            convo.lastMessage.isRead = (member == loggedInUserEmail)
             addConversation(to: member, convo: convo)
         }
-        updateConversationThread(for: convoThread, completion: completion)
-    }
-    func getAllMessagesForConversation(with id: String, completion: (Result<Bool, Error>) -> Void) {
-        
+        createConversationThread(for: convoThread,
+                                 with: convoThread.messages[0],
+                                 completion: completion)
     }
     
-    func sendMessage(to conversation: String, message: Message, completion: (Result<Bool, Error>) -> Void) {
-        
+    func observeMessagesForConversation(with id: String, completion: @escaping (Result<ConversationThread, Error>) -> Void) {
+        database.child(id).child(Constants.messages).observe(.value) { snapshot in
+            guard snapshot.hasChildren()
+            else {
+                print("ChatService: get messages for thread Failed")
+                completion(.failure(ChatServiceError.FailedToGetThread))
+                return
+            }
+            
+            let convoThread = ConversationThread.getObject(for: id, snap: snapshot)
+            if convoThread.messages.count != snapshot.childrenCount {
+                print("ChatService: Could resolve few messages for Thread :\(id)")
+            }
+            print("ChatService: get messages for thread Success")
+            completion(.success(convoThread))
+        }
+    }
+    
+    func sendMessage(to convoId: String,
+                     members: [String],
+                     message: Message,
+                     completion: @escaping (Bool) -> Void) {
+        guard let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() else {
+            completion(false)
+            return
+        }
+        updateConversationThread(for: convoId, with: message, completion: completion)
+        members.forEach { member in
+            var mes = message
+            mes.isRead = (member == loggedInUserEmail)
+            updateConversationObjectLastMessage(for: member,
+                                                convoId: convoId,
+                                                with: mes,
+                                                completion: completion)
+        }
     }
 }
 
 extension ChatService {
-    private func addConversation(to email: String,
-                                 convo: ConversationObject,
-                                 completion: @escaping ((Result<Bool, Error>) -> Void) = {_ in}) {
-        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
-            print("ChatService: Add conversation Failed because of empty email")
-            return
-        }
-        let ref = database.child(email)
-        ref.observeSingleEvent(of: .value) { snapshot in
-            guard var userNode = snapshot.value as? UserDict else {
-                completion(.failure(ApiHandlerErrors.userNotFound))
-                print("ChatService: Add conversation Failed because \(email) not found")
+    private func updateConversationThread(for convoId: String,with msg:Message, completion: @escaping (Bool)->Void) {
+        let ref = database.child(getMessagesThreadPath(for: convoId)).childByAutoId()
+        ref.setValue(msg.serialisedObject()) { err, _ in
+            guard err == nil else {
+                print("ChatService: Update Conversation Thread Failed")
+                completion(false)
                 return
             }
-            
-            if var conversations = userNode[Constants.conversations] as? [[String: Any]] {
-                conversations.append(convo.serialisedObject())
-                userNode[Constants.conversations] = conversations
-            }
-            else {
-                userNode[Constants.conversations] = [convo.serialisedObject()]
-            }
-            
-            ref.setValue(userNode) { err, databaseRef in
-                guard err == nil else {
-                    completion(.failure(err!))
-                    return
+            print("ChatService: Update Conversation Thread Success")
+            completion(true)
+        }
+    }
+    
+    private func updateConversationObjectLastMessage(for email: String,
+                                                     convoId: String,
+                                                     with msg: Message,
+                                                     completion: @escaping (Bool) -> Void) {
+        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
+            print("ChatService: Update Last Message for Conversation Object Failed")
+            completion(false)
+            return
+        }
+        let ref = database.child(getConversationOjectPath(safeEmail: email))
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children {
+                guard let base = child as? DataSnapshot,
+                      let dict = base.value as? [String: Any],
+                      let convo = ConversationObject.getObject(from: dict),
+                      convo.convoID == convoId
+                else {
+                    continue
                 }
-                print("ChatService: Add Conversation Successful")
-                completion(.success(true))
+                print("ChatService: Update Last Message for Conversation Object Success")
+                let key = base.key
+                ref.child(key).updateChildValues([Constants.lastMessage: msg.serialisedObject()])
+                completion(true)
+                return
+            }
+        }
+        completion(false)
+    }
+    
+    func updateConversationObjectReadStatus(for email: String,
+                                            convoId: String,
+                                            completion: @escaping ((Result<Bool, Error>) -> Void) = {_ in}) {
+        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
+            print("ChatService: Update Read for Conversation Object Failed")
+            return
+        }
+        let ref = database.child(getConversationOjectPath(safeEmail: email))
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children {
+                guard let base = child as? DataSnapshot,
+                      let dict = base.value as? [String: Any],
+                      let convo = ConversationObject.getObject(from: dict),
+                      convo.convoID == convoId
+                else {
+                    continue
+                }
+                print("ChatService: Update Read for Conversation Object Success")
+                let key = base.key
+                ref.child(key).child(Constants.lastMessage).updateChildValues([Constants.isRead: true])
+                break
             }
         }
     }
     
+    private func addConversation(to email: String,
+                                 convo: ConversationObject,
+                                 completion: @escaping ((Result<Bool, Error>) -> Void) = {_ in}) {
+        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
+            print("ChatService: Add Conversation Object Failed - because of empty email")
+            return
+        }
+        let ref = database.child(getConversationOjectPath(safeEmail: email)).childByAutoId()
+        ref.setValue(convo.serialisedObject()) { err, _ in
+            guard err == nil else {
+                completion(.failure(err!))
+                return
+            }
+            print("ChatService: Add Conversation Object Success")
+            completion(.success(true))
+        }
+    }
+    
     //TODO: make things more decoupled - Only update the thread with latest msgs created here.
-    private func updateConversationThread(for thread:ConversationThread,
+    private func createConversationThread(for thread:ConversationThread,
+                                          with msg: Message,
                                           completion: @escaping (Result<Bool,Error>) -> Void) {
-        database.child(thread.convoID).setValue(thread.serialisedObject()) { err, _ in
-            guard err != nil else {
+        let ref = database.child(getMessagesThreadPath(for: thread.convoID)).childByAutoId()
+        
+        ref.setValue(msg.serialisedObject()) { err, _ in
+            guard err == nil else {
+                print("ChatService: Update Conversation Thread Failed for msg: \(String(describing:msg))")
                 completion(.failure(ChatServiceError.FailedToCreateThread))
                 return
             }
+            print("ChatService: Update Conversation Thread Success")
             completion(.success(true))
         }
+    }
+}
+
+extension ChatService {
+    func getMessagesThreadPath(for convoId: String) -> String {
+        return "\(convoId)/\(Constants.messages)"
+    }
+    
+    func getConversationOjectPath(safeEmail: String) -> String {
+        return "\(safeEmail)/\(Constants.conversations)"
+    }
+}
+
+extension ChatService {
+    func removeConversationListObserver() {
+        guard let safeEmail = Utils.shared.getLoggedInUserSafeEmail() else {
+            return
+        }
+        database.child("\(safeEmail)/\(Constants.conversations)").removeAllObservers()
+        //print("ChatService: Remove Converation List Observer")
+    }
+    
+    func removeConversationThreadObserver(for id: String?) {
+        guard let threadId = id else {
+            return
+        }
+        database.child(threadId).child(Constants.messages).removeAllObservers()
+        //print("ChatService: Remove Conversation Thread Observer")
     }
 }

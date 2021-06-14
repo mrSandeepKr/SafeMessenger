@@ -61,7 +61,8 @@ struct Message: MessageType, Serialisable {
               let msgContent = dict[Constants.msgContent] as? String,
               let sentDate = Utils.networkDateFormatter.date(from: sentDateString),
               let msgKind = getMessageKind(from: msgType, content: msgContent),
-              let sender = Sender.getObject(from: senderDict)
+              let sender = Sender.getObject(from: senderDict),
+              let isRead = dict[Constants.isRead] as? Bool
         else {
             return nil
         }
@@ -69,7 +70,8 @@ struct Message: MessageType, Serialisable {
         return Message(sender: sender,
                        messageId: messageID,
                        sentDate: sentDate,
-                       kind: msgKind)
+                       kind: msgKind,
+                       isRead: isRead)
     }
     
     static func getMessageKind(from msgType: String, content: String) -> MessageKind? {

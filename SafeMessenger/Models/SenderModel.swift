@@ -11,7 +11,7 @@ import MessageKit
 extension SenderType {
     func serialisedObject() -> [String : Any] {
         return [
-            Constants.imageURL: Utils.shared.getStorageUrlForEmail(for: senderId),
+            Constants.imageURL: Utils.shared.getStoragePathForEmail(for: senderId),
             Constants.senderID: senderId,
             Constants.displayName: displayName
         ]

@@ -150,6 +150,7 @@ extension RegisterViewController {
                 self?.showAlertWithMessage(msg: msg)
                 return
             }
+            NotificationCenter.default.post(name: .didLogInNotification, object: nil)
             print("RegisterViewController: User Registered Successfully")
             self?.dismiss(animated: true)
         }

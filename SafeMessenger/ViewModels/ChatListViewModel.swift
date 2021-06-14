@@ -14,14 +14,26 @@ class ChatListViewModel {
         
     }
     
-    func fetchData(completion:@escaping (Bool)->Void) {
+    func startListeningForChats(completion:@escaping (Bool)->Void) {
+        DispatchQueue.background( background: {[weak self] in
+            self?.fetchData(completion: {[weak self] success in
+                guard let strongSelf = self else {
+                    completion(false)
+                    return
+                }
+                completion(success && (strongSelf.fetchedChats.count > 0))
+            })
+        })
+    }
+    
+    private func fetchData(completion:@escaping (Bool)->Void) {
         guard let loggedInUser = Utils.shared.getLoggedInUserEmail(), !loggedInUser.isEmpty
         else {
             completion(false)
             return
         }
         
-        ChatService.shared.getAllConversations(with: loggedInUser) {[weak self] res in
+        ChatService.shared.observeAllConversation(with: loggedInUser) {[weak self] res in
             switch res {
             case .success(let convos):
                 self?.fetchedChats = convos
@@ -29,8 +41,11 @@ class ChatListViewModel {
                 break
             default:
                 completion(false)
-                
             }
         }
+    }
+    
+    func removeListerForConvo() {
+        ChatService.shared.removeConversationListObserver()
     }
 }
