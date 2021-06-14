@@ -102,7 +102,7 @@ class ChatListMultiViewController: UIViewController {
         chatListViewController.view.frame = CGRect(x: 0,
                                                    y: safeAreaTop + hamburgerHeight + 40,
                                                    width: view.width,
-                                                   height: view.height - safeAreaTop)
+                                                   height: view.height - (safeAreaTop + 40 + hamburgerHeight))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -115,6 +115,7 @@ class ChatListMultiViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(false)
+        chatListViewController.viewDidAppear(animated)
         guard viewModel.isLoggedIn else{
             presetLoginScreen()
             return

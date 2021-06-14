@@ -39,4 +39,8 @@ class ChatListViewModel {
             }
         }
     }
+    
+    func removeListerForConvo() {
+        ChatService.shared.removeChatListObserver()
+    }
 }

@@ -42,12 +42,9 @@ class ChatListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        spinner.show(in: view)
-        viewModel.startListeningForChats {[weak self] success in
-            self?.updateUIForFetch(if: success)
-        }
-        
         view.backgroundColor = .clear
+        spinner.show(in: view)
+        addChatListener()
         
         view.addSubview(tableView)
         view.addSubview(noChatsLabel)
@@ -62,22 +59,23 @@ class ChatListViewController: UIViewController {
         noChatsLabel.frame = CGRect(x: 0, y: 0, width: noChatsLabel.width , height: noChatsLabel.height)
         noChatsLabel.center = CGPoint(x: view.center.x, y: 100)
         //TODO:
-        // Add tableview via anchors could be easier to control.
-        // 1. Add the no chats label.
-        // 2. Add Spinner for no chats area.
+        // 1.Add tableview via anchors could be easier to control.
+        // 2.Add Spinner for no chats area.
+    }
+    
+    override var shouldAutomaticallyForwardAppearanceMethods: Bool {
+        return true
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        ChatService.shared.removeChatListObserver()
-        viewModel.startListeningForChats {[weak self] success in
-            self?.updateUIForFetch(if: success)
-        }
+        viewModel.removeListerForConvo()
+        addChatListener()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         spinner.dismiss()
-        ChatService.shared.removeChatListObserver()
+        viewModel.removeListerForConvo()
     }
 }
 
@@ -128,6 +126,12 @@ extension ChatListViewController {
                 self.noChatsLabel.isHidden = false
                 self.spinner.dismiss()
             }
+        }
+    }
+    
+    private func addChatListener() {
+        viewModel.startListeningForChats {[weak self] success in
+            self?.updateUIForFetch(if: success)
         }
     }
 }
