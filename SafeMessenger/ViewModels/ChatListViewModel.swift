@@ -27,7 +27,7 @@ class ChatListViewModel {
             return
         }
         
-        ChatService.shared.getAllConversations(with: loggedInUser) {[weak self] res in
+        ChatService.shared.observeAllConversation(with: loggedInUser) {[weak self] res in
             switch res {
             case .success(let convos):
                 self?.fetchedChats = convos
