@@ -17,7 +17,7 @@ class ChatViewController: MessagesViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -35,21 +35,10 @@ class ChatViewController: MessagesViewController {
                     strongSelf.title = strongSelf.viewModel.memberModel?.firstName
                 }
             }
-            self?.viewModel.getMessages(completion: { [weak self] success in
-                guard let strongSelf = self else {
-                    return
-                }
-                DispatchQueue.main.async {
-                    strongSelf.updateViewIfNotMessages(gotMessages: success)
-                }
-            })
+            self?.addObserverOnMessages()
         })
         
-        messagesCollectionView.contentInset = UIEdgeInsets(top: 59, left: 0, bottom: 0, right: 0)
-        messagesCollectionView.messagesDataSource = self
-        messagesCollectionView.messagesLayoutDelegate = self
-        messagesCollectionView.messagesDisplayDelegate = self
-        messageInputBar.delegate = self
+        setUpMessageKitStuff()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -59,7 +48,7 @@ class ChatViewController: MessagesViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        ChatService.shared.removeMessagesObserver(for: viewModel.convoId)
+        viewModel.removeMessagesObserver()
     }
 }
 
@@ -83,16 +72,42 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             print("ChatViewController: Trying to send empty message")
             return
         }
-        viewModel.sendMessage(to: viewModel.memberEmail, msg: text) { success in
+        let isNewConvo = viewModel.isNewConversation
+        viewModel.sendMessage(to: viewModel.memberEmail, msg: text) {[weak self] success in
             if success {
-                print("Success")
+                print("ChatViewController: Message Send Success")
+                if isNewConvo {
+                    self?.addObserverOnMessages()
+                }
+            }
+            else {
+                print("ChatViewController: Message Send Failed")
             }
         }
     }
 }
 
 extension ChatViewController {
-    private func updateViewIfNotMessages(gotMessages: Bool) {
+    private func updateViewForMessages() {
         messagesCollectionView.reloadDataAndKeepOffset()
+    }
+    
+    private func setUpMessageKitStuff() {
+        messagesCollectionView.contentInset = UIEdgeInsets(top: 110, left: 0, bottom: 0, right: 0)
+        messagesCollectionView.messagesDataSource = self
+        messagesCollectionView.messagesLayoutDelegate = self
+        messagesCollectionView.messagesDisplayDelegate = self
+        messageInputBar.delegate = self
+    }
+    
+    private func addObserverOnMessages() {
+        self.viewModel.getMessages(completion: { [weak self] success in
+            guard let strongSelf = self else {
+                return
+            }
+            DispatchQueue.main.async {
+                strongSelf.updateViewForMessages()
+            }
+        })
     }
 }

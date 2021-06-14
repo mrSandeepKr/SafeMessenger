@@ -63,7 +63,7 @@ extension ChatViewModel {
             return
         }
         
-        ChatService.shared.getAllMessagesForConversation(with: id) {[weak self] res in
+        ChatService.shared.observeMessagesForConversation(with: id) {[weak self] res in
             switch res {
             case .success(let thread):
                 self?.messages = thread.messages
@@ -73,6 +73,10 @@ extension ChatViewModel {
                 completion(false)
             }
         }
+    }
+    
+    func removeMessagesObserver() {
+        ChatService.shared.removeConversationThreadObserver(for: convoId)
     }
 }
 
@@ -101,11 +105,12 @@ extension ChatViewModel {
             return
         }
         
+        let msg = Message(sender: selfSender,
+                        messageId: messageID,
+                        sentDate: Date(),
+                        kind: .text(msg))
+        
         if isNewConversation {
-            let msg = Message(sender: selfSender,
-                            messageId: messageID,
-                            sentDate: Date(),
-                            kind: .text(msg))
             let conversation = ConversationObject(convoID: getConversationId(firstMessageID: messageID),
                                                   lastMessage: msg,
                                                   members: [loggedInUserEmail, memberEmail])
@@ -115,10 +120,12 @@ extension ChatViewModel {
             DispatchQueue.background(background: {
                 ChatService.shared.createNewConversation(with: conversation.members,
                                                          convo: conversation,
-                                                         convoThread: thread) { res in
+                                                         convoThread: thread) {[weak self] res in
                     DispatchQueue.main.async {
                         switch res {
                         case .success(let res):
+                            self?.isNewConversation = false
+                            self?.convoId = conversation.convoID
                             completion(res)
                         case .failure(_):
                             completion(false)
@@ -128,7 +135,12 @@ extension ChatViewModel {
             })
         }
         else {
-            //Ping in the existing thread
+//            DispatchQueue.background(background: {[weak self] in
+//                guard let convoId = self?.convoId else {
+//                    return
+//                }
+//                ChatService.shared.sendMessage(to: convoId, message: msg,completion: completion)
+//            })
         }
     }
     

@@ -41,6 +41,6 @@ class ChatListViewModel {
     }
     
     func removeListerForConvo() {
-        ChatService.shared.removeChatListObserver()
+        ChatService.shared.removeConversationListObserver()
     }
 }
