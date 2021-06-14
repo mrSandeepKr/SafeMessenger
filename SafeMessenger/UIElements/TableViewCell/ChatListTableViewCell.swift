@@ -41,7 +41,7 @@ class ChatListTableViewCell: UITableViewCell {
         let imageView = UIImageView(image: image)
         imageView.layer.masksToBounds = true
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.borderWidth = 1
+        imageView.layer.borderWidth = 0.5
         imageView.layer.borderColor = UIColor.label.cgColor
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -57,6 +57,12 @@ class ChatListTableViewCell: UITableViewCell {
         addSubview(lastMsgTime)
         
         NSLayoutConstraint.activate(staticConstraints())
+    }
+    
+    override func prepareForReuse() {
+        chatTitle.font = .systemFont(ofSize: 19.5, weight: .regular)
+        lastMsg.font = .systemFont(ofSize: 15, weight: .light)
+        lastMsgTime.font = .systemFont(ofSize: 13, weight: .thin)
     }
     
     required init?(coder: NSCoder) {
@@ -114,5 +120,15 @@ extension ChatListTableViewCell {
         lastMsgTime.text = model.getLastMsgDateString()
         lastMsg.text = model.getLastMessageText()
         model.updateImageView(for: chatIcon)
+        updateElementsIfNotRead(with: model)
+    }
+    
+    private func updateElementsIfNotRead(with model:ChatListTableViewCellViewModel) {
+        guard !model.isLastMsgRead else {
+            return
+        }
+        chatTitle.font = .systemFont(ofSize: 19.5, weight: .bold)
+        lastMsg.font = .systemFont(ofSize: 15, weight: .bold)
+        lastMsgTime.font = .systemFont(ofSize: 13, weight: .bold)
     }
 }

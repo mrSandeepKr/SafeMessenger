@@ -24,12 +24,9 @@ class ChatViewModel {
         self.memberEmail = memberEmail
         
         self.loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
-        if loggedInUserEmail.isEmpty {
-             selfSender = Sender(imageURL: "", senderId: "1", displayName: Constants.unknownUser)
-        }
-        else {
-            selfSender = Sender(imageURL: "", senderId: loggedInUserEmail , displayName: "h j h j j j")
-        }
+        let loggedInUserName = Utils.shared.getLoggedInUserDisplayName() ?? ""
+        selfSender = Sender(imageURL: "", senderId: loggedInUserEmail , displayName: loggedInUserName)
+        
         
         if convoId != nil {
             isNewConversation = false
@@ -47,9 +44,6 @@ extension ChatViewModel {
             switch res {
             case .success(let model):
                 self?.memberModel = model
-                self?.selfSender = Sender(imageURL: model.profileImageRefPathForUser,
-                                          senderId: model.email,
-                                          displayName: model.displayName)
                 completion(true)
             case .failure(_):
                 completion(false)

@@ -25,14 +25,20 @@ class Utils {
         
         return formatter
     }()
-    
+}
+
+extension Utils {
     func isUserLoggedIn() -> Bool {
         return UserDefaults.standard.bool(forKey: UserDefaultConstant.isLoggedIn)
     }
     
     func getLoggedInUserEmail() -> String? {
-        let email = (UserDefaults.standard.string(forKey: UserDefaultConstant.userEmail) ?? "")
-        return email
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.userEmail)
+    }
+    
+    func getLoggedInUserDisplayName() -> String? {
+        let name = UserDefaults.standard.string(forKey: UserDefaultConstant.userName)
+        return name
     }
     
     func getLoggedInUserSafeEmail() -> String? {

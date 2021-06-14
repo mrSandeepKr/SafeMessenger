@@ -66,4 +66,8 @@ class ChatListTableViewCellViewModel {
                                                                 path: path)
         })
     }
+    
+    var isLastMsgRead: Bool {
+        return convo.lastMessage.isRead
+    }
 }
