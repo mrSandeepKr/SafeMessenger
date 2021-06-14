@@ -109,11 +109,11 @@ extension ChatViewModel {
                         messageId: messageID,
                         sentDate: Date(),
                         kind: .text(msg))
-        
+        let members = [loggedInUserEmail, memberEmail]
         if isNewConversation {
             let conversation = ConversationObject(convoID: getConversationId(firstMessageID: messageID),
                                                   lastMessage: msg,
-                                                  members: [loggedInUserEmail, memberEmail])
+                                                  members: members)
             let thread = ConversationThread(convoID: conversation.convoID,
                                             messages: [msg])
             print("ChatViewModel: Recieved Request to create conversation")
@@ -139,7 +139,10 @@ extension ChatViewModel {
                 guard let convoId = self?.convoId else {
                     return
                 }
-                ChatService.shared.sendMessage(to: convoId, message: msg,completion: completion)
+                ChatService.shared.sendMessage(to: convoId,
+                                               members: members,
+                                               message: msg,
+                                               completion: completion)
             })
         }
     }

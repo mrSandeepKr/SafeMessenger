@@ -81,13 +81,19 @@ extension ChatService {
         }
     }
     
-    func sendMessage(to convoId: String, message: Message, completion: @escaping (Bool) -> Void) {
+    func sendMessage(to convoId: String,
+                     members: [String],
+                     message: Message,
+                     completion: @escaping (Bool) -> Void) {
         updateConversationThread(for: convoId, with: message, completion: completion)
+        members.forEach { member in
+            updateConversationObject(for: member, convoId: convoId, with: message)
+        }
     }
 }
 
 extension ChatService {
-    private func updateConversationThread(for convoId:String,with msg:Message, completion: @escaping (Bool)->Void) {
+    private func updateConversationThread(for convoId: String,with msg:Message, completion: @escaping (Bool)->Void) {
         let ref = database.child(getMessagesThreadPath(for: convoId)).childByAutoId()
         ref.setValue(msg.serialisedObject()) { err, _ in
             guard err == nil else {
@@ -100,8 +106,30 @@ extension ChatService {
         }
     }
     
-    private func updateConversationObject() {
-      //todododod
+    private func updateConversationObject(for email: String,
+                                          convoId: String,
+                                          with msg: Message,
+                                          completion: @escaping ((Result<Bool, Error>) -> Void) = {_ in}) {
+        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
+            print("ChatService: Update Last Message for Conversation Object Failed")
+            return
+        }
+        let ref = database.child(getConversationOjectPath(safeEmail: email))
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children {
+                guard let base = child as? DataSnapshot,
+                      let dict = base.value as? [String: Any],
+                      let convo = ConversationObject.getObject(from: dict),
+                      convo.convoID == convoId
+                else {
+                    continue
+                }
+                print("ChatService: Update Last Message for Conversation Object Failed")
+                let key = base.key
+                ref.child(key).updateChildValues([Constants.lastMessage: msg.serialisedObject()])
+                break
+            }
+        }
     }
     
     private func addConversation(to email: String,
