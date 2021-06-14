@@ -10,7 +10,7 @@ import UIKit
 class HamburgerViewController: UIViewController {
     private var viewModel = HamburgerViewModel()
     
-    private lazy var imageView : UIImageView = {
+    private lazy var profileImageView : UIImageView = {
         let image = UIImage(named: viewModel.profileImageName!)
         let imageView = UIImageView(image: image)
         imageView.layer.masksToBounds = true
@@ -33,19 +33,19 @@ class HamburgerViewController: UIViewController {
         view.alpha = 0.99
         view.backgroundColor = UIColor(patternImage: UIImage(named: viewModel.hamburgerBackgroundImageName!)!)
         
-        viewModel.updateProfileImageView(for: imageView)
-        view.addSubview(imageView)
+        viewModel.updateProfileImageView(for: profileImageView)
+        view.addSubview(profileImageView)
         view.addSubview(signOutBtn)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let imageViewSize = view.width / 3
-        imageView.layer.cornerRadius = imageViewSize / 2
-        imageView.frame = CGRect(x: (view.width - imageViewSize) / 2,
-                                 y: view.height / 15,
-                                 width: imageViewSize,
-                                 height: imageViewSize)
+        profileImageView.layer.cornerRadius = imageViewSize / 2
+        profileImageView.frame = CGRect(x: (view.width - imageViewSize) / 2,
+                                        y: view.height / 15,
+                                        width: imageViewSize,
+                                        height: imageViewSize)
         signOutBtn.frame = CGRect(x: (view.width - 100)/2 ,
                                   y: view.height - 80,
                                   width: 100,
