@@ -35,6 +35,7 @@ class ChatViewController: MessagesViewController {
                     strongSelf.title = strongSelf.viewModel.memberModel?.firstName
                 }
             }
+            self?.viewModel.markLastMsgAsReadIfNeeded()
             self?.addObserverOnMessages()
         })
         

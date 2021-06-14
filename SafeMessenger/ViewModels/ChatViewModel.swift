@@ -12,6 +12,7 @@ class ChatViewModel {
     var convoId: String?
     let loggedInUserEmail: String
     var isNewConversation: Bool
+    let isLastMsgMarkedUnRead: Bool
     
     //Get populated on Opening the View
     var memberModel: ChatAppUserModel?
@@ -20,19 +21,20 @@ class ChatViewModel {
     // Gets populated if the viewModel has a convo Id
     var messages = [Message]()
     
-    init(memberEmail: String, convoId: String?) {
+    init(memberEmail: String, convo: ConversationObject?) {
         self.memberEmail = memberEmail
+        loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
         
-        self.loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
         let loggedInUserName = Utils.shared.getLoggedInUserDisplayName() ?? ""
         selfSender = Sender(imageURL: "", senderId: loggedInUserEmail , displayName: loggedInUserName)
         
-        
-        if convoId != nil {
+        if convo != nil {
             isNewConversation = false
-            self.convoId = convoId!
+            isLastMsgMarkedUnRead = convo!.isLastMsgMarkedUnread()
+            convoId = convo!.convoID
         }
         else {
+            isLastMsgMarkedUnRead = false
             isNewConversation = true
         }
     }
@@ -51,6 +53,7 @@ extension ChatViewModel {
         }
     }
     
+    ///Adds the Observer on Messages for the Chat Open
     func getMessages(completion: @escaping (Bool)->Void) {
         guard let id = convoId else {
             completion(false)
@@ -141,7 +144,11 @@ extension ChatViewModel {
         }
     }
     
-    func createConversation(with memberEmail: String, msg: String, completion: @escaping CreateConversationCompletion) {
-        
+    func markLastMsgAsReadIfNeeded() {
+        guard isLastMsgMarkedUnRead, let convoId = convoId else {
+            return
+        }
+        ChatService.shared.updateConversationObjectReadStatus(for: loggedInUserEmail,
+                                                              convoId: convoId)
     }
 }

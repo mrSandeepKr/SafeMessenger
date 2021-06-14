@@ -55,7 +55,14 @@ extension ChatService {
                                convo: ConversationObject,
                                convoThread: ConversationThread,
                                completion: @escaping (Result<Bool, Error>) -> Void) {
+        guard let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() else {
+            completion(.failure(ChatServiceError.FailedToGetUser))
+            return
+        }
+        
         members.forEach { member in
+            var convo = convo
+            convo.lastMessage.isRead = (member == loggedInUserEmail)
             addConversation(to: member, convo: convo)
         }
         createConversationThread(for: convoThread,
@@ -85,9 +92,18 @@ extension ChatService {
                      members: [String],
                      message: Message,
                      completion: @escaping (Bool) -> Void) {
+        guard let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() else {
+            completion(false)
+            return
+        }
         updateConversationThread(for: convoId, with: message, completion: completion)
         members.forEach { member in
-            updateConversationObject(for: member, convoId: convoId, with: message)
+            var mes = message
+            mes.isRead = (member == loggedInUserEmail)
+            updateConversationObjectLastMessage(for: member,
+                                                convoId: convoId,
+                                                with: mes,
+                                                completion: completion)
         }
     }
 }
@@ -106,12 +122,13 @@ extension ChatService {
         }
     }
     
-    private func updateConversationObject(for email: String,
-                                          convoId: String,
-                                          with msg: Message,
-                                          completion: @escaping ((Result<Bool, Error>) -> Void) = {_ in}) {
+    private func updateConversationObjectLastMessage(for email: String,
+                                                     convoId: String,
+                                                     with msg: Message,
+                                                     completion: @escaping (Bool) -> Void) {
         guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
             print("ChatService: Update Last Message for Conversation Object Failed")
+            completion(false)
             return
         }
         let ref = database.child(getConversationOjectPath(safeEmail: email))
@@ -124,9 +141,36 @@ extension ChatService {
                 else {
                     continue
                 }
-                print("ChatService: Update Last Message for Conversation Object Failed")
+                print("ChatService: Update Last Message for Conversation Object Success")
                 let key = base.key
                 ref.child(key).updateChildValues([Constants.lastMessage: msg.serialisedObject()])
+                completion(true)
+                return
+            }
+        }
+        completion(false)
+    }
+    
+    func updateConversationObjectReadStatus(for email: String,
+                                            convoId: String,
+                                            completion: @escaping ((Result<Bool, Error>) -> Void) = {_ in}) {
+        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
+            print("ChatService: Update Read for Conversation Object Failed")
+            return
+        }
+        let ref = database.child(getConversationOjectPath(safeEmail: email))
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children {
+                guard let base = child as? DataSnapshot,
+                      let dict = base.value as? [String: Any],
+                      let convo = ConversationObject.getObject(from: dict),
+                      convo.convoID == convoId
+                else {
+                    continue
+                }
+                print("ChatService: Update Read for Conversation Object Success")
+                let key = base.key
+                ref.child(key).child(Constants.lastMessage).updateChildValues([Constants.isRead: true])
                 break
             }
         }
@@ -136,7 +180,7 @@ extension ChatService {
                                  convo: ConversationObject,
                                  completion: @escaping ((Result<Bool, Error>) -> Void) = {_ in}) {
         guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
-            print("ChatService: Add Conversation Object Failed because of empty email")
+            print("ChatService: Add Conversation Object Failed - because of empty email")
             return
         }
         let ref = database.child(getConversationOjectPath(safeEmail: email)).childByAutoId()
@@ -166,7 +210,9 @@ extension ChatService {
             completion(.success(true))
         }
     }
-    
+}
+
+extension ChatService {
     func getMessagesThreadPath(for convoId: String) -> String {
         return "\(convoId)/\(Constants.messages)"
     }

@@ -24,12 +24,16 @@ struct ConversationObject: Serialisable {
         ]
     }
     
+    func isLastMsgMarkedUnread() -> Bool {
+        return !lastMessage.isRead
+    }
+}
+
+extension ConversationObject{
     static func getObject(from dict: [String: Any]) -> ConversationObject? {
         guard let lastMessageDict = dict[Constants.lastMessage] as? [String: Any],
               let convoID = dict[Constants.convoID] as? String,
               let members = dict[Constants.members] as? [String],
-//              let _ = dict[Constants.topic] as? String,
-//              let _ = dict[Constants.convoType] as? String,
               let lastMsg = Message.getObject(from: lastMessageDict)
         else {
             return nil

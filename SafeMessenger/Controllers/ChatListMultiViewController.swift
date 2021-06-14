@@ -298,7 +298,7 @@ extension ChatListMultiViewController: SearchUserViewProtocol {
     func openChatForUser(user: ChatAppUserModel) {
         let memberEmail = user.email
         
-        let vm = ChatViewModel(memberEmail: memberEmail, convoId: nil)
+        let vm = ChatViewModel(memberEmail: memberEmail, convo: nil)
         let vc = ChatViewController(viewModel: vm)
         
         vc.navigationItem.largeTitleDisplayMode = .never

@@ -58,7 +58,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                 let userInfo = ChatAppUserModel(firstName: firstName,
                                                 secondName: secondName,
                                                 email: email)
-                ApiHandler.shared.insertUserToDatabase(user: userInfo) {[weak self] success in
+                ApiHandler.shared.insertUserToDatabase(user: userInfo) { success in
                     if success {
                         let fileName = userInfo.profileImageString
                         guard user.profile.hasImage, let url = user.profile.imageURL(withDimension: 200)

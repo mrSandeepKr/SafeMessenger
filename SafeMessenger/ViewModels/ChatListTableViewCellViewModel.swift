@@ -67,7 +67,7 @@ class ChatListTableViewCellViewModel {
         })
     }
     
-    var isLastMsgRead: Bool {
-        return convo.lastMessage.isRead
+    var shouldMarkUnread: Bool {
+        return convo.isLastMsgMarkedUnread()
     }
 }

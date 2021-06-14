@@ -124,7 +124,7 @@ extension ChatListTableViewCell {
     }
     
     private func updateElementsIfNotRead(with model:ChatListTableViewCellViewModel) {
-        guard !model.isLastMsgRead else {
+        guard model.shouldMarkUnread else {
             return
         }
         chatTitle.font = .systemFont(ofSize: 19.5, weight: .bold)

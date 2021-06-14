@@ -42,6 +42,6 @@ class ChatListMultiViewModel {
         guard members.count > 0 else {
             return nil
         }
-        return ChatViewModel(memberEmail: members[0], convoId: convo.convoID)
+        return ChatViewModel(memberEmail: members[0],convo: convo)
     }
 }
