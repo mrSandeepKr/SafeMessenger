@@ -22,8 +22,13 @@ class LogInViewModel {
                 return
             }
             ApiHandler.shared.setWarmUpDefaults(with: email)
-            ApiHandler.shared.fetchLoggedInUserInfoAndSetDefaults(for: email, completion: {_ in})
-            completion(nil)
+            ApiHandler.shared.fetchLoggedInUserInfoAndSetDefaults(for: email) { success in
+                guard success else {
+                    completion("Hey we couldn't fetch you userInfo while signing you in")
+                    return
+                }
+                completion(nil)
+            }
         }
     }
     

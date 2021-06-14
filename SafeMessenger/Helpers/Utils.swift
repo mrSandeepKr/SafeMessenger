@@ -37,8 +37,7 @@ extension Utils {
     }
     
     func getLoggedInUserDisplayName() -> String? {
-        let name = UserDefaults.standard.string(forKey: UserDefaultConstant.userName)
-        return name
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.userName)
     }
     
     func getLoggedInUserSafeEmail() -> String? {

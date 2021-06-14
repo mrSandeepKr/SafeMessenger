@@ -23,7 +23,15 @@ class HamburgerViewModel {
                                                             path: StorageManager.profileImagePath)
     }
     
-    public func handleSignOutTapped(completion: (Bool)->()) {
+    func handleSignOutTapped(completion: (Bool)->()) {
         ApiHandler.shared.signOutUser(completion: completion)
+    }
+    
+    func userNameLabelString() -> String {
+        return Utils.shared.getLoggedInUserDisplayName() ?? Constants.unknownUser
+    }
+    
+    func emailLabelString() -> String {
+        return Utils.shared.getLoggedInUserEmail() ?? Constants.unknownUser
     }
 }

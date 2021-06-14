@@ -19,6 +19,24 @@ class HamburgerViewController: UIViewController {
         return imageView
     }()
     
+    private lazy var userNameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.font = .systemFont(ofSize: 22, weight: .bold)
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private lazy var emailLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.font = .systemFont(ofSize: 16, weight: .regular)
+        label.textColor = UIColor(cgColor: #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1))
+        label.textAlignment = .center
+        label.text = "johndoe@gmail.com"
+        return label
+    }()
+    
     private lazy var signOutBtn : UIButton = {
         let btn = UIButton()
         btn.backgroundColor = .clear
@@ -41,12 +59,14 @@ class HamburgerViewController: UIViewController {
                                                                 guard let strongSelf = self else {
                                                                     return
                                                                 }
-                                                                strongSelf.viewModel.updateProfileImageView(for: strongSelf.profileImageView)
+                                                                strongSelf.basicUISetUp()
                                                                })
-        
-        viewModel.updateProfileImageView(for: profileImageView)
         view.addSubview(profileImageView)
         view.addSubview(signOutBtn)
+        view.addSubview(userNameLabel)
+        view.addSubview(emailLabel)
+        
+        basicUISetUp()
     }
     
     override func viewDidLayoutSubviews() {
@@ -61,6 +81,17 @@ class HamburgerViewController: UIViewController {
                                   y: view.height - 80,
                                   width: 100,
                                   height: 40)
+        
+        userNameLabel.sizeToFit()
+        emailLabel.sizeToFit()
+        userNameLabel.frame = CGRect(x: 0,
+                                     y: profileImageView.bottom + 30,
+                                     width: view.width,
+                                     height: userNameLabel.height)
+        emailLabel.frame = CGRect(x: 0,
+                                  y: userNameLabel.bottom + 5,
+                                  width: view.width,
+                                  height: emailLabel.height)
     }
     
     deinit {
@@ -83,5 +114,11 @@ extension HamburgerViewController {
                 print("HamburgerViewController: Sign out failed")
             }
         }
+    }
+    
+    private func basicUISetUp() {
+        viewModel.updateProfileImageView(for: profileImageView)
+        userNameLabel.text = viewModel.userNameLabelString()
+        emailLabel.text = viewModel.emailLabelString()
     }
 }
