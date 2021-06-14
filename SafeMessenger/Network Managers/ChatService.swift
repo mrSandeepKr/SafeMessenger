@@ -119,7 +119,7 @@ extension ChatService {
     private func updateConversationThread(for thread:ConversationThread,
                                           completion: @escaping (Result<Bool,Error>) -> Void) {
         database.child(thread.convoID).setValue(thread.serialisedObject()) { err, _ in
-            guard err != nil else {
+            guard err == nil else {
                 print("ChatService: Update Conversation Thread Failed for msg: \(String(describing: thread.messages.last))")
                 completion(.failure(ChatServiceError.FailedToCreateThread))
                 return
