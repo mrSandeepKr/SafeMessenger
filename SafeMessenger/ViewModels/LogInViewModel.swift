@@ -16,18 +16,15 @@ class LogInViewModel {
             return
         }
         
-        ApiHandler.shared.fireBaseSignIn(email: email, pswd: pswd) {[weak self] msg in
+        ApiHandler.shared.fireBaseSignIn(email: email, pswd: pswd) {msg in
             guard msg == nil else {
                 completion(msg)
                 return
             }
-            self?.setUserDefaultsForLogin()
+            ApiHandler.shared.setWarmUpDefaults(with: email)
+            ApiHandler.shared.fetchLoggedInUserInfoAndSetDefaults(for: email, completion: {_ in})
             completion(nil)
         }
-    }
-    
-    func setUserDefaultsForLogin() {
-        UserDefaults.standard.setValue(true, forKey: UserDefaultConstant.isLoggedIn)
     }
     
     func googleSignUser() {

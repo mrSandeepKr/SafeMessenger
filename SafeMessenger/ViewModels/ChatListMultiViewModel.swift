@@ -17,7 +17,7 @@ class ChatListMultiViewModel {
     }
     
     public var isLoggedIn: Bool {
-        return UserDefaults.standard.bool(forKey: UserDefaultConstant.isLoggedIn)
+        return Utils.shared.isUserLoggedIn()
     }
     
     func updateHamburgerBtnImageView(for imageView: UIImageView) {

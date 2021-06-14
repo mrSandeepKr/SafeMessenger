@@ -17,10 +17,6 @@ final class StorageManager {
     static let shared = StorageManager()
     private let storage = Storage.storage().reference()
     
-    private var userEmail: String {
-        return UserDefaults.standard.value(forKey: UserDefaultConstant.userEmail) as! String
-    }
-    
     static func safeEmail(for email: String) -> String {
         return email.replacingOccurrences(of: ".", with: "-")
     }
@@ -40,7 +36,7 @@ final class StorageManager {
     }
     
     static var profileImagePath : String {
-        let email: String = (UserDefaults.standard.value(forKey: UserDefaultConstant.userEmail) ?? "") as! String
+        let email: String = Utils.shared.getLoggedInUserEmail() ?? ""
         let safeEmail = StorageManager.safeEmail(for: email)
         let fileName = StorageManager.profileImageFilename(for: safeEmail)
         let path = StorageManager.profileImageRefPath(fileName: fileName)
@@ -50,7 +46,7 @@ final class StorageManager {
 
 extension StorageManager {
     /// Uploads picture to FirebaseStorage and returns Completion with Result of String
-    public func uploadProfileImage(with data:Data, fileName: String, completion:@escaping UploadPictureCompletion) {
+    public func uploadUserProfileImage(with data:Data, fileName: String, completion:@escaping UploadPictureCompletion) {
         let profileRef = storage.child(StorageManager.profileImageRefPath(fileName: fileName))
         profileRef.putData(data, metadata: nil) { metadata, err in
             guard err == nil else {
@@ -60,6 +56,7 @@ extension StorageManager {
             }
             profileRef.downloadURL { url, err in
                 guard err == nil, let url = url else {
+                    print("StorageManager: Upload Profile Picture Failed with \(String(describing: err))")
                     completion(.failure(StorageError.failedToGetDownloadURL))
                     return
                 }
@@ -69,6 +66,7 @@ extension StorageManager {
         }
     }
     
+    ///Pass in the path of the userinfo to get the download URL
     public func downloadURL(for path: String, completion: @escaping (Result<URL,Error>) -> Void) {
         let ref = storage.child(path)
         ref.downloadURL { url, err in

@@ -9,6 +9,7 @@ import UIKit
 
 class HamburgerViewController: UIViewController {
     private var viewModel = HamburgerViewModel()
+    private var logInObserver: NSObjectProtocol?
     
     private lazy var profileImageView : UIImageView = {
         let image = UIImage(named: viewModel.profileImageName!)
@@ -33,6 +34,16 @@ class HamburgerViewController: UIViewController {
         view.alpha = 0.99
         view.backgroundColor = UIColor(patternImage: UIImage(named: viewModel.hamburgerBackgroundImageName!)!)
         
+        logInObserver = NotificationCenter.default.addObserver(forName: .didLogInNotification,
+                                                               object: nil,
+                                                               queue: .main,
+                                                               using: { [weak self] _ in
+                                                                guard let strongSelf = self else {
+                                                                    return
+                                                                }
+                                                                strongSelf.viewModel.updateProfileImageView(for: strongSelf.profileImageView)
+                                                               })
+        
         viewModel.updateProfileImageView(for: profileImageView)
         view.addSubview(profileImageView)
         view.addSubview(signOutBtn)
@@ -50,6 +61,12 @@ class HamburgerViewController: UIViewController {
                                   y: view.height - 80,
                                   width: 100,
                                   height: 40)
+    }
+    
+    deinit {
+        if let observer = logInObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 }
 

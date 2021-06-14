@@ -24,14 +24,6 @@ class HamburgerViewModel {
     }
     
     public func handleSignOutTapped(completion: (Bool)->()) {
-        ApiHandler.shared.signOutUser { success in
-            guard success else {
-                completion(false)
-                return
-            }
-            
-            UserDefaults.standard.setValue(false, forKey: UserDefaultConstant.isLoggedIn)
-            completion(true)
-        }
+        ApiHandler.shared.signOutUser(completion: completion)
     }
 }

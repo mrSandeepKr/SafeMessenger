@@ -85,7 +85,6 @@ extension ApiHandler {
                 completion(err!.localizedDescription)
                 return
             }
-            UserDefaults.standard.setValue(email, forKey: UserDefaultConstant.userEmail)
             completion("")
         }
     }
@@ -101,7 +100,6 @@ extension ApiHandler {
                 }
                 return
             }
-            UserDefaults.standard.setValue(email, forKey: UserDefaultConstant.userEmail)
             completion(nil)
         }
     }
@@ -167,6 +165,29 @@ extension ApiHandler {
                                                  email: email)))
         }
     }
+    
+    func fetchLoggedInUserInfoAndSetDefaults(for email:String, completion:@escaping (Bool)->Void) {
+        fetchUserInfo(for: email) { res in
+            switch res {
+            case .success(let model):
+                StorageManager.shared.downloadURL(for: model.profileImageRefPathForUser) {[weak self] res in
+                    switch res {
+                    case .success(let url):
+                        self?.setUserLoggedInDefaults(user: model, downloadURL: url.absoluteString)
+                        completion(true)
+                        print("ApiHandler: logged In user downloadURL fetch - Sucess")
+                        break
+                    default:
+                        print("ApiHandler: logged In user downloadURL fetch - Failed")
+                        break
+                    }
+                }
+                break
+            default:
+                break
+            }
+        }
+    }
 }
 
 //MARK: Utils
@@ -194,5 +215,27 @@ extension ApiHandler {
         dictionary.keys.forEach { key in
             defaults.removeObject(forKey: key)
         }
+    }
+    
+    func setUserLoggedInDefaults(user:ChatAppUserModel, downloadURL: String) {
+        let dict = [
+            UserDefaultConstant.userName: user.displayName,
+            UserDefaultConstant.userEmail: user.email,
+            UserDefaultConstant.profileImageUrl: downloadURL,
+            UserDefaultConstant.isLoggedIn: true
+        ] as [String : Any]
+        
+        UserDefaults.standard.setValuesForKeys(dict)
+        print("ApiHandler: Setting User Defaults For Signing in user")
+    }
+    
+    func setWarmUpDefaults(with email: String) {
+        let dict = [
+            UserDefaultConstant.userEmail: email,
+            UserDefaultConstant.isLoggedIn: true
+        ] as [String : Any]
+        
+        UserDefaults.standard.setValuesForKeys(dict)
+        print("ApiHAndler: Set Warm Up Defaults Success")
     }
 }

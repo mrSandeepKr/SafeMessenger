@@ -10,6 +10,7 @@ import UIKit
 class ChatListMultiViewController: UIViewController {
     // View Model for ChatList MultiViewController
     private let viewModel = ChatListMultiViewModel()
+    private var logInObserver: NSObjectProtocol?
     
     //Hamburger Support
     private lazy var hamburgerHeight = (self.navigationController?.navigationBar.frame.height ?? 0) * 0.9
@@ -63,6 +64,14 @@ class ChatListMultiViewController: UIViewController {
         super.viewDidLoad()
         basicSetUp()
         
+        logInObserver = NotificationCenter.default.addObserver(forName: .didLogInNotification,
+                                                               object: nil,
+                                                               queue: .main,
+                                                               using: { [weak self] _ in
+                                                                self?.updateViewForLogginIn()
+                                                                
+                                                               })
+        
         view.addSubview(hamburgerBtn)
         view.addSubview(chatListViewController.view)
         view.addSubview(appTitle)
@@ -102,7 +111,6 @@ class ChatListMultiViewController: UIViewController {
             navigationController?.navigationBar.isHidden = true
             view.layoutIfNeeded()
         }
-        updateViewForLogginIn()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -118,11 +126,14 @@ class ChatListMultiViewController: UIViewController {
         navigationController?.navigationBar.isHidden = false
     }
     
+    deinit {
+        if let observer = logInObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+    
     private func basicSetUp() {
         updateViewForLogginIn()
-        if viewModel.isLoggedIn {
-            viewModel.updateHamburgerBtnImageView(for: hamburgerBtn)
-        }
         
         navigationController?.navigationBar.isHidden = true
         hamburgerWidth.constant = view.width * 0.75
@@ -161,7 +172,7 @@ extension ChatListMultiViewController {
     
     private func updateViewForLogginIn() {
         let isHidden = !viewModel.isLoggedIn
-        if isHidden {
+        if !isHidden {
             viewModel.updateHamburgerBtnImageView(for: hamburgerBtn)
         }
         hamburgerBtn.isHidden = isHidden
