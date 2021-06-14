@@ -56,19 +56,22 @@ extension ChatService {
         members.forEach { member in
             addConversation(to: member, convo: convo)
         }
-        createConversationThread(for: convoThread, completion: completion)
+        createConversationThread(for: convoThread,
+                                 with: convoThread.messages[0],
+                                 completion: completion)
     }
     
     func observeMessagesForConversation(with id: String, completion: @escaping (Result<ConversationThread, Error>) -> Void) {
         database.child(id).child(Constants.messages).observe(.value) { snapshot in
-            guard let messages = snapshot.value as? [MessageDict]
+            guard snapshot.hasChildren()
             else {
                 print("ChatService: get messages for thread Failed")
                 completion(.failure(ChatServiceError.FailedToGetThread))
                 return
             }
-            let convoThread = ConversationThread.getObject(for: id, dictArray: messages)
-            if convoThread.messages.count != messages.count {
+            
+            let convoThread = ConversationThread.getObject(for: id, snap: snapshot)
+            if convoThread.messages.count != snapshot.childrenCount {
                 print("ChatService: Could resolve few messages for Thread :\(id)")
             }
             print("ChatService: get messages for thread Success")
@@ -76,23 +79,24 @@ extension ChatService {
         }
     }
     
-//    func sendMessage(to convoId: String, message: Message, completion: @escaping (Bool) -> Void) {
-//        updateConversationThread(for: convoId, with: message, completion: completion)
-//    }
+    func sendMessage(to convoId: String, message: Message, completion: @escaping (Bool) -> Void) {
+        updateConversationThread(for: convoId, with: message, completion: completion)
+    }
 }
 
 extension ChatService {
-//    private func updateConversationThread(for convoId:String,with msg:Message, completion: @escaping (Bool)->Void) {
-//        let ref = database.child(convoId).child(Constants.messages).childByAutoId()
-//        ref.setValue(msg.serialisedObject()) { err, _ in
-//            guard err == nil else {
-//                completion(false)
-//                return
-//            }
-//            print("ChatService: Update Conversation Thread Success")
-//            completion(true)
-//        }
-//    }
+    private func updateConversationThread(for convoId:String,with msg:Message, completion: @escaping (Bool)->Void) {
+        let ref = database.child(getMessagesThreadPath(for: convoId)).childByAutoId()
+        ref.setValue(msg.serialisedObject()) { err, _ in
+            guard err == nil else {
+                print("ChatService: Update Conversation Thread Failed")
+                completion(false)
+                return
+            }
+            print("ChatService: Update Conversation Thread Success")
+            completion(true)
+        }
+    }
     
     private func addConversation(to email: String,
                                  convo: ConversationObject,
@@ -130,16 +134,23 @@ extension ChatService {
     
     //TODO: make things more decoupled - Only update the thread with latest msgs created here.
     private func createConversationThread(for thread:ConversationThread,
+                                          with msg: Message,
                                           completion: @escaping (Result<Bool,Error>) -> Void) {
-        database.child(thread.convoID).setValue(thread.serialisedObject()) { err, _ in
+        let ref = database.child(getMessagesThreadPath(for: thread.convoID)).childByAutoId()
+        
+        ref.setValue(msg.serialisedObject()) { err, _ in
             guard err == nil else {
-                print("ChatService: Update Conversation Thread Failed for msg: \(String(describing: thread.messages.last))")
+                print("ChatService: Update Conversation Thread Failed for msg: \(String(describing:msg))")
                 completion(.failure(ChatServiceError.FailedToCreateThread))
                 return
             }
             print("ChatService: Update Conversation Thread Success")
             completion(.success(true))
         }
+    }
+    
+    func getMessagesThreadPath(for convoId: String) -> String {
+        return "\(convoId)/\(Constants.messages)"
     }
     
 //    private func updateLastMessage(for email: String,in convoId: String, completion: @escaping ((Result<Bool, Error>) -> Void)) {

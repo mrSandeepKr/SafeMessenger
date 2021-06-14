@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Firebase
 
 struct ConversationThread: Serialisable {
     var convoID: String
@@ -21,13 +22,16 @@ struct ConversationThread: Serialisable {
         ]
     }
     
-    static func getObject(for id: String, dictArray: [MessageDict]) -> ConversationThread {
-        let messages: [Message] = dictArray.compactMap { dict in
-            guard let messsage = Message.getObject(from: dict)
+    static func getObject(for id: String, snap: DataSnapshot) -> ConversationThread {
+        var messages = [Message]()
+        for child in snap.children.allObjects {
+            guard let base = child as? DataSnapshot,
+                  let msgDict = base.value as? MessageDict,
+                  let msg = Message.getObject(from: msgDict)
             else {
-                return nil
+                continue
             }
-            return messsage
+            messages.append(msg)
         }
         
         return ConversationThread(convoID: id,

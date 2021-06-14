@@ -89,11 +89,11 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
 
 extension ChatViewController {
     private func updateViewForMessages() {
-        messagesCollectionView.reloadDataAndKeepOffset()
+        messagesCollectionView.reloadData()
     }
     
     private func setUpMessageKitStuff() {
-        messagesCollectionView.contentInset = UIEdgeInsets(top: 110, left: 0, bottom: 0, right: 0)
+        messagesCollectionView.contentInset = UIEdgeInsets(top: 59, left: 0, bottom: 0, right: 0)
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self

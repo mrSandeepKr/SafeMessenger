@@ -135,12 +135,12 @@ extension ChatViewModel {
             })
         }
         else {
-//            DispatchQueue.background(background: {[weak self] in
-//                guard let convoId = self?.convoId else {
-//                    return
-//                }
-//                ChatService.shared.sendMessage(to: convoId, message: msg,completion: completion)
-//            })
+            DispatchQueue.background(background: {[weak self] in
+                guard let convoId = self?.convoId else {
+                    return
+                }
+                ChatService.shared.sendMessage(to: convoId, message: msg,completion: completion)
+            })
         }
     }
     

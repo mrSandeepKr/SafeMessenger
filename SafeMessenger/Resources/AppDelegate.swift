@@ -69,7 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                             return
                         }
                         
-                        URLSession.shared.dataTask(with: URLRequest(url: url)) {[weak self] data, _, err in
+                        URLSession.shared.dataTask(with: URLRequest(url: url)) {data, _, err in
                             guard err == nil, let data = data else {
                                 print("AppDelegate: Fetch Google Profile Image Failed")
                                 return
