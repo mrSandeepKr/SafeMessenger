@@ -25,7 +25,7 @@ class RegisterViewModel {
                                       password: String?,
                                       verifyPassword: String?,
                                       profileImage: UIImage?,
-                                      completion: @escaping CreateAccountCompletion) {
+                                      completion: @escaping StringCompletion) {
         var msg = ""
         guard let fn = firstName?.trimmingCharacters(in: .whitespaces),
               let sn = secondName?.trimmingCharacters(in: .whitespaces),
@@ -64,7 +64,7 @@ extension RegisterViewModel {
                                     firstName: String,
                                     secondName: String,
                                     profileImageData: Data,
-                                    completion: @escaping CreateAccountCompletion) {
+                                    completion: @escaping StringCompletion) {
         ApiHandler.shared.createUserOnFirebase(email: email, pswd: pswd) { msg in
             guard msg.isEmpty else {
                 completion(msg)

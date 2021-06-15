@@ -59,7 +59,7 @@ extension ChatViewModel {
             completion(false)
             return
         }
-        
+        print("ChatViewModel: Adding Observer On Messages For Thread")
         ChatService.shared.observeMessagesForConversation(with: id) {[weak self] res in
             switch res {
             case .success(let thread):
