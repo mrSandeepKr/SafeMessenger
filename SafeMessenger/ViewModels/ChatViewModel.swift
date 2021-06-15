@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MessageKit
 
 class ChatViewModel {
     let memberEmail: String
@@ -79,6 +80,14 @@ extension ChatViewModel {
     func removeMessagesObserver() {
         ChatService.shared.removeConversationThreadObserver(for: convoId)
     }
+    
+    func markLastMsgAsReadIfNeeded() {
+        guard isLastMsgMarkedUnRead, let convoId = convoId else {
+            return
+        }
+        ChatService.shared.updateConversationObjectReadStatus(for: loggedInUserEmail,
+                                                              convoId: convoId)
+    }
 }
 
 extension ChatViewModel {
@@ -100,7 +109,7 @@ extension ChatViewModel {
     }
     
     
-    func sendMessage(to memberEmail: String, msg: String, completion: @escaping (Bool)-> Void) {
+    func sendMessage(msgKind: MessageKind, completion: @escaping (_ success: Bool ,_ isNewConvo: Bool)-> Void) {
         guard let messageID = createMessageId(), selfSender.displayName != Constants.unknownUser
         else {
             return
@@ -109,7 +118,7 @@ extension ChatViewModel {
         let msg = Message(sender: selfSender,
                         messageId: messageID,
                         sentDate: Date(),
-                        kind: .text(msg))
+                        kind: msgKind)
         let members = [loggedInUserEmail, memberEmail]
         if isNewConversation {
             let conversation = ConversationObject(convoID: getConversationId(firstMessageID: messageID),
@@ -122,14 +131,20 @@ extension ChatViewModel {
                 ChatService.shared.createNewConversation(with: conversation.members,
                                                          convo: conversation,
                                                          convoThread: thread) {[weak self] res in
+                    guard let strongSelf = self else {
+                        completion(false,false)
+                        return
+                    }
+                    
                     DispatchQueue.main.async {
                         switch res {
                         case .success(let res):
-                            self?.isNewConversation = false
-                            self?.convoId = conversation.convoID
-                            completion(res)
+                            let isNewConvo = strongSelf.isNewConversation
+                            strongSelf.isNewConversation = false
+                            strongSelf.convoId = conversation.convoID
+                            completion(res, isNewConvo)
                         case .failure(_):
-                            completion(false)
+                            completion(false, false)
                         }
                     }
                 }
@@ -142,17 +157,10 @@ extension ChatViewModel {
                 }
                 ChatService.shared.sendMessage(to: convoId,
                                                members: members,
-                                               message: msg,
-                                               completion: completion)
+                                               message: msg) { success in
+                    completion(success,false)
+                }
             })
         }
-    }
-    
-    func markLastMsgAsReadIfNeeded() {
-        guard isLastMsgMarkedUnRead, let convoId = convoId else {
-            return
-        }
-        ChatService.shared.updateConversationObjectReadStatus(for: loggedInUserEmail,
-                                                              convoId: convoId)
     }
 }

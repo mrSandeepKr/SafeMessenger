@@ -113,8 +113,8 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             print("ChatViewController: Trying to send empty message")
             return
         }
-        let isNewConvo = viewModel.isNewConversation
-        viewModel.sendMessage(to: viewModel.memberEmail, msg: text) {[weak self] success in
+        
+        viewModel.sendMessage(msgKind: .text(text)) {[weak self] success, isNewConvo in
             if success {
                 print("ChatViewController: Message Send Success")
                 if isNewConvo {
