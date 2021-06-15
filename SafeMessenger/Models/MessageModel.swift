@@ -43,10 +43,18 @@ struct Message: MessageType, Serialisable {
         ]
     }
     
-    func getMessagePreviewText() -> String? {
+    func getMessagePreviewAttributedText() -> NSAttributedString? {
         switch kind {
         case .text(let msg):
-            return msg
+            return NSAttributedString(string: msg)
+        case .photo(_):
+            let imageAttachment = NSTextAttachment(image: UIImage(systemName: "photo.fill")!)
+            let completeString = NSMutableAttributedString(string: "")
+            let attachmentString = NSAttributedString(attachment: imageAttachment)
+            let imageString = NSAttributedString(string: "Image")
+            completeString.append(attachmentString)
+            completeString.append(imageString)
+            return completeString
         default:
             return nil
         }

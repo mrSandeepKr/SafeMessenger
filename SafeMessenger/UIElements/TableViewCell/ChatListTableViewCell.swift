@@ -118,7 +118,7 @@ extension ChatListTableViewCell {
     func configureCell(with model:ChatListTableViewCellViewModel) {
         chatTitle.text = model.getChatTitle()
         lastMsgTime.text = model.getLastMsgDateString()
-        lastMsg.text = model.getLastMessageText()
+        lastMsg.attributedText = model.getLastMessageAttributedText()
         model.updateImageView(for: chatIcon)
         updateElementsIfNotRead(with: model)
     }

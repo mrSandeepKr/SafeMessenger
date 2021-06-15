@@ -35,19 +35,17 @@ class ChatListTableViewCellViewModel {
         return convo.topic
     }
     
-    func getLastMessageText() -> String {
+    func getLastMessageAttributedText() -> NSAttributedString {
         let msg = convo.lastMessage
-        guard let msgPreview =  msg.getMessagePreviewText(),
+        guard let msgPreview =  msg.getMessagePreviewAttributedText(),
               let firstName = msg.sender.getSenderFirstName()
         else {
-            return ""
+            return NSAttributedString(string: " ")
         }
         
-        if msg.isSenderLoggedIn() {
-            return "You: \(msgPreview)"
-        }
-        
-        return "\(firstName): \(msgPreview)"
+        let completeMsg = NSMutableAttributedString(string: msg.isSenderLoggedIn() ? "You: " : "\(firstName): " )
+        completeMsg.append(msgPreview)
+        return completeMsg
     }
     
     func updateImageView(for imageView:UIImageView) {
