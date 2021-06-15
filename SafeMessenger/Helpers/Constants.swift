@@ -45,6 +45,11 @@ class Constants {
     static let ImageNameGoogleIcon = "googleIcon"
     static let ImageNameMemberPlaceholder = "memberPlaceholder"
     static let ImageNameHamburgerBackgroud = "hamburgerBackground"
+    
+    static let StoragePathImages = "images"
+    static let StoragePathChatImage = "chatImages"
+    
+    static let ProfileImageSuffix = "_profile_image.png"
 }
 
 class UserDefaultConstant {
