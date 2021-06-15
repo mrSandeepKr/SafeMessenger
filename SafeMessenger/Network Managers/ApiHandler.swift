@@ -79,7 +79,7 @@ extension ApiHandler {
         }
     }
     
-    func createUserOnFirebase(email: String, pswd: String, completion: @escaping CreateAccountCompletion) {
+    func createUserOnFirebase(email: String, pswd: String, completion: @escaping StringCompletion) {
         FirebaseAuth.Auth.auth().createUser(withEmail: email, password: pswd) { _, err in
             guard err == nil else {
                 completion(err!.localizedDescription)
@@ -170,10 +170,10 @@ extension ApiHandler {
         fetchUserInfo(for: email) { res in
             switch res {
             case .success(let model):
-                StorageManager.shared.downloadURL(for: model.profileImageRefPathForUser) {[weak self] res in
+                StorageManager.shared.getDownloadURLString(for: model.profileImageRefPathForUser) {[weak self] res in
                     switch res {
                     case .success(let url):
-                        self?.setUserLoggedInDefaults(user: model, downloadURL: url.absoluteString)
+                        self?.setUserLoggedInDefaults(user: model, downloadURL: url)
                         completion(true)
                         print("ApiHandler: logged In user downloadURL fetch - Sucess")
                         break

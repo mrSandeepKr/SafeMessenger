@@ -34,17 +34,26 @@ class Constants {
     static let sender = "sender"
     static let messageID = "messageID"
     static let msgType = "msgType"
+    static let url = "url"
     
     static let ConvoTypeOneOnOne = "oneOnOne"
     static let ConvoTypeGroupChat = "groupChat"
     
     static let MessageTypeText = "text"
+    static let MessageTypePhoto = "photo"
     
     static let ImageNamePersonPlaceholder = "personPlaceholder"
     static let ImageNameLogo = "logo"
     static let ImageNameGoogleIcon = "googleIcon"
     static let ImageNameMemberPlaceholder = "memberPlaceholder"
     static let ImageNameHamburgerBackgroud = "hamburgerBackground"
+    
+    static let StoragePathImages = "images"
+    static let StoragePathChatImage = "chatImages"
+    
+    static let ProfileImageSuffix = "_profile_image.png"
+    
+    static let pngExtension = ".png"
 }
 
 class UserDefaultConstant {

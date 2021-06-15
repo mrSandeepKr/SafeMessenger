@@ -9,14 +9,6 @@ import Foundation
 import MessageKit
 
 extension SenderType {
-    func serialisedObject() -> [String : Any] {
-        return [
-            Constants.imageURL: Utils.shared.getStoragePathForEmail(for: senderId),
-            Constants.senderID: senderId,
-            Constants.displayName: displayName
-        ]
-    }
-    
     func getSenderFirstName() -> String? {
         let split = displayName.split(separator: " ").map { return String($0)}
         guard split.count > 0 else {

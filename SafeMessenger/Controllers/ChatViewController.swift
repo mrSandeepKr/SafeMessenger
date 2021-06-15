@@ -22,7 +22,7 @@ class ChatViewController: MessagesViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: Overrides
+    //MARK: LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -53,7 +53,8 @@ class ChatViewController: MessagesViewController {
     }
 }
 
-extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate {
+//MARK: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate
+extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate, MessageCellDelegate {
     func currentSender() -> SenderType {
         return viewModel.selfSender
     }
@@ -65,40 +66,114 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
     func numberOfSections(in messagesCollectionView: MessagesCollectionView) -> Int {
         return viewModel.messages.count
     }
+    
+    func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
+        let msg = viewModel.messages[indexPath.section]
+        let incomingMsgColor = UIColor(named: "incomingMsgBackground") ?? .white
+        return msg.isSenderLoggedIn() ? .systemBlue : incomingMsgColor
+    }
+    
+    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+        guard let msg = message as? Message else {
+            return
+        }
+        avatarView.set(avatar: Avatar(image: nil, initials: msg.getSenderInitials()))
+        guard let sender = message.sender as? Sender
+        else {
+            return
+        }
+        avatarView.sd_setImage(with: URL(string: sender.imageURL), completed: nil)
+    }
+    
+    func configureMediaMessageImageView(_ imageView: UIImageView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+        guard let msg = message as? Message else {
+            return
+        }
+        switch msg.kind {
+        case .photo(let media):
+            guard let url = media.url else {
+                return
+            }
+            imageView.sd_setImage(with: url)
+            break
+        default:
+            return
+        }
+    }
+    
+    func didTapImage(in cell: MessageCollectionViewCell) {
+        guard let indexPath = messagesCollectionView.indexPath(for: cell) else { return }
+        let msg = viewModel.messages[indexPath.section]
+        switch msg.kind {
+        case .photo(let media):
+            guard let mediaObj = media as? MediaModel,
+                  let imageURL = mediaObj.url
+            else {
+                return
+            }
+            let title = Utils.hrMinOnDateDateFormatter.string(from: Date())
+            let vc = ImageViewerViewController(url: imageURL, title: title)
+            let nav = UINavigationController(rootViewController: vc)
+            nav.navigationItem.largeTitleDisplayMode = .always
+            present(nav, animated: true)
+            break
+        default:
+            break
+        }
+    }
+    
+    private func setUpMessageKitStuff() {
+        messagesCollectionView.messagesDataSource = self
+        messagesCollectionView.messagesLayoutDelegate = self
+        messagesCollectionView.messagesDisplayDelegate = self
+        messagesCollectionView.messageCellDelegate = self
+        messageInputBar.delegate = self
+        
+        //This is the compose option selector
+        let composeOptionBtn = InputBarButtonItem()
+        composeOptionBtn.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
+        composeOptionBtn.setSize(CGSize(width: 35, height: 35), animated: false)
+        composeOptionBtn.addTarget(self, action: #selector(composeOptionsBtnTapped), for: .touchUpInside)
+        messageInputBar.setLeftStackViewWidthConstant(to: 36, animated: false)
+        messageInputBar.setStackViewItems([composeOptionBtn], forStack: .left, animated: false)
+        
+        //Custom Send button
+        messageInputBar.sendButton.title = ""
+        messageInputBar.sendButton.image = UIImage(systemName: "arrowtriangle.forward.fill")
+        messageInputBar.sendButton.setSize(CGSize(width: 35, height: 35), animated: false)
+        messageInputBar.inputTextView.placeholder = "Type a message..."
+    }
 }
 
+//MARK: InputBarAccessoryViewDelegate
 extension ChatViewController: InputBarAccessoryViewDelegate {
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         guard !text.replacingOccurrences(of: " ", with: "").isEmpty else {
             print("ChatViewController: Trying to send empty message")
             return
         }
-        let isNewConvo = viewModel.isNewConversation
-        viewModel.sendMessage(to: viewModel.memberEmail, msg: text) {[weak self] success in
+        
+        viewModel.sendTextMessage(with: text) {[weak self] success, isNewConvo in
             if success {
-                print("ChatViewController: Message Send Success")
+                print("ChatViewController: Text message Send Success")
                 if isNewConvo {
                     self?.addObserverOnMessages()
                 }
+                inputBar.inputTextView.text = ""
             }
             else {
-                print("ChatViewController: Message Send Failed")
+                print("ChatViewController: Text message Send Failed")
             }
         }
     }
 }
 
+//MARK: Utils & Helpers
 extension ChatViewController {
     private func updateViewForMessages() {
         messagesCollectionView.reloadData()
-    }
-    
-    private func setUpMessageKitStuff() {
-        messagesCollectionView.contentInset = UIEdgeInsets(top: 59, left: 0, bottom: 0, right: 0)
-        messagesCollectionView.messagesDataSource = self
-        messagesCollectionView.messagesLayoutDelegate = self
-        messagesCollectionView.messagesDisplayDelegate = self
-        messageInputBar.delegate = self
+        // Opens the Message View on the last Message
+        messagesCollectionView.scrollToItem(at: IndexPath(row: 0, section: viewModel.messages.count - 1), at: .top, animated: false)
     }
     
     private func addObserverOnMessages() {
@@ -110,5 +185,81 @@ extension ChatViewController {
                 strongSelf.updateViewForMessages()
             }
         })
+    }
+    
+    @objc private func composeOptionsBtnTapped() {
+        let actionSheet = UIAlertController(title: "Attach Media",
+                                            message: "What should you like to attach",
+                                            preferredStyle: .actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(title: "Photo", style: .default, handler: {[weak self] _ in
+            self?.presentPhotoInputActionSheet()
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Video", style: .default, handler: {[weak self] _ in
+            self?.presentPhotoInputActionSheet()
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Location", style: .default, handler: { [weak self] _ in
+            self?.presentPhotoInputActionSheet()
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        present(actionSheet, animated: true)
+    }
+}
+
+//MARK: UIImagePickerControllerDelegate
+extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        guard let selectedImage = info[.editedImage] as? UIImage else {
+            return
+        }
+        
+        viewModel.sendPhotoMessage(with: selectedImage.pngData()) {[weak self] success, isNewConvo in
+            if success {
+                print("ChatViewController: Image Send Success")
+                if isNewConvo {
+                    self?.addObserverOnMessages()
+                }
+            }
+            else {
+                print("ChatViewController: Image Send Failed")
+            }
+        }
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+    
+    private func presentPhotoInputActionSheet() {
+        let actionSheet = UIAlertController(title: "Attach",
+                                            message: "What should you like to attach",
+                                            preferredStyle: .actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(title: "Take Now",style: .default,handler: {[weak self] _ in
+            self?.presentCamera()
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Photo Library", style: .default, handler: {[weak self] _ in
+            self?.presentPhotoPicker()
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+    
+    private func presentCamera() {
+        let vc = UIImagePickerController()
+        vc.sourceType = .camera
+        vc.delegate = self
+        vc.allowsEditing = true
+        present(vc, animated: true)
+    }
+    
+    private func presentPhotoPicker() {
+        let vc = UIImagePickerController()
+        vc.sourceType = .photoLibrary
+        vc.delegate = self
+        vc.allowsEditing = true
+        present(vc, animated: false)
     }
 }

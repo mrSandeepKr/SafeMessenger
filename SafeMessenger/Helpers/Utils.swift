@@ -25,6 +25,12 @@ class Utils {
         
         return formatter
     }()
+    
+    public static let hrMinOnDateDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE MMM d, yyyy"
+        return formatter
+    }()
 }
 
 extension Utils {
@@ -34,10 +40,6 @@ extension Utils {
     
     func getLoggedInUserEmail() -> String? {
         return UserDefaults.standard.string(forKey: UserDefaultConstant.userEmail)
-    }
-    
-    func getLoggedInUserDisplayName() -> String? {
-        return UserDefaults.standard.string(forKey: UserDefaultConstant.userName)
     }
     
     func getLoggedInUserSafeEmail() -> String? {
@@ -61,5 +63,13 @@ extension Utils {
         let fileName = StorageManager.profileImageFilename(for: safeEmail)
         let path = StorageManager.profileImageRefPath(fileName: fileName)
         return path
+    }
+    
+    func getLoggedInUserDisplayURL() -> String? {
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.profileImageUrl)
+    }
+    
+    func getLoggedInUserDisplayName() -> String? {
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.userName)
     }
 }

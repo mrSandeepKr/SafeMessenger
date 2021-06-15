@@ -22,12 +22,19 @@ struct Message: MessageType, Serialisable {
         case .text(let msg):
             message = msg
             type = Constants.MessageTypeText
+        case .photo(let media):
+            type = Constants.MessageTypePhoto
+            message = media.url?.absoluteString ?? ""
         default:
             break
         }
         
+        guard let senderObj = sender as? Sender else {
+            return [:]
+        }
+        
         return [
-            Constants.sender: sender.serialisedObject(),
+            Constants.sender: senderObj.serialisedObject(),
             Constants.messageID: messageId,
             Constants.sendDate: Utils.networkDateFormatter.string(from: sentDate),
             Constants.isRead: isRead,
@@ -36,10 +43,18 @@ struct Message: MessageType, Serialisable {
         ]
     }
     
-    func getMessagePreviewText() -> String? {
+    func getMessagePreviewAttributedText() -> NSAttributedString? {
         switch kind {
         case .text(let msg):
-            return msg
+            return NSAttributedString(string: msg)
+        case .photo(_):
+            let imageAttachment = NSTextAttachment(image: UIImage(systemName: "photo.fill")!)
+            let completeString = NSMutableAttributedString(string: "")
+            let attachmentString = NSAttributedString(attachment: imageAttachment)
+            let imageString = NSAttributedString(string: "Image")
+            completeString.append(attachmentString)
+            completeString.append(imageString)
+            return completeString
         default:
             return nil
         }
@@ -51,6 +66,16 @@ struct Message: MessageType, Serialisable {
             return false
         }
         return loggedInUserEmail == sender.senderId
+    }
+    
+    func getSenderInitials() -> String {
+        let split: [String] = sender.displayName.split(separator: " ").map{return String($0)}
+        guard split.count > 1 else {
+            return ""
+        }
+        let f = String(split[0].first ?? Character("U"))
+        let s = String(split[1].first ?? Character("U"))
+        return f+s
     }
     
     static func getObject(from dict: [String: Any]) -> Message? {
@@ -77,6 +102,13 @@ struct Message: MessageType, Serialisable {
     static func getMessageKind(from msgType: String, content: String) -> MessageKind? {
         if msgType == Constants.MessageTypeText {
             return .text(content)
+        }
+        else if msgType == Constants.MessageTypePhoto {
+            let media = MediaModel(url: URL(string: content),
+                                   image: nil,
+                                   placeholderImage: UIImage.checkmark,
+                                   size: CGSize(width: 200, height: 200))
+            return .photo(media)
         }
         return nil
     }

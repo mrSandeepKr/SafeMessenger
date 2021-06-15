@@ -21,17 +21,7 @@ class ChatListMultiViewModel {
     }
     
     func updateHamburgerBtnImageView(for imageView: UIImageView) {
-        StorageManager.shared.downloadURL(for: StorageManager.profileImagePath) { res in
-            DispatchQueue.main.async {
-                switch res {
-                case .success(let url ):
-                    imageView.sd_setImage(with: url)
-                    break
-                case .failure(_):
-                    break
-                }
-            }
-        }
+        StorageManager.shared.downloadImageURLandUpdateView(for: imageView, path: StorageManager.profileImagePath)
     }
     
     func getChatViewModel(for convo: ConversationObject) -> ChatViewModel?  {
