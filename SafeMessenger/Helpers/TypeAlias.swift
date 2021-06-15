@@ -15,6 +15,7 @@ typealias FetchAllUsersCompletion = (Result<[ChatAppUserModel],Error>) -> Void
 typealias FetchUserCompletion = (Result<ChatAppUserModel,Error>) -> Void
 typealias FetchAllConversationsCompletion = (Result<[ConversationObject], Error>) -> Void
 typealias FetchConversationThreadCompletion = (Result<ConversationThread, Error>) -> Void
+typealias SendMessageCompletion = (_ success: Bool ,_ isNewConvo: Bool)-> Void
 
 typealias ResultStringCompletion = (Result<String,Error>) -> Void
 typealias StringCompletion = (String) -> Void

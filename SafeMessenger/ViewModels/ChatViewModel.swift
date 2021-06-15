@@ -108,17 +108,16 @@ extension ChatViewModel {
         return "conversation_\(firstMessageID)"
     }
     
-    
-    func sendMessage(msgKind: MessageKind, completion: @escaping (_ success: Bool ,_ isNewConvo: Bool)-> Void) {
+    private func sendMessage(msgKind: MessageKind, completion: @escaping SendMessageCompletion) {
         guard let messageID = createMessageId(), selfSender.displayName != Constants.unknownUser
         else {
             return
         }
         
         let msg = Message(sender: selfSender,
-                        messageId: messageID,
-                        sentDate: Date(),
-                        kind: msgKind)
+                          messageId: messageID,
+                          sentDate: Date(),
+                          kind: msgKind)
         let members = [loggedInUserEmail, memberEmail]
         if isNewConversation {
             let conversation = ConversationObject(convoID: getConversationId(firstMessageID: messageID),
@@ -162,5 +161,31 @@ extension ChatViewModel {
                 }
             })
         }
+    }
+}
+
+extension ChatViewModel {
+    func sendPhotoMessage(with data:Data?, completion: @escaping SendMessageCompletion) {
+        guard let messageId = createMessageId(),
+              let data = data else {
+            completion(false,false)
+            return
+        }
+        let fileName = messageId.replacingOccurrences(of: " ", with: "_") + Constants.pngExtension
+        
+        StorageManager.shared.uploadImageToMessageSection(filename: fileName, imageData: data) {[weak self] res in
+            switch res {
+            case .success(let url):
+                let media = MediaModel(url: url, image: nil)
+                self?.sendMessage(msgKind: .photo(media),completion: completion)
+                break
+            case .failure(_):
+                break
+            }
+        }
+    }
+    
+    func sendTextMessage(with text:String, completion: @escaping SendMessageCompletion) {
+        sendMessage(msgKind: .text(text), completion: completion)
     }
 }

@@ -74,7 +74,9 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
     }
     
     func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
-        let msg = viewModel.messages[indexPath.section]
+        guard let msg = message as? Message else {
+            return
+        }
         avatarView.set(avatar: Avatar(image: nil, initials: msg.getSenderInitials()))
         guard let sender = message.sender as? Sender
         else {
@@ -83,8 +85,23 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
         avatarView.sd_setImage(with: URL(string: sender.imageURL), completed: nil)
     }
     
+    func configureMediaMessageImageView(_ imageView: UIImageView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+        guard let msg = message as? Message else {
+            return
+        }
+        switch msg.kind {
+        case .photo(let media):
+            guard let url = media.url else {
+                return
+            }
+            imageView.sd_setImage(with: url)
+            break
+        default:
+            return
+        }
+    }
+    
     private func setUpMessageKitStuff() {
-        messagesCollectionView.contentInset = UIEdgeInsets(top: 59, left: 0, bottom: 0, right: 0)
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
@@ -114,16 +131,16 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             return
         }
         
-        viewModel.sendMessage(msgKind: .text(text)) {[weak self] success, isNewConvo in
+        viewModel.sendTextMessage(with: text) {[weak self] success, isNewConvo in
             if success {
-                print("ChatViewController: Message Send Success")
+                print("ChatViewController: Text message Send Success")
                 if isNewConvo {
                     self?.addObserverOnMessages()
                 }
                 inputBar.inputTextView.text = ""
             }
             else {
-                print("ChatViewController: Message Send Failed")
+                print("ChatViewController: Text message Send Failed")
             }
         }
     }
@@ -133,6 +150,8 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
 extension ChatViewController {
     private func updateViewForMessages() {
         messagesCollectionView.reloadData()
+        // Opens the Message View on the last Message
+        messagesCollectionView.scrollToItem(at: IndexPath(row: 0, section: viewModel.messages.count - 1), at: .top, animated: false)
     }
     
     private func addObserverOnMessages() {
@@ -173,8 +192,18 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         guard let selectedImage = info[.editedImage] as? UIImage else {
             return
         }
-        print(selectedImage.capInsets)
-        //TODO: make the view model upload this image or may be add it to the compose area
+        
+        viewModel.sendPhotoMessage(with: selectedImage.pngData()) {[weak self] success, isNewConvo in
+            if success {
+                print("ChatViewController: Image Send Success")
+                if isNewConvo {
+                    self?.addObserverOnMessages()
+                }
+            }
+            else {
+                print("ChatViewController: Image Send Failed")
+            }
+        }
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {

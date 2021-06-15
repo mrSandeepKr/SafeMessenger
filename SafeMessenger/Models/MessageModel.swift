@@ -22,6 +22,9 @@ struct Message: MessageType, Serialisable {
         case .text(let msg):
             message = msg
             type = Constants.MessageTypeText
+        case .photo(let media):
+            type = Constants.MessageTypePhoto
+            message = media.url?.absoluteString ?? ""
         default:
             break
         }
@@ -91,6 +94,13 @@ struct Message: MessageType, Serialisable {
     static func getMessageKind(from msgType: String, content: String) -> MessageKind? {
         if msgType == Constants.MessageTypeText {
             return .text(content)
+        }
+        else if msgType == Constants.MessageTypePhoto {
+            let media = MediaModel(url: URL(string: content),
+                                   image: nil,
+                                   placeholderImage: UIImage.checkmark,
+                                   size: CGSize(width: 200, height: 200))
+            return .photo(media)
         }
         return nil
     }

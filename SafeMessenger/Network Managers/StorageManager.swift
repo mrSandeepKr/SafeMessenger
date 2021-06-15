@@ -68,12 +68,12 @@ extension StorageManager {
 
 //MARK: Chat Service fuctions
 extension StorageManager {
-    func uploadImageToMessageSection(filename: String, imageData: Data, completion:@escaping ResultStringCompletion) {
+    func uploadImageToMessageSection(filename: String, imageData: Data, completion:@escaping ResultURLCompletion) {
         let chatImagesPath = StorageManager.chatImagesPath(fileName: filename)
         uploadData(to: chatImagesPath, data: imageData) { res in
             switch res {
             case .success(let url):
-                completion(.success(url.absoluteString))
+                completion(.success(url))
                 break
             case .failure(let err):
                 completion(.failure(err))
