@@ -54,7 +54,7 @@ class ChatViewController: MessagesViewController {
 }
 
 //MARK: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate
-extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate {
+extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, MessagesDisplayDelegate, MessageCellDelegate {
     func currentSender() -> SenderType {
         return viewModel.selfSender
     }
@@ -101,10 +101,32 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
         }
     }
     
+    func didTapImage(in cell: MessageCollectionViewCell) {
+        guard let indexPath = messagesCollectionView.indexPath(for: cell) else { return }
+        let msg = viewModel.messages[indexPath.section]
+        switch msg.kind {
+        case .photo(let media):
+            guard let mediaObj = media as? MediaModel,
+                  let imageURL = mediaObj.url
+            else {
+                return
+            }
+            let title = Utils.hrMinOnDateDateFormatter.string(from: Date())
+            let vc = ImageViewerViewController(url: imageURL, title: title)
+            let nav = UINavigationController(rootViewController: vc)
+            nav.navigationItem.largeTitleDisplayMode = .always
+            present(nav, animated: true)
+            break
+        default:
+            break
+        }
+    }
+    
     private func setUpMessageKitStuff() {
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
+        messagesCollectionView.messageCellDelegate = self
         messageInputBar.delegate = self
         
         //This is the compose option selector

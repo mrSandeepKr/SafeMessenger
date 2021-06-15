@@ -25,6 +25,12 @@ class Utils {
         
         return formatter
     }()
+    
+    public static let hrMinOnDateDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE MMM d, yyyy"
+        return formatter
+    }()
 }
 
 extension Utils {
