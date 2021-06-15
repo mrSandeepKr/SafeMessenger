@@ -67,6 +67,22 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
         return viewModel.messages.count
     }
     
+    func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
+        let msg = viewModel.messages[indexPath.section]
+        let incomingMsgColor = UIColor(named: "incomingMsgBackground") ?? .white
+        return msg.isSenderLoggedIn() ? .systemBlue : incomingMsgColor
+    }
+    
+    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+        let msg = viewModel.messages[indexPath.section]
+        avatarView.set(avatar: Avatar(image: nil, initials: msg.getSenderInitials()))
+        guard let sender = message.sender as? Sender
+        else {
+            return
+        }
+        avatarView.sd_setImage(with: URL(string: sender.imageURL), completed: nil)
+    }
+    
     private func setUpMessageKitStuff() {
         messagesCollectionView.contentInset = UIEdgeInsets(top: 59, left: 0, bottom: 0, right: 0)
         messagesCollectionView.messagesDataSource = self
@@ -81,6 +97,12 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
         composeOptionBtn.addTarget(self, action: #selector(composeOptionsBtnTapped), for: .touchUpInside)
         messageInputBar.setLeftStackViewWidthConstant(to: 36, animated: false)
         messageInputBar.setStackViewItems([composeOptionBtn], forStack: .left, animated: false)
+        
+        //Custom Send button
+        messageInputBar.sendButton.title = ""
+        messageInputBar.sendButton.image = UIImage(systemName: "arrowtriangle.forward.fill")
+        messageInputBar.sendButton.setSize(CGSize(width: 35, height: 35), animated: false)
+        messageInputBar.inputTextView.placeholder = "Type a message..."
     }
 }
 
@@ -98,6 +120,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                 if isNewConvo {
                     self?.addObserverOnMessages()
                 }
+                inputBar.inputTextView.text = ""
             }
             else {
                 print("ChatViewController: Message Send Failed")
@@ -132,11 +155,12 @@ extension ChatViewController {
             self?.presentPhotoInputActionSheet()
         }))
         actionSheet.addAction(UIAlertAction(title: "Video", style: .default, handler: {[weak self] _ in
+            self?.presentPhotoInputActionSheet()
         }))
         actionSheet.addAction(UIAlertAction(title: "Location", style: .default, handler: { [weak self] _ in
+            self?.presentPhotoInputActionSheet()
         }))
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { [weak self] _ in
-        }))
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
         present(actionSheet, animated: true)
     }
@@ -149,6 +173,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         guard let selectedImage = info[.editedImage] as? UIImage else {
             return
         }
+        print(selectedImage.capInsets)
         //TODO: make the view model upload this image or may be add it to the compose area
     }
     

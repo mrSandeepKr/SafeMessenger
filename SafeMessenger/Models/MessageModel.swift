@@ -26,8 +26,12 @@ struct Message: MessageType, Serialisable {
             break
         }
         
+        guard let senderObj = sender as? Sender else {
+            return [:]
+        }
+        
         return [
-            Constants.sender: sender.serialisedObject(),
+            Constants.sender: senderObj.serialisedObject(),
             Constants.messageID: messageId,
             Constants.sendDate: Utils.networkDateFormatter.string(from: sentDate),
             Constants.isRead: isRead,
@@ -51,6 +55,16 @@ struct Message: MessageType, Serialisable {
             return false
         }
         return loggedInUserEmail == sender.senderId
+    }
+    
+    func getSenderInitials() -> String {
+        let split: [String] = sender.displayName.split(separator: " ").map{return String($0)}
+        guard split.count > 1 else {
+            return ""
+        }
+        let f = String(split[0].first ?? Character("U"))
+        let s = String(split[1].first ?? Character("U"))
+        return f+s
     }
     
     static func getObject(from dict: [String: Any]) -> Message? {

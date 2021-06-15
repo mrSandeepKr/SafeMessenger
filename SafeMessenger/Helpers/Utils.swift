@@ -36,10 +36,6 @@ extension Utils {
         return UserDefaults.standard.string(forKey: UserDefaultConstant.userEmail)
     }
     
-    func getLoggedInUserDisplayName() -> String? {
-        return UserDefaults.standard.string(forKey: UserDefaultConstant.userName)
-    }
-    
     func getLoggedInUserSafeEmail() -> String? {
         guard let userEmail = getLoggedInUserEmail() else {
             return nil
@@ -61,5 +57,13 @@ extension Utils {
         let fileName = StorageManager.profileImageFilename(for: safeEmail)
         let path = StorageManager.profileImageRefPath(fileName: fileName)
         return path
+    }
+    
+    func getLoggedInUserDisplayURL() -> String? {
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.profileImageUrl)
+    }
+    
+    func getLoggedInUserDisplayName() -> String? {
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.userName)
     }
 }

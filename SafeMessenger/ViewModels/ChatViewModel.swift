@@ -11,6 +11,7 @@ class ChatViewModel {
     let memberEmail: String
     var convoId: String?
     let loggedInUserEmail: String
+    let loggedInUserImageURLString: String
     var isNewConversation: Bool
     let isLastMsgMarkedUnRead: Bool
     
@@ -24,9 +25,12 @@ class ChatViewModel {
     init(memberEmail: String, convo: ConversationObject?) {
         self.memberEmail = memberEmail
         loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
-        
+        loggedInUserImageURLString = Utils.shared.getLoggedInUserDisplayURL() ?? ""
         let loggedInUserName = Utils.shared.getLoggedInUserDisplayName() ?? ""
-        selfSender = Sender(imageURL: "", senderId: loggedInUserEmail , displayName: loggedInUserName)
+        
+        selfSender = Sender(imageURL: loggedInUserImageURLString,
+                            senderId: loggedInUserEmail ,
+                            displayName: loggedInUserName)
         
         if convo != nil {
             isNewConversation = false
