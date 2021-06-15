@@ -196,7 +196,7 @@ extension ChatViewController {
             self?.presentPhotoInputActionSheet()
         }))
         actionSheet.addAction(UIAlertAction(title: "Video", style: .default, handler: {[weak self] _ in
-            self?.presentPhotoInputActionSheet()
+            self?.presentVideoInputActionSheet()
         }))
         actionSheet.addAction(UIAlertAction(title: "Location", style: .default, handler: { [weak self] _ in
             self?.presentPhotoInputActionSheet()
@@ -211,20 +211,21 @@ extension ChatViewController {
 extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
-        guard let selectedImage = info[.editedImage] as? UIImage else {
-            return
-        }
-        
-        viewModel.sendPhotoMessage(with: selectedImage.pngData()) {[weak self] success, isNewConvo in
-            if success {
-                print("ChatViewController: Image Send Success")
-                if isNewConvo {
-                    self?.addObserverOnMessages()
+        if let selectedImage = info[.editedImage] as? UIImage {
+            viewModel.sendPhotoMessage(with: selectedImage.pngData()) {[weak self] success, isNewConvo in
+                if success {
+                    print("ChatViewController: Image Send Success")
+                    if isNewConvo {
+                        self?.addObserverOnMessages()
+                    }
+                }
+                else {
+                    print("ChatViewController: Image Send Failed")
                 }
             }
-            else {
-                print("ChatViewController: Image Send Failed")
-            }
+        }
+        else if let vid = info[.referenceURL] as? URL {
+            print(vid)
         }
     }
     
@@ -233,8 +234,8 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
     }
     
     private func presentPhotoInputActionSheet() {
-        let actionSheet = UIAlertController(title: "Attach",
-                                            message: "What should you like to attach",
+        let actionSheet = UIAlertController(title: "Send Image",
+                                            message: "What image would you like to attach?",
                                             preferredStyle: .actionSheet)
         
         actionSheet.addAction(UIAlertAction(title: "Take Now",style: .default,handler: {[weak self] _ in
@@ -247,19 +248,42 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         self.present(actionSheet, animated: true, completion: nil)
     }
     
-    private func presentCamera() {
+    private func presentVideoInputActionSheet() {
+        let actionSheet = UIAlertController(title: "Send Video",
+                                            message: "What video would you like to attach?",
+                                            preferredStyle: .actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(title: "Take Now",style: .default,handler: {[weak self] _ in
+            self?.presentCamera(onlyVideo: true)
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Photo Library", style: .default, handler: {[weak self] _ in
+            self?.presentPhotoPicker(onlyVideo: true)
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+    
+    private func presentCamera(onlyVideo: Bool = false) {
         let vc = UIImagePickerController()
         vc.sourceType = .camera
         vc.delegate = self
         vc.allowsEditing = true
+        if onlyVideo {
+            vc.mediaTypes = ["public.movie"]
+            vc.videoQuality = .typeMedium
+        }
         present(vc, animated: true)
     }
     
-    private func presentPhotoPicker() {
+    private func presentPhotoPicker(onlyVideo: Bool = false) {
         let vc = UIImagePickerController()
         vc.sourceType = .photoLibrary
         vc.delegate = self
         vc.allowsEditing = true
+        if onlyVideo {
+            vc.mediaTypes = ["public.movie"]
+            vc.videoQuality = .typeMedium
+        }
         present(vc, animated: false)
     }
 }
