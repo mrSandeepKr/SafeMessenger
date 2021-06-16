@@ -211,21 +211,24 @@ extension ChatViewController {
 extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
-        if let selectedImage = info[.editedImage] as? UIImage {
-            viewModel.sendPhotoMessage(with: selectedImage.pngData()) {[weak self] success, isNewConvo in
-                if success {
-                    print("ChatViewController: Image Send Success")
-                    if isNewConvo {
-                        self?.addObserverOnMessages()
-                    }
-                }
-                else {
-                    print("ChatViewController: Image Send Failed")
+        
+        let completion:SendMessageCompletion = {[weak self] success, isNewConvo in
+            if success {
+                print("ChatViewController: Image Send Success")
+                if isNewConvo {
+                    self?.addObserverOnMessages()
                 }
             }
+            else {
+                print("ChatViewController: Image Send Failed")
+            }
         }
-        else if let vid = info[.referenceURL] as? URL {
-            print(vid)
+        
+        if let selectedImage = info[.editedImage] as? UIImage {
+            viewModel.sendPhotoMessage(with: selectedImage.pngData(),completion: completion)
+        }
+        else if let vidUrl = info[UIImagePickerController.InfoKey.referenceURL] as? URL {
+            //viewModel.sendVideoMessage(with: vidUrl, completion: completion)
         }
     }
     

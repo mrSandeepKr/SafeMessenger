@@ -164,6 +164,8 @@ extension ChatViewModel {
     }
 }
 
+import AVKit
+
 extension ChatViewModel {
     func sendPhotoMessage(with data:Data?, completion: @escaping SendMessageCompletion) {
         guard let messageId = createMessageId(),
@@ -173,13 +175,14 @@ extension ChatViewModel {
         }
         let fileName = messageId.replacingOccurrences(of: " ", with: "_") + Constants.pngExtension
         
-        StorageManager.shared.uploadImageToMessageSection(filename: fileName, imageData: data) {[weak self] res in
+        StorageManager.shared.uploadImageToMessageSection(to: fileName, imageData: data) {[weak self] res in
             switch res {
             case .success(let url):
                 let media = MediaModel(url: url, image: nil)
                 self?.sendMessage(msgKind: .photo(media),completion: completion)
                 break
             case .failure(_):
+                completion(false, false)
                 break
             }
         }
@@ -187,5 +190,25 @@ extension ChatViewModel {
     
     func sendTextMessage(with text:String, completion: @escaping SendMessageCompletion) {
         sendMessage(msgKind: .text(text), completion: completion)
+    }
+    
+    func sendVideoMessage(with filepathURL: URL, completion: @escaping SendMessageCompletion) {
+        guard let messageId = createMessageId()
+        else {
+            completion(false,false)
+            return
+        }
+        
+        let fileName = messageId.replacingOccurrences(of: " ", with: "_") + Constants.movExtension
+        StorageManager.shared.uploadVideoToMessageSection(to: fileName, localFile: filepathURL) {[weak self] res in
+            switch res {
+            case .success(let url):
+                let media = MediaModel(url: url, image: nil)
+                self?.sendMessage(msgKind: .video(media), completion: completion)
+                break
+            case .failure(_):
+                break
+            }
+        }
     }
 }

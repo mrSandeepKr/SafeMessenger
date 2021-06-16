@@ -41,6 +41,7 @@ class Constants {
     
     static let MessageTypeText = "text"
     static let MessageTypePhoto = "photo"
+    static let MessageTypeVideo = "video"
     
     static let ImageNamePersonPlaceholder = "personPlaceholder"
     static let ImageNameLogo = "logo"
@@ -49,11 +50,13 @@ class Constants {
     static let ImageNameHamburgerBackgroud = "hamburgerBackground"
     
     static let StoragePathImages = "images"
-    static let StoragePathChatImage = "chatImages"
+    static let StoragePathChatImages = "chatImages"
+    static let StoragePathChatVideos = "chatVideos"
     
     static let ProfileImageSuffix = "_profile_image.png"
     
     static let pngExtension = ".png"
+    static let movExtension = ".mov"
 }
 
 class UserDefaultConstant {

@@ -44,7 +44,11 @@ final class StorageManager {
     }
     
     static func chatImagesPath(fileName: String) -> String {
-        return "\(Constants.StoragePathChatImage)/\(fileName)"
+        return "\(Constants.StoragePathChatImages)/\(fileName)"
+    }
+    
+    static func chatVideosPath(fileName: String) -> String {
+        return "\(Constants.StoragePathChatVideos)/\(fileName)"
     }
 }
 
@@ -68,17 +72,14 @@ extension StorageManager {
 
 //MARK: Chat Service fuctions
 extension StorageManager {
-    func uploadImageToMessageSection(filename: String, imageData: Data, completion:@escaping ResultURLCompletion) {
+    func uploadImageToMessageSection(to filename: String, imageData: Data, completion:@escaping ResultURLCompletion) {
         let chatImagesPath = StorageManager.chatImagesPath(fileName: filename)
-        uploadData(to: chatImagesPath, data: imageData) { res in
-            switch res {
-            case .success(let url):
-                completion(.success(url))
-                break
-            case .failure(let err):
-                completion(.failure(err))
-            }
-        }
+        uploadData(to: chatImagesPath, data: imageData, completion: completion)
+    }
+    
+    func uploadVideoToMessageSection(to filename: String, localFile: URL, completion: @escaping ResultURLCompletion) {
+        let chatVideoPath = StorageManager.chatVideosPath(fileName: filename)
+        uploadFile(to: chatVideoPath, localFilePath: localFile, completion: completion)
     }
 }
 
@@ -124,6 +125,23 @@ extension StorageManager {
     private func uploadData(to path:String,data: Data, completion: @escaping ResultURLCompletion) {
         let ref = storage.child(path)
         ref.putData(data, metadata: nil) { metadata, err in
+            guard err == nil else {
+                completion(.failure(StorageError.failedToUpload))
+                return
+            }
+            ref.downloadURL { url, err in
+                guard err == nil, let url = url else {
+                    completion(.failure(StorageError.failedToGetDownloadURL))
+                    return
+                }
+                completion(.success(url))
+            }
+        }
+    }
+    
+    private func uploadFile(to path: String, localFilePath: URL, completion: @escaping ResultURLCompletion) {
+        let ref = storage.child(path)
+        ref.putFile(from: localFilePath, metadata: nil) { _ , err in
             guard err == nil else {
                 completion(.failure(StorageError.failedToUpload))
                 return
