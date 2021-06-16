@@ -23,7 +23,7 @@ class ChatAppUserModel {
     }
     
     var profileImageString: String {
-            return StorageManager.profileImageFilename(for: safeEmail)
+        return StorageManager.profileImageFilename(for: safeEmail)
     }
     
     var profileImageRefPathForUser: String {

@@ -26,7 +26,7 @@ class SearchUserViewController: UIViewController {
         tableView.isHidden = true
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reusableIdentifier)
+        tableView.register(SearchResultTableViewCell.self, forCellReuseIdentifier: SearchResultTableViewCell.reusableIdentifier)
         return tableView
     }()
     
@@ -92,12 +92,16 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchResultTableViewCell.reusableIdentifier) as? SearchResultTableViewCell
         else {
-            return UITableViewCell()
+            return SearchResultTableViewCell()
         }
-        cell.textLabel?.text = viewModel.results[indexPath.row].displayName
+        cell.configureCell(with: viewModel.results[indexPath.row])
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

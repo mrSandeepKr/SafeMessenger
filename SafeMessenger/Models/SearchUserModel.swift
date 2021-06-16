@@ -15,6 +15,10 @@ class SearchUserModel: ChatAppUserModel, Serialisable {
         super.init(firstName: firstName, secondName: secondName, email: email)
     }
     
+    var imageURL: URL {
+        return URL(string: imageURLString)!
+    }
+    
     func serialisedObject() -> [String : Any] {
         return [
             Constants.firstName: firstName,

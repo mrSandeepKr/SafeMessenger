@@ -38,8 +38,8 @@ class SearchUserViewModel {
         
         results = usersSet.filter { user in
             let email = user.email.lowercased()
-            let fn = user.firstName
-            let sn = user.secondName
+            let fn = user.firstName.lowercased()
+            let sn = user.secondName.lowercased()
             
             return (fn.hasPrefix(query) || sn.hasPrefix(query) || email.hasPrefix(query))
                 && (email != loggedInUserEmail.lowercased())
