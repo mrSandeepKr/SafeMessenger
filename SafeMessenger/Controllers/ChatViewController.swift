@@ -208,7 +208,7 @@ extension ChatViewController {
     }
 }
 
-//MARK: UIImagePickerControllerDelegate
+//MARK: UIImagePickerControllerDelegate, PHPickerViewControllerDelegate
 extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate, PHPickerViewControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
@@ -224,32 +224,36 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
                 print("ChatViewController: Image Send Failed")
             }
         }
-        
-        if let selectedImage = info[.editedImage] as? UIImage {
-            viewModel.sendPhotoMessage(with: selectedImage.pngData(),completion: completion)
-        }
-        else if let selectedCamVideoURL = info[.mediaURL] as? URL {
-            viewModel.sendVideoMessage(with: selectedCamVideoURL, completion: completion)
-        }
+        DispatchQueue.background(background: {[weak self] in
+            if let selectedImage = info[.editedImage] as? UIImage {
+                self?.viewModel.sendPhotoMessage(with: selectedImage.pngData(),completion: completion)
+            }
+            else if let selectedCamVideoURL = info[.mediaURL] as? URL {
+                self?.viewModel.sendVideoMessage(with: selectedCamVideoURL, completion: completion)
+            }
+        })
     }
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        viewModel.getUrlFromItemProvider(itemProvider: results.first?.itemProvider) {[weak self] res in
-            switch res {
-            case .success(let url):
-                print("ChatViewController: Getting Url For Selected Video Success")
-                self?.viewModel.sendVideoMessage(with: url){[weak self] success, isNewConvo in
-                    if success {
-                        if isNewConvo {
-                            self?.addObserverOnMessages()
-                        }
-                    }
-                }
-                break
-            case .failure(let err):
-                print("ChatViewController: Getting Url For Selected Video Failed with \(err)")
-            }
-        }
+        picker.dismiss(animated: true, completion: nil)
+        DispatchQueue.background(background: {[weak self] in
+                                    self?.viewModel.getUrlFromItemProvider(itemProvider: results.first?.itemProvider) {[weak self] res in
+                                        switch res {
+                                        case .success(let url):
+                                            print("ChatViewController: Getting Url For Selected Video Success")
+                                            self?.viewModel.sendVideoMessage(with: url){[weak self] success, isNewConvo in
+                                                if success {
+                                                    if isNewConvo {
+                                                        self?.addObserverOnMessages()
+                                                    }
+                                                }
+                                            }
+                                            break
+                                        case .failure(let err):
+                                            print("ChatViewController: Getting Url For Selected Video Failed with \(err)")
+                                        }
+                                    }
+                                 })
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
