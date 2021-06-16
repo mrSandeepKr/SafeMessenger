@@ -209,7 +209,7 @@ extension ChatViewController {
 }
 
 //MARK: UIImagePickerControllerDelegate
-extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate, PHPickerViewControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         
@@ -230,6 +230,25 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         }
         else if let selectedCamVideoURL = info[.mediaURL] as? URL {
             viewModel.sendVideoMessage(with: selectedCamVideoURL, completion: completion)
+        }
+    }
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        viewModel.getUrlFromItemProvider(itemProvider: results.first?.itemProvider) {[weak self] res in
+            switch res {
+            case .success(let url):
+                print("ChatViewController: Getting Url For Selected Video Success")
+                self?.viewModel.sendVideoMessage(with: url){[weak self] success, isNewConvo in
+                    if success {
+                        if isNewConvo {
+                            self?.addObserverOnMessages()
+                        }
+                    }
+                }
+                break
+            case .failure(let err):
+                print("ChatViewController: Getting Url For Selected Video Failed with \(err)")
+            }
         }
     }
     
@@ -294,26 +313,5 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         let picker = PHPickerViewController(configuration: config)
         picker.delegate = self
         present(picker, animated: true, completion: nil)
-    }
-}
-
-extension ChatViewController: PHPickerViewControllerDelegate {
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        viewModel.getUrlFromItemProvider(itemProvider: results.first?.itemProvider) {[weak self] res in
-            switch res {
-            case .success(let url):
-                print("ChatViewController: Getting Url For Selected Video Success")
-                self?.viewModel.sendVideoMessage(with: url){[weak self] success, isNewConvo in
-                    if success {
-                        if isNewConvo {
-                            self?.addObserverOnMessages()
-                        }
-                    }
-                }
-                break
-            case .failure(let err):
-                print("ChatViewController: Getting Url For Selected Video Failed with \(err)")
-            }
-        }
     }
 }
