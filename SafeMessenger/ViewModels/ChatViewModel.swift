@@ -8,6 +8,12 @@
 import Foundation
 import MessageKit
 
+enum FileManagerError: Error {
+    case FailedToGetTypeIdentifier
+    case FailedToGetFileURL
+    case FailedToCopyToTarget
+}
+
 class ChatViewModel {
     let memberEmail: String
     var convoId: String?
@@ -162,11 +168,43 @@ extension ChatViewModel {
             })
         }
     }
+    
+    func getUrlFromItemProvider(itemProvider: NSItemProvider?,completion:@escaping ResultURLCompletion) {
+        guard let itemProvider = itemProvider,
+              let typeIdentifier = itemProvider.registeredTypeIdentifiers.first
+        else {
+            completion(.failure(FileManagerError.FailedToGetTypeIdentifier))
+            return
+        }
+        
+        itemProvider.loadFileRepresentation(forTypeIdentifier: typeIdentifier) { url, error in
+            guard error == nil ,let url = url else {
+                completion(.failure(FileManagerError.FailedToGetFileURL))
+                return
+            }
+
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            guard let targetURL = documentsDirectory?.appendingPathComponent(url.lastPathComponent) else { return }
+            
+            do {
+                if FileManager.default.fileExists(atPath: targetURL.path) {
+                    try FileManager.default.removeItem(at: targetURL)
+                }
+                try FileManager.default.copyItem(at: url, to: targetURL)
+                completion(.success(targetURL))
+            }
+            catch {
+                completion(.failure(FileManagerError.FailedToCopyToTarget))
+            }
+        }
+    }
 }
 
-import AVKit
-
 extension ChatViewModel {
+    func sendTextMessage(with text:String, completion: @escaping SendMessageCompletion) {
+        sendMessage(msgKind: .text(text), completion: completion)
+    }
+    
     func sendPhotoMessage(with data:Data?, completion: @escaping SendMessageCompletion) {
         guard let messageId = createMessageId(),
               let data = data else {
@@ -188,10 +226,6 @@ extension ChatViewModel {
         }
     }
     
-    func sendTextMessage(with text:String, completion: @escaping SendMessageCompletion) {
-        sendMessage(msgKind: .text(text), completion: completion)
-    }
-    
     func sendVideoMessage(with filepathURL: URL, completion: @escaping SendMessageCompletion) {
         guard let messageId = createMessageId()
         else {
@@ -204,9 +238,11 @@ extension ChatViewModel {
             switch res {
             case .success(let url):
                 let media = MediaModel(url: url, image: nil)
+                print("ChatViewModel: Sending Video Message Success")
                 self?.sendMessage(msgKind: .video(media), completion: completion)
                 break
             case .failure(_):
+                print("ChatViewModel: Couldn't Send Video Message")
                 break
             }
         }

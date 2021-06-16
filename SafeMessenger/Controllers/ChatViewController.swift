@@ -8,6 +8,7 @@
 import UIKit
 import MessageKit
 import InputBarAccessoryView
+import PhotosUI
 
 class ChatViewController: MessagesViewController {
     
@@ -227,8 +228,8 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         if let selectedImage = info[.editedImage] as? UIImage {
             viewModel.sendPhotoMessage(with: selectedImage.pngData(),completion: completion)
         }
-        else if let vidUrl = info[UIImagePickerController.InfoKey.referenceURL] as? URL {
-            //viewModel.sendVideoMessage(with: vidUrl, completion: completion)
+        else if let selectedCamVideoURL = info[.mediaURL] as? URL {
+            viewModel.sendVideoMessage(with: selectedCamVideoURL, completion: completion)
         }
     }
     
@@ -260,7 +261,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
             self?.presentCamera(onlyVideo: true)
         }))
         actionSheet.addAction(UIAlertAction(title: "Photo Library", style: .default, handler: {[weak self] _ in
-            self?.presentPhotoPicker(onlyVideo: true)
+            self?.presentVideoPicker()
         }))
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         self.present(actionSheet, animated: true, completion: nil)
@@ -278,15 +279,41 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         present(vc, animated: true)
     }
     
-    private func presentPhotoPicker(onlyVideo: Bool = false) {
+    private func presentPhotoPicker() {
         let vc = UIImagePickerController()
         vc.sourceType = .photoLibrary
         vc.delegate = self
         vc.allowsEditing = true
-        if onlyVideo {
-            vc.mediaTypes = ["public.movie"]
-            vc.videoQuality = .typeMedium
-        }
         present(vc, animated: false)
+    }
+    
+    private func presentVideoPicker() {
+        var config = PHPickerConfiguration()
+        config.filter = .videos
+        config.selectionLimit = 1;
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = self
+        present(picker, animated: true, completion: nil)
+    }
+}
+
+extension ChatViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        viewModel.getUrlFromItemProvider(itemProvider: results.first?.itemProvider) {[weak self] res in
+            switch res {
+            case .success(let url):
+                print("ChatViewController: Getting Url For Selected Video Success")
+                self?.viewModel.sendVideoMessage(with: url){[weak self] success, isNewConvo in
+                    if success {
+                        if isNewConvo {
+                            self?.addObserverOnMessages()
+                        }
+                    }
+                }
+                break
+            case .failure(let err):
+                print("ChatViewController: Getting Url For Selected Video Failed with \(err)")
+            }
+        }
     }
 }
