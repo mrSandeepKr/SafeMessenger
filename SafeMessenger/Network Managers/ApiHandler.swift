@@ -49,33 +49,16 @@ extension ApiHandler {
     ///     ]
     /// ]
     public func insertUserToUserArray(user: ChatAppUserModel, completion: @escaping (Bool) -> Void ) {
-        self.database.child(Constants.users).observeSingleEvent(of: .value) {[weak self] snapshot in
-            guard let strongSelf = self else {
+        let ref = self.database.child(Constants.users).childByAutoId()
+        let newUser = user.serialisedObject()
+        ref.setValue(newUser) { err, _ in
+            guard err == nil else {
+                print("ApiHandler: User insertion to Users Array Failed")
                 completion(false)
                 return
             }
-            let newElement = user.serialisedObject()
-            var collections = UsersDictList()
-            
-            if var userCollection = snapshot.value as? UsersDictList {
-                // Append to users Array
-                userCollection.append(newElement)
-                collections = userCollection
-            }
-            else {
-                // create the user Array
-                collections = [newElement]
-            }
-            
-            strongSelf.database.child(Constants.users).setValue(collections) { err, _ in
-                guard err == nil else {
-                    print("ApiHandler: User insertion to Users Array Failed")
-                    completion(false)
-                    return
-                }
-                print("ApiHandler: User insertion to Users Array Success")
-                completion(true)
-            }
+            print("ApiHandler: User insertion to Users Array Success")
+            completion(true)
         }
     }
     
@@ -125,15 +108,19 @@ extension ApiHandler {
 //MARK: Search Support APIs
 extension ApiHandler {
     func fetchAllUsers(completion: @escaping FetchAllUsersCompletion) {
-        database.child(Constants.users).observeSingleEvent(of: .value) { snapshot in
-            guard let value = snapshot.value as? UsersDictList else {
-                print("ApiHandler: Fetch All users Failed")
-                completion(.failure(ApiHandlerErrors.FailedToFetchAllUsers))
-                return
-            }
-            let userObjects = value.compactMap{return ChatAppUserModel.getObject(from: $0)}
-            if userObjects.count != value.count {
-                print("ApiHanlder: Fetch All User - Some Users not resolved")
+        let ref = database.child(Constants.users)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            var userObjects = [ChatAppUserModel]()
+            for child in snapshot.children {
+                guard let base = child as? DataSnapshot,
+                      let value = base.value as? UserDict,
+                      let user = ChatAppUserModel.getObject(from: value)
+                else {
+                    print("ApiHandler: Fetch All users Failed")
+                    completion(.failure(ApiHandlerErrors.FailedToFetchAllUsers))
+                    return
+                }
+                userObjects.append(user)
             }
             print("ApiHandler: Fetch All users Success")
             completion(.success(userObjects))
