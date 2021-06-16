@@ -25,6 +25,9 @@ struct Message: MessageType, Serialisable {
         case .photo(let media):
             type = Constants.MessageTypePhoto
             message = media.url?.absoluteString ?? ""
+        case .video(let media):
+            type = Constants.MessageTypeVideo
+            message = media.url?.absoluteString ?? ""
         default:
             break
         }
@@ -51,9 +54,17 @@ struct Message: MessageType, Serialisable {
             let imageAttachment = NSTextAttachment(image: UIImage(systemName: "photo.fill")!)
             let completeString = NSMutableAttributedString(string: "")
             let attachmentString = NSAttributedString(attachment: imageAttachment)
-            let imageString = NSAttributedString(string: "Image")
+            let imageString = NSAttributedString(string: " Image")
             completeString.append(attachmentString)
             completeString.append(imageString)
+            return completeString
+        case .video(_):
+            let imageAttachment = NSTextAttachment(image: UIImage(systemName: "video.circle")!)
+            let completeString = NSMutableAttributedString(string: "")
+            let attachmentString = NSAttributedString(attachment: imageAttachment)
+            let videoString = NSAttributedString(string: " Video")
+            completeString.append(attachmentString)
+            completeString.append(videoString)
             return completeString
         default:
             return nil
@@ -109,6 +120,13 @@ struct Message: MessageType, Serialisable {
                                    placeholderImage: UIImage.checkmark,
                                    size: CGSize(width: 200, height: 200))
             return .photo(media)
+        }
+        else if msgType == Constants.MessageTypeVideo {
+            let media = MediaModel(url: URL(string: content),
+                                   image: Utils.getThumbnailImage(forUrl: URL(string: content)),
+                                   placeholderImage: UIImage.checkmark,
+                                   size: CGSize(width: 200, height: 200))
+            return .video(media)
         }
         return nil
     }

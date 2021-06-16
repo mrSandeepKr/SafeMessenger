@@ -8,6 +8,7 @@
 import UIKit
 import MessageKit
 import InputBarAccessoryView
+import PhotosUI
 
 class ChatViewController: MessagesViewController {
     
@@ -196,7 +197,7 @@ extension ChatViewController {
             self?.presentPhotoInputActionSheet()
         }))
         actionSheet.addAction(UIAlertAction(title: "Video", style: .default, handler: {[weak self] _ in
-            self?.presentPhotoInputActionSheet()
+            self?.presentVideoInputActionSheet()
         }))
         actionSheet.addAction(UIAlertAction(title: "Location", style: .default, handler: { [weak self] _ in
             self?.presentPhotoInputActionSheet()
@@ -207,15 +208,12 @@ extension ChatViewController {
     }
 }
 
-//MARK: UIImagePickerControllerDelegate
-extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+//MARK: UIImagePickerControllerDelegate, PHPickerViewControllerDelegate
+extension ChatViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate, PHPickerViewControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
-        guard let selectedImage = info[.editedImage] as? UIImage else {
-            return
-        }
         
-        viewModel.sendPhotoMessage(with: selectedImage.pngData()) {[weak self] success, isNewConvo in
+        let completion:SendMessageCompletion = {[weak self] success, isNewConvo in
             if success {
                 print("ChatViewController: Image Send Success")
                 if isNewConvo {
@@ -226,6 +224,36 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
                 print("ChatViewController: Image Send Failed")
             }
         }
+        DispatchQueue.background(background: {[weak self] in
+            if let selectedImage = info[.editedImage] as? UIImage {
+                self?.viewModel.sendPhotoMessage(with: selectedImage.pngData(),completion: completion)
+            }
+            else if let selectedCamVideoURL = info[.mediaURL] as? URL {
+                self?.viewModel.sendVideoMessage(with: selectedCamVideoURL, completion: completion)
+            }
+        })
+    }
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true, completion: nil)
+        DispatchQueue.background(background: {[weak self] in
+                                    self?.viewModel.getUrlFromItemProvider(itemProvider: results.first?.itemProvider) {[weak self] res in
+                                        switch res {
+                                        case .success(let url):
+                                            print("ChatViewController: Getting Url For Selected Video Success")
+                                            self?.viewModel.sendVideoMessage(with: url){[weak self] success, isNewConvo in
+                                                if success {
+                                                    if isNewConvo {
+                                                        self?.addObserverOnMessages()
+                                                    }
+                                                }
+                                            }
+                                            break
+                                        case .failure(let err):
+                                            print("ChatViewController: Getting Url For Selected Video Failed with \(err)")
+                                        }
+                                    }
+                                 })
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -233,8 +261,8 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
     }
     
     private func presentPhotoInputActionSheet() {
-        let actionSheet = UIAlertController(title: "Attach",
-                                            message: "What should you like to attach",
+        let actionSheet = UIAlertController(title: "Send Image",
+                                            message: "What image would you like to attach?",
                                             preferredStyle: .actionSheet)
         
         actionSheet.addAction(UIAlertAction(title: "Take Now",style: .default,handler: {[weak self] _ in
@@ -247,11 +275,30 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         self.present(actionSheet, animated: true, completion: nil)
     }
     
-    private func presentCamera() {
+    private func presentVideoInputActionSheet() {
+        let actionSheet = UIAlertController(title: "Send Video",
+                                            message: "What video would you like to attach?",
+                                            preferredStyle: .actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(title: "Take Now",style: .default,handler: {[weak self] _ in
+            self?.presentCamera(onlyVideo: true)
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Photo Library", style: .default, handler: {[weak self] _ in
+            self?.presentVideoPicker()
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+    
+    private func presentCamera(onlyVideo: Bool = false) {
         let vc = UIImagePickerController()
         vc.sourceType = .camera
         vc.delegate = self
         vc.allowsEditing = true
+        if onlyVideo {
+            vc.mediaTypes = ["public.movie"]
+            vc.videoQuality = .typeMedium
+        }
         present(vc, animated: true)
     }
     
@@ -261,5 +308,14 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
         vc.delegate = self
         vc.allowsEditing = true
         present(vc, animated: false)
+    }
+    
+    private func presentVideoPicker() {
+        var config = PHPickerConfiguration()
+        config.filter = .videos
+        config.selectionLimit = 1;
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = self
+        present(picker, animated: true, completion: nil)
     }
 }
