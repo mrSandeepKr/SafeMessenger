@@ -6,27 +6,27 @@
 //
 
 import Foundation
+import UIKit
+import AVKit
 
 class Utils {
     static let shared = Utils()
     
-    public static let networkDateFormatter: DateFormatter = {
+    static let networkDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .long
+        formatter.dateFormat = "y-MM-dd H:m:ss SSSS"
         return formatter
     }()
     
-    public static let hrMinDateFormatter: DateFormatter = {
+    static let hrMinDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"
         formatter.amSymbol = "AM"
         formatter.pmSymbol = "PM"
-        
         return formatter
     }()
     
-    public static let hrMinOnDateDateFormatter: DateFormatter = {
+    static let hrMinOnDateDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE MMM d, yyyy"
         return formatter
@@ -71,5 +71,24 @@ extension Utils {
     
     func getLoggedInUserDisplayName() -> String? {
         return UserDefaults.standard.string(forKey: UserDefaultConstant.userName)
+    }
+}
+
+extension Utils {
+    static func getThumbnailImage(forUrl url: URL?) -> UIImage? {
+        guard let url = url else {
+            return nil
+        }
+        
+        let asset: AVAsset = AVAsset(url: url)
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+
+        do {
+            let thumbnailImage = try imageGenerator.copyCGImage(at: CMTimeMake(value: 1, timescale: 60) , actualTime: nil)
+            return UIImage.init(cgImage: thumbnailImage)
+        } catch let error {
+            print("Utils: Get ThumbnailImage Failed: \(error)")
+            return nil
+        }
     }
 }

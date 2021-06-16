@@ -23,14 +23,4 @@ struct MediaModel: MediaItem, Serialisable {
             Constants.url: url.absoluteString
         ]
     }
-    
-    //TODO: change these placeholders
-    static func getObject(dict: [String:Any]) -> MediaModel? {
-        guard let url = dict[Constants.url] as? String
-        else {
-            return nil
-        }
-        return MediaModel(url: URL(string: url),
-                          image: nil)
-    }
 }

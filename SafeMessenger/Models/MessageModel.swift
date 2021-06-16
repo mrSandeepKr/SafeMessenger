@@ -123,7 +123,7 @@ struct Message: MessageType, Serialisable {
         }
         else if msgType == Constants.MessageTypeVideo {
             let media = MediaModel(url: URL(string: content),
-                                   image: nil,
+                                   image: Utils.getThumbnailImage(forUrl: URL(string: content)),
                                    placeholderImage: UIImage.checkmark,
                                    size: CGSize(width: 200, height: 200))
             return .video(media)
