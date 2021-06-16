@@ -25,18 +25,19 @@ final class ApiHandler {
 //MARK: SignIn & SignOut Support
 extension ApiHandler {
     /// Adds user's firstName, Second Name to Database
-    public func insertUserToDatabase(user: ChatAppUserModel, completion: @escaping (Bool) -> Void) {
-        database.child(user.safeEmail).setValue([
+    public func insertUserToDatabase(user: ChatAppUserModel, completion: @escaping SuccessCompletion) {
+        let userDict = [
             Constants.firstName: user.firstName,
             Constants.secondName: user.secondName
-        ]) { [weak self] err, _ in
+        ]
+        database.child(user.safeEmail).setValue(userDict) { err, _ in
             guard err == nil else {
                 print("ApiHandler: User insertion to database Failed")
                 completion(false)
                 return
             }
             print("ApiHandler: User insertion to database Success")
-            self?.insertUserToUserArray(user: user, completion: completion)
+            completion(true)
         }
     }
     
@@ -48,7 +49,7 @@ extension ApiHandler {
     ///     email : "sk@gmail.com"
     ///     ]
     /// ]
-    public func insertUserToUserArray(user: ChatAppUserModel, completion: @escaping (Bool) -> Void ) {
+    public func insertUserToSearchArray(user: SearchUserModel, completion: @escaping SuccessCompletion) {
         let ref = self.database.child(Constants.users).childByAutoId()
         let newUser = user.serialisedObject()
         ref.setValue(newUser) { err, _ in
@@ -107,14 +108,14 @@ extension ApiHandler {
 
 //MARK: Search Support APIs
 extension ApiHandler {
-    func fetchAllUsers(completion: @escaping FetchAllUsersCompletion) {
+    func fetchAllUsers(completion: @escaping FetchSearchUsersCompletion) {
         let ref = database.child(Constants.users)
         ref.observeSingleEvent(of: .value) { snapshot in
-            var userObjects = [ChatAppUserModel]()
+            var userObjects = [SearchUserModel]()
             for child in snapshot.children {
                 guard let base = child as? DataSnapshot,
                       let value = base.value as? UserDict,
-                      let user = ChatAppUserModel.getObject(from: value)
+                      let user = SearchUserModel.getObject(from: value)
                 else {
                     print("ApiHandler: Fetch All users Failed")
                     completion(.failure(ApiHandlerErrors.FailedToFetchAllUsers))
@@ -153,7 +154,7 @@ extension ApiHandler {
         }
     }
     
-    func fetchLoggedInUserInfoAndSetDefaults(for email:String, completion:@escaping (Bool)->Void) {
+    func fetchLoggedInUserInfoAndSetDefaults(for email:String, completion:@escaping SuccessCompletion) {
         fetchUserInfo(for: email) { res in
             switch res {
             case .success(let model):
@@ -179,8 +180,7 @@ extension ApiHandler {
 
 //MARK: Utils
 extension ApiHandler {
-    public func userExists(with email: String,
-                           completion: @escaping ((Bool) -> Void)) {
+    public func userExists(with email: String, completion: @escaping SuccessCompletion) {
         guard let safeEmail = Utils.shared.safeEmail(email: email) else {
             completion(false)
             return

@@ -41,8 +41,8 @@ class SearchUserViewController: UIViewController {
         return label
     }()
     
-    private lazy var usersSet = [ChatAppUserModel]()
-    private lazy var results = [ChatAppUserModel]()
+    private lazy var usersSet = [SearchUserModel]()
+    private lazy var results = [SearchUserModel]()
     private lazy var areResultsFetch = false
     private let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
     private var viewModel: SearchUserViewModel!
@@ -116,7 +116,7 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let selectedUser: ChatAppUserModel = results[indexPath.row]
+        let selectedUser: SearchUserModel = results[indexPath.row]
         dismiss(animated: true) {[weak self] in
             self?.delegate?.openChatForUser(user: selectedUser)
         }

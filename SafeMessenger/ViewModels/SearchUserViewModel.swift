@@ -8,7 +8,7 @@
 import Foundation
 
 class SearchUserViewModel {
-    public func updateUserList(completion: @escaping ([ChatAppUserModel]) -> Void) {
+    public func updateUserList(completion: @escaping ([SearchUserModel]) -> Void) {
         ApiHandler.shared.fetchAllUsers { res in
             switch res {
             case .success(let users):

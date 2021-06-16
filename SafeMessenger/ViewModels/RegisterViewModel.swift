@@ -87,6 +87,9 @@ extension RegisterViewModel {
                     case .success(let downloadUrl):
                         ApiHandler.shared.setUserLoggedInDefaults(user: userInfo,
                                                                   downloadURL: downloadUrl)
+                        ApiHandler.shared.insertUserToSearchArray(user: SearchUserModel.getObject(for: userInfo,
+                                                                                                  imageUrlString: downloadUrl),
+                                                                  completion: {_ in})
                         completion("")
                     case .failure(_):
                         completion("Oops!! Failed to upload your profile Image to Database")

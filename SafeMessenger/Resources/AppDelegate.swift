@@ -58,6 +58,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                 let userInfo = ChatAppUserModel(firstName: firstName,
                                                 secondName: secondName,
                                                 email: email)
+                
+                let profileUploadCompletion: ResultStringCompletion = { res in
+                    switch res {
+                    case .success(let profileUrlString) :
+                        let searchUser = SearchUserModel.getObject(for: userInfo, imageUrlString: profileUrlString)
+                        ApiHandler.shared.insertUserToSearchArray(user: searchUser, completion: {_ in})
+                        break
+                    case .failure(_):
+                        break
+                    }
+                }
+                
                 ApiHandler.shared.insertUserToDatabase(user: userInfo) { success in
                     if success {
                         let fileName = userInfo.profileImageString
@@ -65,7 +77,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                         else {
                             print("AppDelegate: Google doens't have user profile Image")
                             let data = UIImage(named: Constants.ImageNamePersonPlaceholder)?.pngData()
-                            StorageManager.shared.uploadUserProfileImage(with: data!, fileName: fileName) { _ in}
+                            StorageManager.shared.uploadUserProfileImage(with: data!, fileName: fileName, completion: profileUploadCompletion)
                             return
                         }
                         
@@ -75,7 +87,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                                 return
                             }
                             print("AppDelegate: Fetch Google Profile Image Success")
-                            StorageManager.shared.uploadUserProfileImage(with: data, fileName: fileName) { _ in}
+                            StorageManager.shared.uploadUserProfileImage(with: data, fileName: fileName, completion: profileUploadCompletion)
                         }.resume()
                     }
                 }

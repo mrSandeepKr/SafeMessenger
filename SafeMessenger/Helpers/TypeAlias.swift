@@ -11,7 +11,7 @@ typealias UserDict = [String: Any]
 typealias MessageDict = [String: Any]
 typealias UsersDictList = [UserDict]
 
-typealias FetchAllUsersCompletion = (Result<[ChatAppUserModel],Error>) -> Void
+typealias FetchSearchUsersCompletion = (Result<[SearchUserModel],Error>) -> Void
 typealias FetchUserCompletion = (Result<ChatAppUserModel,Error>) -> Void
 typealias FetchAllConversationsCompletion = (Result<[ConversationObject], Error>) -> Void
 typealias FetchConversationThreadCompletion = (Result<ConversationThread, Error>) -> Void
