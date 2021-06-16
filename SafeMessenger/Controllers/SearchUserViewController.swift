@@ -30,8 +30,6 @@ class SearchUserViewController: UIViewController {
         return tableView
     }()
     
-    private lazy var spinner = JGProgressHUD(style: .dark)
-    
     private lazy var noResultLabel: UILabel = {
         let label = UILabel()
         label.text = "No Results"
@@ -41,10 +39,6 @@ class SearchUserViewController: UIViewController {
         return label
     }()
     
-    private lazy var usersSet = [SearchUserModel]()
-    private lazy var results = [SearchUserModel]()
-    private lazy var areResultsFetch = false
-    private let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
     private var viewModel: SearchUserViewModel!
     weak var delegate: SearchUserViewProtocol?
     
@@ -62,16 +56,7 @@ class SearchUserViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         searchBar.delegate = self
-        searchBar.becomeFirstResponder()
-        
-        //TODO: Move to private func
-        viewModel.updateUserList {[weak self] userList in
-            DispatchQueue.main.async {
-                self?.usersSet = userList
-                self?.areResultsFetch = true
-            }
-        }
-        
+
         navigationController?.navigationBar.topItem?.titleView = searchBar
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Cancel",
                                                             style: .done,
@@ -91,6 +76,7 @@ class SearchUserViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        searchBar.becomeFirstResponder()
         hideAllElements()
     }
     
@@ -102,7 +88,7 @@ class SearchUserViewController: UIViewController {
 
 extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return results.count
+        return viewModel.results.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -110,13 +96,13 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
         else {
             return UITableViewCell()
         }
-        cell.textLabel?.text = results[indexPath.row].displayName
+        cell.textLabel?.text = viewModel.results[indexPath.row].displayName
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let selectedUser: SearchUserModel = results[indexPath.row]
+        let selectedUser: SearchUserModel = viewModel.results[indexPath.row]
         dismiss(animated: true) {[weak self] in
             self?.delegate?.openChatForUser(user: selectedUser)
         }
@@ -129,26 +115,16 @@ extension SearchUserViewController: UISearchBarDelegate {
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let searchText = searchBar.text?.replacingOccurrences(of: " ", with: ""), !searchText.isEmpty, areResultsFetch else {
+        guard let searchText = searchBar.text?.replacingOccurrences(of: " ", with: ""),!searchText.isEmpty
+        else {
             return
         }
-        self.searchUsers(query: searchText.lowercased())
+        viewModel.searchUsers(query: searchText.lowercased())
         updateUIPostSearch()
     }
     
-    private func searchUsers(query: String) {
-        self.results = self.usersSet.filter { user in
-            let email = user.email.lowercased()
-            let fn = user.firstName
-            let sn = user.secondName
-            
-            return (fn.hasPrefix(query) || sn.hasPrefix(query) || email.hasPrefix(query))
-                    && (email != loggedInUserEmail.lowercased())
-        }
-    }
-    
     private func updateUIPostSearch() {
-        if results.count == 0 {
+        if viewModel.results.count == 0 {
             tableView.isHidden = true
             noResultLabel.isHidden = false
         }
