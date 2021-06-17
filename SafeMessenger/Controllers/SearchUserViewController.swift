@@ -9,7 +9,7 @@ import UIKit
 import JGProgressHUD
 
 protocol SearchUserViewProtocol: AnyObject {
-    func openChatForUser(user: ChatAppUserModel)
+    func openChatForUser(user: ChatAppUserModel, convoID: String?)
 }
 
 class SearchUserViewController: UIViewController {
@@ -26,11 +26,9 @@ class SearchUserViewController: UIViewController {
         tableView.isHidden = true
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reusableIdentifier)
+        tableView.register(SearchResultTableViewCell.self, forCellReuseIdentifier: SearchResultTableViewCell.reusableIdentifier)
         return tableView
     }()
-    
-    private lazy var spinner = JGProgressHUD(style: .dark)
     
     private lazy var noResultLabel: UILabel = {
         let label = UILabel()
@@ -41,10 +39,6 @@ class SearchUserViewController: UIViewController {
         return label
     }()
     
-    private lazy var usersSet = [ChatAppUserModel]()
-    private lazy var results = [ChatAppUserModel]()
-    private lazy var areResultsFetch = false
-    private let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
     private var viewModel: SearchUserViewModel!
     weak var delegate: SearchUserViewProtocol?
     
@@ -62,16 +56,7 @@ class SearchUserViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         searchBar.delegate = self
-        searchBar.becomeFirstResponder()
-        
-        //TODO: Move to private func
-        viewModel.updateUserList {[weak self] userList in
-            DispatchQueue.main.async {
-                self?.usersSet = userList
-                self?.areResultsFetch = true
-            }
-        }
-        
+
         navigationController?.navigationBar.topItem?.titleView = searchBar
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Cancel",
                                                             style: .done,
@@ -91,72 +76,64 @@ class SearchUserViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        searchBar.becomeFirstResponder()
         hideAllElements()
-    }
-    
-    private func hideAllElements() {
-        noResultLabel.isHidden = true
-        tableView.isHidden = true
     }
 }
 
 extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return results.count
+        return viewModel.results.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchResultTableViewCell.reusableIdentifier) as? SearchResultTableViewCell
         else {
-            return UITableViewCell()
+            return SearchResultTableViewCell()
         }
-        cell.textLabel?.text = results[indexPath.row].displayName
+        cell.configureCell(with: viewModel.results[indexPath.row])
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let selectedUser: ChatAppUserModel = results[indexPath.row]
+        let selectedUser: SearchUserModel = viewModel.results[indexPath.row]
         dismiss(animated: true) {[weak self] in
-            self?.delegate?.openChatForUser(user: selectedUser)
+            self?.delegate?.openChatForUser(user: selectedUser,
+                                            convoID: self?.viewModel.getConvoIdForUser(with: selectedUser.email))
         }
     }
 }
 
 extension SearchUserViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        hideAllElements()
-    }
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let searchText = searchBar.text?.replacingOccurrences(of: " ", with: ""), !searchText.isEmpty, areResultsFetch else {
+        guard let searchText = searchBar.text?.replacingOccurrences(of: " ", with: ""),!searchText.isEmpty
+        else {
+            hideAllElements()
             return
         }
-        self.searchUsers(query: searchText.lowercased())
+        viewModel.searchUsers(query: searchText.lowercased())
         updateUIPostSearch()
     }
     
-    private func searchUsers(query: String) {
-        self.results = self.usersSet.filter { user in
-            let email = user.email.lowercased()
-            let fn = user.firstName
-            let sn = user.secondName
-            
-            return (fn.hasPrefix(query) || sn.hasPrefix(query) || email.hasPrefix(query))
-                    && (email != loggedInUserEmail.lowercased())
-        }
-    }
-    
     private func updateUIPostSearch() {
-        if results.count == 0 {
-            tableView.isHidden = true
-            noResultLabel.isHidden = false
+        if viewModel.results.count == 0 {
+            hideAllElements()
         }
         else {
             tableView.isHidden = false
             noResultLabel.isHidden = true
             tableView.reloadData()
         }
+    }
+    
+    private func hideAllElements() {
+        noResultLabel.isHidden = true
+        tableView.isHidden = true
     }
     
     @objc private func dismissSearchView() {

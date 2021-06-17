@@ -53,6 +53,11 @@ class Constants {
     static let StoragePathChatImages = "chatImages"
     static let StoragePathChatVideos = "chatVideos"
     
+    static let DbPathBuddyList = "buddyList"
+    static let DbPathConversations = "conversations"
+    static let DbPathMessages = "messages"
+    static let DbPathUsers = "users"
+    
     static let ProfileImageSuffix = "_profile_image.png"
     
     static let pngExtension = ".png"

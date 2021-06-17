@@ -20,16 +20,19 @@ class ChatViewModel {
     let loggedInUserEmail: String
     let loggedInUserImageURLString: String
     var isNewConversation: Bool
-    let isLastMsgMarkedUnRead: Bool
-    
+
     //Get populated on Opening the View
     var memberModel: ChatAppUserModel?
     var selfSender: Sender
     
+    var convoMembers: [String] {
+        return [loggedInUserEmail, memberEmail]
+    }
+    
     // Gets populated if the viewModel has a convo Id
     var messages = [Message]()
     
-    init(memberEmail: String, convo: ConversationObject?) {
+    init(memberEmail: String, convoID: String?) {
         self.memberEmail = memberEmail
         loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
         loggedInUserImageURLString = Utils.shared.getLoggedInUserDisplayURL() ?? ""
@@ -39,13 +42,11 @@ class ChatViewModel {
                             senderId: loggedInUserEmail ,
                             displayName: loggedInUserName)
         
-        if convo != nil {
+        if convoID != nil {
             isNewConversation = false
-            isLastMsgMarkedUnRead = convo!.isLastMsgMarkedUnread()
-            convoId = convo!.convoID
+            convoId = convoID
         }
         else {
-            isLastMsgMarkedUnRead = false
             isNewConversation = true
         }
     }
@@ -80,6 +81,14 @@ extension ChatViewModel {
             case .failure(_):
                 completion(false)
             }
+            DispatchQueue.background(background: {[weak self] in
+                if self?.messages.count == 0,
+                   let isSenderLoggedIn = self?.messages.last?.isSenderLoggedIn(),
+                   isSenderLoggedIn {
+                    return
+                }
+                self?.markLastMsgAsReadIfNeeded()
+            })
         }
     }
     
@@ -88,7 +97,7 @@ extension ChatViewModel {
     }
     
     func markLastMsgAsReadIfNeeded() {
-        guard isLastMsgMarkedUnRead, let convoId = convoId else {
+        guard let convoId = convoId else {
             return
         }
         ChatService.shared.updateConversationObjectReadStatus(for: loggedInUserEmail,
@@ -124,11 +133,10 @@ extension ChatViewModel {
                           messageId: messageID,
                           sentDate: Date(),
                           kind: msgKind)
-        let members = [loggedInUserEmail, memberEmail]
         if isNewConversation {
             let conversation = ConversationObject(convoID: getConversationId(firstMessageID: messageID),
                                                   lastMessage: msg,
-                                                  members: members)
+                                                  members: convoMembers)
             let thread = ConversationThread(convoID: conversation.convoID,
                                             messages: [msg])
             print("ChatViewModel: Recieved Request to create conversation")
@@ -140,7 +148,11 @@ extension ChatViewModel {
                         completion(false,false)
                         return
                     }
-                    
+                    SearchService.shared.makeBuddy(for: conversation.members, threadId: conversation.convoID) { success in
+                        if !success {
+                            print("ChatViewModel: Made Buddies Failed")
+                        }
+                    }
                     DispatchQueue.main.async {
                         switch res {
                         case .success(let res):
@@ -161,7 +173,7 @@ extension ChatViewModel {
                     return
                 }
                 ChatService.shared.sendMessage(to: convoId,
-                                               members: members,
+                                               members: self?.convoMembers ?? [],
                                                message: msg) { success in
                     completion(success,false)
                 }
@@ -246,5 +258,21 @@ extension ChatViewModel {
                 break
             }
         }
+    }
+}
+
+extension ChatViewModel {
+    func deleteConversation() {
+        guard let convoId = convoId else {
+            return
+        }
+        
+        DispatchQueue.background(background: {[weak self] in
+            ChatService.shared.deleteConersation(with: convoId,
+                                                 members: self?.convoMembers ?? [],
+                                                 completion: {_ in})
+            SearchService.shared.removeBuddyRelation(for: self?.convoMembers ?? [],
+                                                     completion: {_ in})
+        })
     }
 }

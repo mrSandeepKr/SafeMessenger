@@ -36,16 +36,18 @@ class ChatViewController: MessagesViewController {
                     strongSelf.title = strongSelf.viewModel.memberModel?.firstName
                 }
             }
-            self?.viewModel.markLastMsgAsReadIfNeeded()
+            
             self?.addObserverOnMessages()
         })
         
         setUpMessageKitStuff()
+        setUpRightBarButton()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         messageInputBar.inputTextView.becomeFirstResponder()
+        messagesCollectionView.scrollToItem(at: IndexPath(row: 0, section: viewModel.messages.count - 1), at: .top, animated: false)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -205,6 +207,36 @@ extension ChatViewController {
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
         present(actionSheet, animated: true)
+    }
+}
+
+//MARK: Chat Options:
+extension ChatViewController {
+    func setUpRightBarButton() {
+        let rightBarButtoon = UIBarButtonItem(image: UIImage(systemName: "trash"),
+                                              style: .done,
+                                              target: self,
+                                              action: #selector(delChatSelected))
+        navigationItem.rightBarButtonItem = rightBarButtoon
+    }
+    
+    @objc func delChatSelected() {
+        let alertController = UIAlertController(title: "Delete Chat",
+                                                message: "Are you sure you want to delete the chat with \(String(describing: viewModel.memberModel?.firstName))",
+                                           preferredStyle: .alert)
+        let delAction = UIAlertAction(title: "Delete",
+                                   style: .destructive) {[weak self] _ in
+            self?.viewModel.deleteConversation()
+            self?.navigationController?.popViewController(animated: true)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel",style: .default) {[weak self] _ in
+            self?.messageInputBar.becomeFirstResponder()
+        }
+        alertController.addAction(delAction)
+        alertController.addAction(cancelAction)
+        messageInputBar.resignFirstResponder()
+        present(alertController, animated: true, completion: nil)
     }
 }
 

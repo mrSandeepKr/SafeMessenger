@@ -7,17 +7,23 @@
 
 import Foundation
 
-struct ChatAppUserModel: Serialisable {
+class ChatAppUserModel {
     let firstName: String
     let secondName: String
     let email: String
+    
+    init(firstName: String, secondName: String, email: String) {
+        self.firstName = firstName
+        self.secondName = secondName
+        self.email = email
+    }
     
     var safeEmail: String {
         return (email.replacingOccurrences(of: ".", with: "-"))
     }
     
     var profileImageString: String {
-            return StorageManager.profileImageFilename(for: safeEmail)
+        return StorageManager.profileImageFilename(for: safeEmail)
     }
     
     var profileImageRefPathForUser: String {
@@ -27,24 +33,5 @@ struct ChatAppUserModel: Serialisable {
     
     var displayName: String {
         return "\(firstName) \(secondName)"
-    }
-    
-    static func getObject(from dict: [String: Any]) -> ChatAppUserModel? {
-        guard let displayName = dict[Constants.displayName] as? String,
-              let email = dict[Constants.email] as? String
-        else {
-            return nil
-        }
-        let split = displayName.split(separator: " ").map{ return String($0)}
-        return ChatAppUserModel(firstName: split[0],
-                                secondName: split[1],
-                                email: email)
-    }
-    
-    func serialisedObject() -> [String : Any] {
-        return [
-            Constants.displayName: displayName,
-            Constants.email: email
-        ]
     }
 }

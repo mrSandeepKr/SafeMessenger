@@ -11,7 +11,6 @@ import FirebaseAuth
 import GoogleSignIn
 
 public enum ApiHandlerErrors: Error {
-    case FailedToFetchAllUsers
     case FailedSafeEmailGnrtn
     case FailedToGetUser
 }
@@ -25,18 +24,19 @@ final class ApiHandler {
 //MARK: SignIn & SignOut Support
 extension ApiHandler {
     /// Adds user's firstName, Second Name to Database
-    public func insertUserToDatabase(user: ChatAppUserModel, completion: @escaping (Bool) -> Void) {
-        database.child(user.safeEmail).setValue([
+    public func insertUserToDatabase(user: ChatAppUserModel, completion: @escaping SuccessCompletion) {
+        let userDict = [
             Constants.firstName: user.firstName,
             Constants.secondName: user.secondName
-        ]) { [weak self] err, _ in
+        ]
+        database.child(user.safeEmail).setValue(userDict) { err, _ in
             guard err == nil else {
                 print("ApiHandler: User insertion to database Failed")
                 completion(false)
                 return
             }
             print("ApiHandler: User insertion to database Success")
-            self?.insertUserToUserArray(user: user, completion: completion)
+            completion(true)
         }
     }
     
@@ -48,34 +48,17 @@ extension ApiHandler {
     ///     email : "sk@gmail.com"
     ///     ]
     /// ]
-    public func insertUserToUserArray(user: ChatAppUserModel, completion: @escaping (Bool) -> Void ) {
-        self.database.child(Constants.users).observeSingleEvent(of: .value) {[weak self] snapshot in
-            guard let strongSelf = self else {
+    public func insertUserToSearchArray(user: SearchUserModel, completion: @escaping SuccessCompletion) {
+        let ref = self.database.child(Constants.DbPathUsers).childByAutoId()
+        let newUser = user.serialisedObject()
+        ref.setValue(newUser) { err, _ in
+            guard err == nil else {
+                print("ApiHandler: User insertion to Users Array Failed")
                 completion(false)
                 return
             }
-            let newElement = user.serialisedObject()
-            var collections = UsersDictList()
-            
-            if var userCollection = snapshot.value as? UsersDictList {
-                // Append to users Array
-                userCollection.append(newElement)
-                collections = userCollection
-            }
-            else {
-                // create the user Array
-                collections = [newElement]
-            }
-            
-            strongSelf.database.child(Constants.users).setValue(collections) { err, _ in
-                guard err == nil else {
-                    print("ApiHandler: User insertion to Users Array Failed")
-                    completion(false)
-                    return
-                }
-                print("ApiHandler: User insertion to Users Array Success")
-                completion(true)
-            }
+            print("ApiHandler: User insertion to Users Array Success")
+            completion(true)
         }
     }
     
@@ -124,22 +107,6 @@ extension ApiHandler {
 
 //MARK: Search Support APIs
 extension ApiHandler {
-    func fetchAllUsers(completion: @escaping FetchAllUsersCompletion) {
-        database.child(Constants.users).observeSingleEvent(of: .value) { snapshot in
-            guard let value = snapshot.value as? UsersDictList else {
-                print("ApiHandler: Fetch All users Failed")
-                completion(.failure(ApiHandlerErrors.FailedToFetchAllUsers))
-                return
-            }
-            let userObjects = value.compactMap{return ChatAppUserModel.getObject(from: $0)}
-            if userObjects.count != value.count {
-                print("ApiHanlder: Fetch All User - Some Users not resolved")
-            }
-            print("ApiHandler: Fetch All users Success")
-            completion(.success(userObjects))
-        }
-    }
-    
     func fetchUserInfo(for email:String, completion: @escaping FetchUserCompletion) {
         guard let safeEmail = Utils.shared.safeEmail(email: email) else {
             completion(.failure(ApiHandlerErrors.FailedSafeEmailGnrtn))
@@ -166,7 +133,7 @@ extension ApiHandler {
         }
     }
     
-    func fetchLoggedInUserInfoAndSetDefaults(for email:String, completion:@escaping (Bool)->Void) {
+    func fetchLoggedInUserInfoAndSetDefaults(for email:String, completion:@escaping SuccessCompletion) {
         fetchUserInfo(for: email) { res in
             switch res {
             case .success(let model):
@@ -192,8 +159,7 @@ extension ApiHandler {
 
 //MARK: Utils
 extension ApiHandler {
-    public func userExists(with email: String,
-                           completion: @escaping ((Bool) -> Void)) {
+    public func userExists(with email: String, completion: @escaping SuccessCompletion) {
         guard let safeEmail = Utils.shared.safeEmail(email: email) else {
             completion(false)
             return

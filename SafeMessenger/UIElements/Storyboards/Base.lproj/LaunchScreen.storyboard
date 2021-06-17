@@ -3,6 +3,7 @@
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,18 +18,35 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logo" translatesAutoresizingMaskIntoConstraints="NO" id="1FU-vR-bw1">
-                                <rect key="frame" x="134.5" y="375.5" width="145" height="145"/>
+                                <rect key="frame" x="134.5" y="304" width="145" height="145"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="145" id="K7i-hp-8ow"/>
                                     <constraint firstAttribute="width" constant="145" id="hoe-e7-ZSL"/>
                                 </constraints>
                             </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Safe Messenger" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aEg-Ua-Kmk">
+                                <rect key="frame" x="101.5" y="479" width="211" height="33.5"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="28"/>
+                                <color key="textColor" red="0.16464147754530767" green="0.75835786566792862" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This app was built to just have fun" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WNx-4y-iai">
+                                <rect key="frame" x="108" y="522.5" width="198.5" height="17"/>
+                                <fontDescription key="fontDescription" type="system" weight="thin" pointSize="13"/>
+                                <color key="textColor" systemColor="opaqueSeparatorColor"/>
+                                <nil key="highlightedColor"/>
+                                <color key="shadowColor" name="avatarViewBackground"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="WNx-4y-iai" firstAttribute="top" secondItem="aEg-Ua-Kmk" secondAttribute="bottom" constant="10" id="BpK-Qj-xku"/>
                             <constraint firstItem="1FU-vR-bw1" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="LIt-QW-71b"/>
-                            <constraint firstItem="1FU-vR-bw1" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="TUB-7Z-ARA"/>
+                            <constraint firstItem="WNx-4y-iai" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="M5U-mO-YtC"/>
+                            <constraint firstItem="aEg-Ua-Kmk" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Msa-Mc-XXW"/>
+                            <constraint firstItem="aEg-Ua-Kmk" firstAttribute="top" secondItem="1FU-vR-bw1" secondAttribute="bottom" constant="30" id="kha-el-ykY"/>
+                            <constraint firstItem="1FU-vR-bw1" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="260" id="ndP-uP-Mbr"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -39,6 +57,12 @@
     </scenes>
     <resources>
         <image name="logo" width="500" height="500"/>
+        <namedColor name="avatarViewBackground">
+            <color red="0.55699998140335083" green="0.55699998140335083" blue="0.57599997520446777" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="opaqueSeparatorColor">
+            <color red="0.77647058823529413" green="0.77647058823529413" blue="0.78431372549019607" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

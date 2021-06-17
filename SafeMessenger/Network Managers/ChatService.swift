@@ -29,7 +29,7 @@ extension ChatService {
             return
         }
         
-        let ref = database.child("\(member)/\(Constants.conversations)")
+        let ref = database.child(getConversationOjectPath(safeEmail: member))
         ref.observe(.value) { snapshot in
             var convos = [ConversationObject]()
             
@@ -63,15 +63,15 @@ extension ChatService {
         members.forEach { member in
             var convo = convo
             convo.lastMessage.isRead = (member == loggedInUserEmail)
-            addConversation(to: member, convo: convo)
+            addConversationObject(to: member, convo: convo)
         }
         createOrUpdateConversationThread(for: convoThread.convoID,
                                          with: convoThread.messages[0],
                                          completion: completion)
     }
     
-    func observeMessagesForConversation(with id: String, completion: @escaping FetchConversationThreadCompletion) {
-        database.child(id).child(Constants.messages).observe(.value) { snapshot in
+    func observeMessagesForConversation(with convoId: String, completion: @escaping FetchConversationThreadCompletion) {
+        database.child(getMessagesThreadPath(for: convoId)).observe(.value) { snapshot in
             guard snapshot.hasChildren()
             else {
                 print("ChatService: get messages for thread Failed")
@@ -79,9 +79,9 @@ extension ChatService {
                 return
             }
             
-            let convoThread = ConversationThread.getObject(for: id, snap: snapshot)
+            let convoThread = ConversationThread.getObject(for: convoId, snap: snapshot)
             if convoThread.messages.count != snapshot.childrenCount {
-                print("ChatService: Could resolve few messages for Thread :\(id)")
+                print("ChatService: Could resolve few messages for Thread :\(convoId)")
             }
             print("ChatService: Get messages for thread Success")
             completion(.success(convoThread))
@@ -172,10 +172,62 @@ extension ChatService {
         }
     }
     
+    func deleteConersation(with convoId: String,
+                           members: [String],
+                           completion: @escaping SuccessCompletion){
+        members.forEach{
+            removeConversationObject(with: $0,
+                                     for: convoId,
+                                     completion: {_ in})
+        }
+        removeConversationThread(for: convoId,
+                                 completion: {_ in})
+    }
+    
+    private func removeConversationObject(with email:String,
+                                          for convoId: String,
+                                          completion: @escaping SuccessCompletion) {
+        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
+            print("ChatService: Remove Conversation Object Failed")
+            completion(false)
+            return
+        }
+        let ref = database.child(getConversationOjectPath(safeEmail: email))
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children {
+                guard let base = child as? DataSnapshot,
+                      let dict = base.value as? [String: Any],
+                      let id = dict[Constants.convoID] as? String,
+                      id == convoId
+                else {
+                    continue
+                }
+                
+                base.ref.removeValue { err, _ in
+                    guard err == nil else {
+                        completion(false)
+                        return
+                    }
+                    print("ChatService: Remove Conversation Object - Success")
+                    completion(true)
+                }
+                return
+            }
+        }
+        print("ChatService: Remove Conversation Object Failed - Couldn't find conversation")
+        completion(false)
+    }
+    
+    private func removeConversationThread(for convoId: String,
+                                          completion: @escaping SuccessCompletion) {
+        let ref = database.child(convoId)
+        ref.removeValue()
+    }
+    
     /// Adds Conversation to the Conversation Object List of the user passed.
-    private func addConversation(to email: String,
-                                 convo: ConversationObject,
-                                 completion: @escaping ResultBoolCompletion = {_ in}) {
+    private func addConversationObject(to email: String,
+                                       convo: ConversationObject,
+                                       completion: @escaping ResultBoolCompletion = {_ in}) {
         guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
             print("ChatService: Add Conversation Object Failed - because of empty email")
             return
@@ -213,11 +265,11 @@ extension ChatService {
 
 extension ChatService {
     func getMessagesThreadPath(for convoId: String) -> String {
-        return "\(convoId)/\(Constants.messages)"
+        return "\(convoId)/\(Constants.DbPathMessages)"
     }
     
     func getConversationOjectPath(safeEmail: String) -> String {
-        return "\(safeEmail)/\(Constants.conversations)"
+        return "\(safeEmail)/\(Constants.DbPathConversations)"
     }
 }
 
@@ -226,7 +278,7 @@ extension ChatService {
         guard let safeEmail = Utils.shared.getLoggedInUserSafeEmail() else {
             return
         }
-        database.child("\(safeEmail)/\(Constants.conversations)").removeAllObservers()
+        database.child(getConversationOjectPath(safeEmail: safeEmail)).removeAllObservers()
         //print("ChatService: Remove Converation List Observer")
     }
     
@@ -234,7 +286,7 @@ extension ChatService {
         guard let threadId = id else {
             return
         }
-        database.child(threadId).child(Constants.messages).removeAllObservers()
+        database.child(getMessagesThreadPath(for: threadId)).removeAllObservers()
         //print("ChatService: Remove Conversation Thread Observer")
     }
 }
