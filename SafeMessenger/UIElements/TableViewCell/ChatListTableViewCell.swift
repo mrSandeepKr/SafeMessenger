@@ -100,7 +100,7 @@ class ChatListTableViewCell: UITableViewCell {
             chatTitle.topAnchor.constraint(equalTo: topAnchor, constant: imageSide),
             chatTitle.leadingAnchor.constraint(equalTo: chatIcon.trailingAnchor, constant: imageSide),
             chatTitle.heightAnchor.constraint(equalToConstant: chatTitleHeight),
-            chatTitle.trailingAnchor.constraint(equalTo: lastMsgTime.trailingAnchor)
+            chatTitle.trailingAnchor.constraint(equalTo: lastMsgTime.leadingAnchor)
         ])
         
         constraints.append(contentsOf: [

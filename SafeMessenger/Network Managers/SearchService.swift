@@ -62,6 +62,22 @@ class SearchService {
         }
     }
     
+    func removeBuddyRelation(for members: [String], completion: @escaping SuccessCompletion) {
+        guard members.count == 2 else {
+            completion(false)
+            return
+        }
+        let member1 = members[0]
+        let member2 = members[1]
+        let removeBuddyCompletion: (Bool)->Void = { success in
+            if !success {
+                completion(false)
+            }
+        }
+        removeUserFromBuddyList(for: member1, deleteEmail: member2, completion: removeBuddyCompletion)
+        removeUserFromBuddyList(for: member2, deleteEmail: member1, completion: removeBuddyCompletion)
+    }
+    
     func makeBuddy(for members: [String],threadId: String, completion:@escaping SuccessCompletion) {
         guard members.count == 2 else {
             completion(false)
@@ -76,13 +92,11 @@ class SearchService {
         }
         addUserToBuddyList(for: member1, with: BuddyUserModel(email: member2, convoId: threadId), completion: addUserCompletion)
         addUserToBuddyList(for: member2, with: BuddyUserModel(email: member1, convoId: threadId), completion: addUserCompletion)
-        completion(true)
     }
     
     private func addUserToBuddyList(for email: String,with buddy:BuddyUserModel, completion: @escaping SuccessCompletion) {
         guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email)
         else {
-            
             completion(false)
             return
         }
@@ -93,6 +107,30 @@ class SearchService {
                 print("SearchService: Added To Buddy List Failed")
             }
             completion(true)
+        }
+    }
+    
+    private func removeUserFromBuddyList(for email: String, deleteEmail: String, completion: @escaping SuccessCompletion) {
+        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email)
+        else {
+            completion(false)
+            return
+        }
+        let ref = database.child(getBuddlyListPath(safeEmail: email))
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children {
+                guard let base = child as? DataSnapshot,
+                      let value = base.value as? [String:Any],
+                      let email = value[Constants.email] as? String,
+                      email == deleteEmail
+                else {
+                    continue
+                }
+                base.ref.removeValue()
+                completion(true)
+                return
+            }
+            completion(false)
         }
     }
 }

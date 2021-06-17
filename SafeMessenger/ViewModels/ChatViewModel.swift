@@ -140,8 +140,10 @@ extension ChatViewModel {
                         completion(false,false)
                         return
                     }
-                    SearchService.shared.makeBuddy(for: conversation.members, threadId: conversation.convoID) { _ in
-                        print("ChatViewModel: Made Buddies Success")
+                    SearchService.shared.makeBuddy(for: conversation.members, threadId: conversation.convoID) { success in
+                        if !success {
+                            print("ChatViewModel: Made Buddies Failed")
+                        }
                     }
                     DispatchQueue.main.async {
                         switch res {
@@ -261,6 +263,8 @@ extension ChatViewModel {
             ChatService.shared.deleteConersation(with: convoId,
                                                  members: self?.convoMembers ?? [],
                                                  completion: {_ in})
+            SearchService.shared.removeBuddyRelation(for: self?.convoMembers ?? [],
+                                                     completion: {_ in})
         })
     }
 }
