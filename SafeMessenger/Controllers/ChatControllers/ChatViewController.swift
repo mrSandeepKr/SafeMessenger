@@ -47,6 +47,7 @@ class ChatViewController: MessagesViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         messageInputBar.inputTextView.becomeFirstResponder()
+        messagesCollectionView.scrollToItem(at: IndexPath(row: 0, section: viewModel.messages.count - 1), at: .top, animated: false)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
