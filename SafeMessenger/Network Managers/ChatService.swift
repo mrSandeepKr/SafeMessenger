@@ -63,7 +63,7 @@ extension ChatService {
         members.forEach { member in
             var convo = convo
             convo.lastMessage.isRead = (member == loggedInUserEmail)
-            addConversation(to: member, convo: convo)
+            addConversationObject(to: member, convo: convo)
         }
         createOrUpdateConversationThread(for: convoThread.convoID,
                                          with: convoThread.messages[0],
@@ -172,10 +172,62 @@ extension ChatService {
         }
     }
     
+    func deleteConersation(with convoId: String,
+                           members: [String],
+                           completion: @escaping SuccessCompletion){
+        members.forEach{
+            removeConversationObject(with: $0,
+                                     for: convoId,
+                                     completion: {_ in})
+        }
+        removeConversationThread(for: convoId,
+                                 completion: {_ in})
+    }
+    
+    private func removeConversationObject(with email:String,
+                                          for convoId: String,
+                                          completion: @escaping SuccessCompletion) {
+        guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
+            print("ChatService: Remove Conversation Object Failed")
+            completion(false)
+            return
+        }
+        let ref = database.child(getConversationOjectPath(safeEmail: email))
+        ref.observeSingleEvent(of: .value) { snapshot in
+            for child in snapshot.children {
+                guard let base = child as? DataSnapshot,
+                      let dict = base.value as? [String: Any],
+                      let id = dict[Constants.convoID] as? String,
+                      id == convoId
+                else {
+                    continue
+                }
+                
+                base.ref.removeValue { err, _ in
+                    guard err == nil else {
+                        completion(false)
+                        return
+                    }
+                    print("ChatService: Remove Conversation Object - Success")
+                    completion(true)
+                }
+                return
+            }
+        }
+        print("ChatService: Remove Conversation Object Failed - Couldn't find conversation")
+        completion(false)
+    }
+    
+    private func removeConversationThread(for convoId: String,
+                                          completion: @escaping SuccessCompletion) {
+        let ref = database.child(convoId)
+        ref.removeValue()
+    }
+    
     /// Adds Conversation to the Conversation Object List of the user passed.
-    private func addConversation(to email: String,
-                                 convo: ConversationObject,
-                                 completion: @escaping ResultBoolCompletion = {_ in}) {
+    private func addConversationObject(to email: String,
+                                       convo: ConversationObject,
+                                       completion: @escaping ResultBoolCompletion = {_ in}) {
         guard !email.isEmpty, let email = Utils.shared.safeEmail(email: email) else {
             print("ChatService: Add Conversation Object Failed - because of empty email")
             return

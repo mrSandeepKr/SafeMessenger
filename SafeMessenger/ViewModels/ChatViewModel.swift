@@ -26,6 +26,10 @@ class ChatViewModel {
     var memberModel: ChatAppUserModel?
     var selfSender: Sender
     
+    var convoMembers: [String] {
+        return [loggedInUserEmail, memberEmail]
+    }
+    
     // Gets populated if the viewModel has a convo Id
     var messages = [Message]()
     
@@ -124,11 +128,10 @@ extension ChatViewModel {
                           messageId: messageID,
                           sentDate: Date(),
                           kind: msgKind)
-        let members = [loggedInUserEmail, memberEmail]
         if isNewConversation {
             let conversation = ConversationObject(convoID: getConversationId(firstMessageID: messageID),
                                                   lastMessage: msg,
-                                                  members: members)
+                                                  members: convoMembers)
             let thread = ConversationThread(convoID: conversation.convoID,
                                             messages: [msg])
             print("ChatViewModel: Recieved Request to create conversation")
@@ -161,7 +164,7 @@ extension ChatViewModel {
                     return
                 }
                 ChatService.shared.sendMessage(to: convoId,
-                                               members: members,
+                                               members: self?.convoMembers ?? [],
                                                message: msg) { success in
                     completion(success,false)
                 }
@@ -246,5 +249,19 @@ extension ChatViewModel {
                 break
             }
         }
+    }
+}
+
+extension ChatViewModel {
+    func deleteConversation() {
+        guard let convoId = convoId else {
+            return
+        }
+        
+        DispatchQueue.background(background: {[weak self] in
+            ChatService.shared.deleteConersation(with: convoId,
+                                                 members: self?.convoMembers ?? [],
+                                                 completion: {_ in})
+        })
     }
 }

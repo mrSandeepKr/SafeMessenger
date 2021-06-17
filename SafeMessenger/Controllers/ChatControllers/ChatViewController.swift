@@ -41,6 +41,7 @@ class ChatViewController: MessagesViewController {
         })
         
         setUpMessageKitStuff()
+        setUpRightBarButton()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -205,6 +206,36 @@ extension ChatViewController {
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
         present(actionSheet, animated: true)
+    }
+}
+
+//MARK: Chat Options:
+extension ChatViewController {
+    func setUpRightBarButton() {
+        let rightBarButtoon = UIBarButtonItem(image: UIImage(systemName: "trash"),
+                                              style: .done,
+                                              target: self,
+                                              action: #selector(delChatSelected))
+        navigationItem.rightBarButtonItem = rightBarButtoon
+    }
+    
+    @objc func delChatSelected() {
+        let alertController = UIAlertController(title: "Delete Chat",
+                                                message: "Are you sure you want to delete the chat with \(String(describing: viewModel.memberModel?.firstName))",
+                                           preferredStyle: .alert)
+        let delAction = UIAlertAction(title: "Delete",
+                                   style: .destructive) {[weak self] _ in
+            self?.viewModel.deleteConversation()
+            self?.navigationController?.popViewController(animated: true)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel",style: .default) {[weak self] _ in
+            self?.messageInputBar.becomeFirstResponder()
+        }
+        alertController.addAction(delAction)
+        alertController.addAction(cancelAction)
+        messageInputBar.resignFirstResponder()
+        present(alertController, animated: true, completion: nil)
     }
 }
 
