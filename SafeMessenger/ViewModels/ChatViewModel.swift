@@ -81,6 +81,14 @@ extension ChatViewModel {
             case .failure(_):
                 completion(false)
             }
+            DispatchQueue.background(background: {[weak self] in
+                if self?.messages.count == 0,
+                   let isSenderLoggedIn = self?.messages.last?.isSenderLoggedIn(),
+                   isSenderLoggedIn {
+                    return
+                }
+                self?.markLastMsgAsReadIfNeeded()
+            })
         }
     }
     
