@@ -9,7 +9,7 @@ import UIKit
 import JGProgressHUD
 
 protocol SearchUserViewProtocol: AnyObject {
-    func openChatForUser(user: ChatAppUserModel)
+    func openChatForUser(user: ChatAppUserModel, convoID: String?)
 }
 
 class SearchUserViewController: UIViewController {
@@ -108,7 +108,8 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedUser: SearchUserModel = viewModel.results[indexPath.row]
         dismiss(animated: true) {[weak self] in
-            self?.delegate?.openChatForUser(user: selectedUser)
+            self?.delegate?.openChatForUser(user: selectedUser,
+                                            convoID: self?.viewModel.getConvoIdForUser(with: selectedUser.email))
         }
     }
 }

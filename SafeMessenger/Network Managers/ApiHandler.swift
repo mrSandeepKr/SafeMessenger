@@ -11,7 +11,6 @@ import FirebaseAuth
 import GoogleSignIn
 
 public enum ApiHandlerErrors: Error {
-    case FailedToFetchAllUsers
     case FailedSafeEmailGnrtn
     case FailedToGetUser
 }
@@ -50,7 +49,7 @@ extension ApiHandler {
     ///     ]
     /// ]
     public func insertUserToSearchArray(user: SearchUserModel, completion: @escaping SuccessCompletion) {
-        let ref = self.database.child(Constants.users).childByAutoId()
+        let ref = self.database.child(Constants.DbPathUsers).childByAutoId()
         let newUser = user.serialisedObject()
         ref.setValue(newUser) { err, _ in
             guard err == nil else {
@@ -108,26 +107,6 @@ extension ApiHandler {
 
 //MARK: Search Support APIs
 extension ApiHandler {
-    func fetchAllUsers(completion: @escaping FetchSearchUsersCompletion) {
-        let ref = database.child(Constants.users)
-        ref.observeSingleEvent(of: .value) { snapshot in
-            var userObjects = [SearchUserModel]()
-            for child in snapshot.children {
-                guard let base = child as? DataSnapshot,
-                      let value = base.value as? UserDict,
-                      let user = SearchUserModel.getObject(from: value)
-                else {
-                    print("ApiHandler: Fetch All users Failed")
-                    completion(.failure(ApiHandlerErrors.FailedToFetchAllUsers))
-                    return
-                }
-                userObjects.append(user)
-            }
-            print("ApiHandler: Fetch All users Success")
-            completion(.success(userObjects))
-        }
-    }
-    
     func fetchUserInfo(for email:String, completion: @escaping FetchUserCompletion) {
         guard let safeEmail = Utils.shared.safeEmail(email: email) else {
             completion(.failure(ApiHandlerErrors.FailedSafeEmailGnrtn))

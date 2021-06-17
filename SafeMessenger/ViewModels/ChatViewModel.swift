@@ -20,8 +20,7 @@ class ChatViewModel {
     let loggedInUserEmail: String
     let loggedInUserImageURLString: String
     var isNewConversation: Bool
-    let isLastMsgMarkedUnRead: Bool
-    
+
     //Get populated on Opening the View
     var memberModel: ChatAppUserModel?
     var selfSender: Sender
@@ -33,7 +32,7 @@ class ChatViewModel {
     // Gets populated if the viewModel has a convo Id
     var messages = [Message]()
     
-    init(memberEmail: String, convo: ConversationObject?) {
+    init(memberEmail: String, convoID: String?) {
         self.memberEmail = memberEmail
         loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
         loggedInUserImageURLString = Utils.shared.getLoggedInUserDisplayURL() ?? ""
@@ -43,13 +42,11 @@ class ChatViewModel {
                             senderId: loggedInUserEmail ,
                             displayName: loggedInUserName)
         
-        if convo != nil {
+        if convoID != nil {
             isNewConversation = false
-            isLastMsgMarkedUnRead = convo!.isLastMsgMarkedUnread()
-            convoId = convo!.convoID
+            convoId = convoID
         }
         else {
-            isLastMsgMarkedUnRead = false
             isNewConversation = true
         }
     }
@@ -92,7 +89,7 @@ extension ChatViewModel {
     }
     
     func markLastMsgAsReadIfNeeded() {
-        guard isLastMsgMarkedUnRead, let convoId = convoId else {
+        guard let convoId = convoId else {
             return
         }
         ChatService.shared.updateConversationObjectReadStatus(for: loggedInUserEmail,
@@ -143,7 +140,9 @@ extension ChatViewModel {
                         completion(false,false)
                         return
                     }
-                    
+                    SearchService.shared.makeBuddy(for: conversation.members, threadId: conversation.convoID) { _ in
+                        print("ChatViewModel: Made Buddies Success")
+                    }
                     DispatchQueue.main.async {
                         switch res {
                         case .success(let res):

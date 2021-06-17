@@ -10,25 +10,38 @@ import Foundation
 class SearchUserViewModel {
     private var usersSet = [SearchUserModel]()
     var results = [SearchUserModel]()
+    var buddyList = [BuddyUserModel]()
     private var areResultsFetched = false
     private let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
     
     init() {
-        updateUserList {[weak self] users in
-            self?.usersSet = users
-            self?.areResultsFetched = true
-        }
+        updateUserLists {_ in}
     }
     
-    func updateUserList(completion: @escaping ([SearchUserModel]) -> Void) {
-        ApiHandler.shared.fetchAllUsers { res in
-            switch res {
-            case .success(let users):
-                completion(users)
-            default:
-                break
+    private func updateUserLists(completion: @escaping SuccessCompletion) {
+        DispatchQueue.background(background: {[weak self] in
+            guard let strongSelf = self else {
+                return
             }
-        }
+            SearchService.shared.fetchAllUsers {[weak strongSelf] res in
+                switch res {
+                case .success(let users):
+                    strongSelf?.usersSet = users
+                    strongSelf?.areResultsFetched = true
+                default:
+                    break
+                }
+            }
+            SearchService.shared.fetchBuddyListOfUsers(with: strongSelf.loggedInUserEmail) {[weak strongSelf] res in
+                switch res{
+                case .success(let buddies):
+                    strongSelf?.buddyList = buddies
+                    break
+                default:
+                    break
+                }
+            }
+        })
     }
     
     func searchUsers(query: String) {
@@ -44,6 +57,10 @@ class SearchUserViewModel {
             return (fn.hasPrefix(query) || sn.hasPrefix(query) || email.hasPrefix(query))
                 && (email != loggedInUserEmail.lowercased())
         }
+    }
+    
+    func getConvoIdForUser(with email: String) -> String? {
+        return buddyList.first{return $0.email == email}?.convoId
     }
 
     var hasAnyResultToShow: Bool {
