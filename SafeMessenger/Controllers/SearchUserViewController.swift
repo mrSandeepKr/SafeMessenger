@@ -79,11 +79,6 @@ class SearchUserViewController: UIViewController {
         searchBar.becomeFirstResponder()
         hideAllElements()
     }
-    
-    private func hideAllElements() {
-        noResultLabel.isHidden = true
-        tableView.isHidden = true
-    }
 }
 
 extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
@@ -116,12 +111,9 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension SearchUserViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        hideAllElements()
-    }
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let searchText = searchBar.text?.replacingOccurrences(of: " ", with: ""),!searchText.isEmpty
         else {
+            hideAllElements()
             return
         }
         viewModel.searchUsers(query: searchText.lowercased())
@@ -130,14 +122,18 @@ extension SearchUserViewController: UISearchBarDelegate {
     
     private func updateUIPostSearch() {
         if viewModel.results.count == 0 {
-            tableView.isHidden = true
-            noResultLabel.isHidden = false
+            hideAllElements()
         }
         else {
             tableView.isHidden = false
             noResultLabel.isHidden = true
             tableView.reloadData()
         }
+    }
+    
+    private func hideAllElements() {
+        noResultLabel.isHidden = true
+        tableView.isHidden = true
     }
     
     @objc private func dismissSearchView() {
