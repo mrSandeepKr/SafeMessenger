@@ -7,6 +7,7 @@
 
 import CoreLocation
 import MapKit
+import UIKit
 
 protocol LocationPickerProtocol: AnyObject {
     func tryingToLocationSendMessage(with Location: CLLocationCoordinate2D)
@@ -15,29 +16,58 @@ protocol LocationPickerProtocol: AnyObject {
 class LocationPickerViewController: UIViewController {
     var coordinates: CLLocationCoordinate2D?
     weak var delegate: LocationPickerProtocol?
+    var isViewingMode = false
     
     private lazy var map : MKMapView = {
         let map = MKMapView()
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapMap))
-        gesture.numberOfTouchesRequired = 1
-        gesture.numberOfTapsRequired = 1
         map.isUserInteractionEnabled = true
-        map.addGestureRecognizer(gesture)
         return map
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(map)
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        map.frame = view.bounds
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Send",
-                                                            style: .done,
-                                                            target: self,
-                                                            action: #selector(didTapSend))
+        if isViewingMode {
+            guard let coordinates = coordinates else {
+                return
+            }
+            let pin = MKPointAnnotation()
+            pin.coordinate = coordinates
+            map.addAnnotation(pin)
+            
+            CLGeocoder().reverseGeocodeLocation(CLLocation(latitude: coordinates.latitude,
+                                                           longitude: coordinates.longitude)) {[weak self] placemarks, err in
+                guard err == nil,
+                      let placemark = placemarks?.first,
+                      let strongSelf = self,
+                      let coordinates = strongSelf.coordinates
+                else {
+                    return
+                }
+                print("LocationPickerViewController: Got the locality")
+                let pin1 = MKPointAnnotation.init()
+                pin1.coordinate = coordinates
+                pin1.title  = placemark.locality
+                
+                let coordinateRegion = MKCoordinateRegion(center: coordinates,
+                                                          latitudinalMeters: 8000,
+                                                          longitudinalMeters: 8000)
+                strongSelf.map.setRegion(coordinateRegion, animated: true)
+                strongSelf.map.removeAnnotations(strongSelf.map.annotations)
+                strongSelf.map.addAnnotation(pin1)
+            }
+        }
+        else {
+            let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapMap))
+            gesture.numberOfTouchesRequired = 1
+            gesture.numberOfTapsRequired = 1
+            map.addGestureRecognizer(gesture)
+            
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Send",
+                                                                style: .done,
+                                                                target: self,
+                                                                action: #selector(didTapSend))
+        }
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel",
                                                            style: .done,
@@ -45,7 +75,15 @@ class LocationPickerViewController: UIViewController {
                                                            action: #selector(didTapCancel))
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        map.frame = view.bounds
+    }
+    
     @objc func didTapMap(_ gesture: UITapGestureRecognizer) {
+        guard !isViewingMode else {
+            return
+        }
         let locationPointInView = gesture.location(in: map)
         let coordinates = map.convert(locationPointInView, toCoordinateFrom: map)
         

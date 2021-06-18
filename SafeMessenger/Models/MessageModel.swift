@@ -31,7 +31,7 @@ struct Message: MessageType, Serialisable {
             message = media.url?.absoluteString ?? ""
         case .location(let item):
             type = Constants.MessageTypeLocation
-            message = "\(item.location.coordinate.longitude) \(item.location.coordinate.longitude)"
+            message = "\(item.location.coordinate.longitude) \(item.location.coordinate.latitude)"
         default:
             break
         }
