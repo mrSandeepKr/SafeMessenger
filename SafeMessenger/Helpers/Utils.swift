@@ -75,20 +75,23 @@ extension Utils {
 }
 
 extension Utils {
-    static func getThumbnailImage(forUrl url: URL?) -> UIImage? {
+    static func getThumbnailImage(forUrl url: URL?, imageView: UIImageView, completion: @escaping (UIImage?, UIImageView)-> Void) {
         guard let url = url else {
-            return nil
+            completion(nil, imageView)
+            return
         }
         
-        let asset: AVAsset = AVAsset(url: url)
-        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        DispatchQueue.background(background:{
+            let asset: AVAsset = AVAsset(url: url)
+            let imageGenerator = AVAssetImageGenerator(asset: asset)
 
-        do {
-            let thumbnailImage = try imageGenerator.copyCGImage(at: CMTimeMake(value: 1, timescale: 60) , actualTime: nil)
-            return UIImage.init(cgImage: thumbnailImage)
-        } catch let error {
-            print("Utils: Get ThumbnailImage Failed: \(error)")
-            return nil
-        }
+            do {
+                let thumbnailImage = try imageGenerator.copyCGImage(at: CMTimeMake(value: 1, timescale: 60) , actualTime: nil)
+                completion(UIImage(cgImage: thumbnailImage), imageView)
+            } catch let error {
+                print("Utils: Get ThumbnailImage Failed: \(error)")
+                completion(nil, imageView)
+            }
+        })
     }
 }

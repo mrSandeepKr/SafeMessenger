@@ -100,6 +100,15 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
             }
             imageView.sd_setImage(with: url)
             break
+        case .video(let media):
+            Utils.getThumbnailImage(forUrl: media.url,imageView: imageView ) { image, imageView in
+                guard let thumbnail = image else {
+                    return
+                }
+                DispatchQueue.main.async {
+                    imageView.image = thumbnail
+                }
+            }
         default:
             return
         }
