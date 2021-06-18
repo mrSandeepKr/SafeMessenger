@@ -9,7 +9,7 @@ import Foundation
 
 class LogInViewModel {
     public func logInUser(with email:String?, password: String?,completion: @escaping (String?)->Void) {
-        guard let email = email?.trimmingCharacters(in: .whitespaces), let pswd = password,
+        guard let email = email?.trimmingCharacters(in: .whitespaces).lowercased(), let pswd = password,
               !email.isEmpty, !pswd.isEmpty
         else {
             completion("Email or password field cannot be empty")

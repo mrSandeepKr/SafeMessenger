@@ -69,7 +69,7 @@ class ChatListMultiViewController: UIViewController {
                                                                queue: .main,
                                                                using: { [weak self] _ in
                                                                 self?.updateViewForLogginIn()
-                                                                
+                                                                self?.viewModel.moveOnline()
                                                                })
         
         view.addSubview(hamburgerBtn)
