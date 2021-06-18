@@ -42,6 +42,7 @@ class Constants {
     static let MessageTypeText = "text"
     static let MessageTypePhoto = "photo"
     static let MessageTypeVideo = "video"
+    static let MessageTypeLocation = "location"
     
     static let ImageNamePersonPlaceholder = "personPlaceholder"
     static let ImageNameLogo = "logo"

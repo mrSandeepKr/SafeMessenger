@@ -7,6 +7,7 @@
 
 import Foundation
 import MessageKit
+import PhotosUI
 
 struct Message: MessageType, Serialisable {
     var sender: SenderType
@@ -28,6 +29,9 @@ struct Message: MessageType, Serialisable {
         case .video(let media):
             type = Constants.MessageTypeVideo
             message = media.url?.absoluteString ?? ""
+        case .location(let item):
+            type = Constants.MessageTypeLocation
+            message = "\(item.location.coordinate.longitude) \(item.location.coordinate.latitude)"
         default:
             break
         }
@@ -51,21 +55,11 @@ struct Message: MessageType, Serialisable {
         case .text(let msg):
             return NSAttributedString(string: msg)
         case .photo(_):
-            let imageAttachment = NSTextAttachment(image: UIImage(systemName: "photo.fill")!)
-            let completeString = NSMutableAttributedString(string: "")
-            let attachmentString = NSAttributedString(attachment: imageAttachment)
-            let imageString = NSAttributedString(string: " Image")
-            completeString.append(attachmentString)
-            completeString.append(imageString)
-            return completeString
+            return getStringWithImageAttachment(systemName: "photo.fill", desc: " Image")
         case .video(_):
-            let imageAttachment = NSTextAttachment(image: UIImage(systemName: "video.circle")!)
-            let completeString = NSMutableAttributedString(string: "")
-            let attachmentString = NSAttributedString(attachment: imageAttachment)
-            let videoString = NSAttributedString(string: " Video")
-            completeString.append(attachmentString)
-            completeString.append(videoString)
-            return completeString
+            return getStringWithImageAttachment(systemName: "video.circle", desc: " Video")
+        case .location(_):
+            return getStringWithImageAttachment(systemName: "location.circle.fill", desc: " Location")
         default:
             return nil
         }
@@ -87,6 +81,16 @@ struct Message: MessageType, Serialisable {
         let f = String(split[0].first ?? Character("U"))
         let s = String(split[1].first ?? Character("U"))
         return f+s
+    }
+    
+    private func getStringWithImageAttachment(systemName: String, desc: String) -> NSAttributedString {
+        let imageAttachment = NSTextAttachment(image: UIImage(systemName: systemName)!)
+        let completeString = NSMutableAttributedString(string: "")
+        let attachmentString = NSAttributedString(attachment: imageAttachment)
+        let imageString = NSAttributedString(string: desc)
+        completeString.append(attachmentString)
+        completeString.append(imageString)
+        return completeString
     }
     
     static func getObject(from dict: [String: Any]) -> Message? {
@@ -123,11 +127,20 @@ struct Message: MessageType, Serialisable {
         }
         else if msgType == Constants.MessageTypeVideo {
             let media = MediaModel(url: URL(string: content),
-                                   image: Utils.getThumbnailImage(forUrl: URL(string: content)),
+                                   image: nil,
                                    placeholderImage: UIImage.checkmark,
                                    size: CGSize(width: 200, height: 200))
             return .video(media)
         }
+        else if msgType == Constants.MessageTypeLocation {
+            let split = content.split(separator: " ")
+            let longi = Double.init(split[0]) ?? 0.0
+            let lat = Double.init(split[1]) ?? 0.0
+            let locationItem = LocationModel(location: CLLocation(latitude: lat,
+                                                                  longitude: longi))
+            return .location(locationItem)
+        }
+        
         return nil
     }
 }
