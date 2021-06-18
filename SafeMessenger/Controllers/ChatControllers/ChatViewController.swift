@@ -9,6 +9,7 @@ import UIKit
 import MessageKit
 import InputBarAccessoryView
 import PhotosUI
+import AVKit
 
 class ChatViewController: MessagesViewController {
     
@@ -120,6 +121,18 @@ extension ChatViewController: MessagesDataSource, MessagesLayoutDelegate, Messag
             nav.navigationItem.largeTitleDisplayMode = .always
             present(nav, animated: true)
             break
+        case .video(let media):
+            guard let mediaObj = media as? MediaModel,
+                  let vidURL = mediaObj.url
+            else {
+                return
+            }
+            let title = Utils.hrMinOnDateDateFormatter.string(from: Date())
+            let vc = AVPlayerViewController()
+            vc.title = title
+            vc.player = AVPlayer(url: vidURL)
+            vc.player?.play()
+            navigationController?.pushViewController(vc, animated: true)
         default:
             break
         }
@@ -202,7 +215,7 @@ extension ChatViewController {
             self?.presentVideoInputActionSheet()
         }))
         actionSheet.addAction(UIAlertAction(title: "Location", style: .default, handler: { [weak self] _ in
-            self?.presentPhotoInputActionSheet()
+            self?.presentLocationPicker()
         }))
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
@@ -237,6 +250,24 @@ extension ChatViewController {
         alertController.addAction(cancelAction)
         messageInputBar.resignFirstResponder()
         present(alertController, animated: true, completion: nil)
+    }
+}
+
+//MARK: LocationPickerProtocol
+extension ChatViewController: LocationPickerProtocol {
+    func tryingToLocationSendMessage(with location: CLLocationCoordinate2D) {
+        viewModel.sendLocationMessage(with: location) {[weak self] success, isNewConvo in
+            if success, isNewConvo {
+                self?.addObserverOnMessages()
+            }
+        }
+    }
+    
+    private func presentLocationPicker() {
+        let vc = LocationPickerViewController()
+        vc.delegate = self
+        let nav = UINavigationController(rootViewController: vc)
+        present(nav, animated: true)
     }
 }
 

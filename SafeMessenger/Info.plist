@@ -37,6 +37,8 @@
 	<string>Please allow Safe Messenger access to select a profile Image</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Please allow Safe Messenger access to use the microphone</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Please allow Safe Messenger access to Location to share it</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

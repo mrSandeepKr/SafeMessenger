@@ -7,6 +7,7 @@
 
 import Foundation
 import MessageKit
+import CoreLocation
 
 enum FileManagerError: Error {
     case FailedToGetTypeIdentifier
@@ -258,6 +259,15 @@ extension ChatViewModel {
                 break
             }
         }
+    }
+    
+    func sendLocationMessage(with location2D: CLLocationCoordinate2D, completion: @escaping SendMessageCompletion) {
+        let longi = location2D.longitude,
+            lat = location2D.latitude,
+            location = CLLocation(latitude: lat, longitude: longi),
+            locationItem = LocationModel(location: location)
+        
+        sendMessage(msgKind: .location(locationItem), completion: completion)
     }
 }
 
