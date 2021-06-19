@@ -128,14 +128,11 @@ extension ProfileViewController {
         tableView.isHidden = false
         tableView.reloadData()
         updatePresence()
-        viewModel.getAboutString(for: viewModel.personModel.email) {[weak self] res in
-            switch res {
-            case .success(let aboutString):
+        viewModel.getAboutString(for: viewModel.personModel.email) {[weak self] success in
+            if success {
                 DispatchQueue.main.async {
                     self?.tableView.reloadData()
                 }
-            case .failure(_):
-                break
             }
         }
     }

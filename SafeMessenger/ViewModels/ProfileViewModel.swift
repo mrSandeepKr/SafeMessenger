@@ -37,14 +37,16 @@ class ProfileViewModel {
         return onlineUsers.contains(personModel.email)
     }
     
-    func getAboutString(for email:String, completion: @escaping ResultStringCompletion) {
+    func getAboutString(for email:String, completion: @escaping SuccessCompletion) {
         DispatchQueue.background(background: {[weak self] in
             ApiHandler.shared.fetchAboutString(for: self?.personModel.email ?? "") {[weak self] res in
                 switch res {
                 case .failure(_):
+                    completion(false)
                     break
                 case .success(let aboutString):
                     self?.aboutString = aboutString
+                    completion(true)
                 }
             }
         })
