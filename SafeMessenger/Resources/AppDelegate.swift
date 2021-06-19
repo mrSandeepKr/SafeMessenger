@@ -63,37 +63,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                 let profileUploadCompletion: ResultStringCompletion = { res in
                     switch res {
                     case .success(let profileUrlString) :
-                        let searchUser = ChatAppUserModel.getObject(for: userInfo, imageUrlString: profileUrlString)
-                        ApiHandler.shared.setUserImageURLInDatabase(email: userInfo.email,
-                                                                    imageURL: profileUrlString,
-                                                                    completion: {_ in})
-                        ApiHandler.shared.insertUserToSearchArray(user: searchUser, completion: {_ in})
+                        let copyUser = ChatAppUserModel.getObject(for: userInfo, imageUrlString: profileUrlString)
+                        
+                        ApiHandler.shared.insertUserToDatabase(user: copyUser, completion: {_ in})
+                        ApiHandler.shared.insertUserToSearchArray(user: copyUser, completion: {_ in})
                         break
                     case .failure(_):
                         break
                     }
                 }
                 
-                ApiHandler.shared.insertUserToDatabase(user: userInfo) { success in
-                    if success {
-                        let fileName = userInfo.profileImageString
-                        guard user.profile.hasImage, let url = user.profile.imageURL(withDimension: 200)
-                        else {
-                            print("AppDelegate: Google doens't have user profile Image")
-                            let data = UIImage(named: Constants.ImageNamePersonPlaceholder)?.pngData()
-                            StorageManager.shared.uploadUserProfileImage(with: data!, fileName: fileName, completion: profileUploadCompletion)
+                let fileName = userInfo.profileImageString
+                if user.profile.hasImage, let url = user.profile.imageURL(withDimension: 200) {
+                    URLSession.shared.dataTask(with: URLRequest(url: url)) {data, _, err in
+                        guard err == nil, let data = data else {
+                            print("AppDelegate: Fetch Google Profile Image Failed")
                             return
                         }
-                        
-                        URLSession.shared.dataTask(with: URLRequest(url: url)) {data, _, err in
-                            guard err == nil, let data = data else {
-                                print("AppDelegate: Fetch Google Profile Image Failed")
-                                return
-                            }
-                            print("AppDelegate: Fetch Google Profile Image Success")
-                            StorageManager.shared.uploadUserProfileImage(with: data, fileName: fileName, completion: profileUploadCompletion)
-                        }.resume()
-                    }
+                        print("AppDelegate: Fetch Google Profile Image Success")
+                        StorageManager.shared.uploadUserProfileImage(with: data, fileName: fileName, completion: profileUploadCompletion)
+                    }.resume()
+                }
+                else {
+                    print("AppDelegate: Google doens't have user profile Image")
+                    let data = UIImage(named: Constants.ImageNamePersonPlaceholder)?.pngData()
+                    StorageManager.shared.uploadUserProfileImage(with: data!, fileName: fileName, completion: profileUploadCompletion)
+                    return
                 }
             }
         }

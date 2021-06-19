@@ -81,8 +81,8 @@ class ProfileViewController: UIViewController {
         view.addSubview(emailLabel)
         view.addSubview(presenceIcon)
         view.addSubview(tableView)
-        
         NSLayoutConstraint.activate(getStaticConstraints())
+        
         updateUI()
         onlineUserSetChangeObserver = NotificationCenter.default.addObserver(forName: .onlineUserSetChangeNotification,
                                                                              object: nil,
@@ -113,7 +113,9 @@ class ProfileViewController: UIViewController {
         }
         NotificationCenter.default.removeObserver(observer)
     }
-    
+}
+
+extension ProfileViewController {
     private func updatePresence() {
         presenceIcon.image = viewModel.isUserOnline ? viewModel.onlinePresenceImage : viewModel.offlinePresenceImage
     }
