@@ -26,6 +26,7 @@ class SearchUserViewController: UIViewController {
         tableView.isHidden = true
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.tableFooterView = UIView(frame: .zero);
         tableView.register(SearchResultTableViewCell.self, forCellReuseIdentifier: SearchResultTableViewCell.reusableIdentifier)
         return tableView
     }()
@@ -71,8 +72,10 @@ class SearchUserViewController: UIViewController {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
         noResultLabel.sizeToFit()
-        noResultLabel.frame = CGRect(x: 0, y: 0, width: noResultLabel.width, height: noResultLabel.height)
-        noResultLabel.center = view.center
+        noResultLabel.frame = CGRect(x: (view.width-noResultLabel.width)/2,
+                                     y: view.height * 0.3,
+                                     width: noResultLabel.width,
+                                     height: noResultLabel.height)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -101,7 +104,7 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let selectedUser: SearchUserModel = viewModel.results[indexPath.row]
+        let selectedUser: ChatAppUserModel = viewModel.results[indexPath.row]
         dismiss(animated: true) {[weak self] in
             self?.delegate?.openChatForUser(user: selectedUser,
                                             convoID: self?.viewModel.getConvoIdForUser(with: selectedUser.email))
@@ -111,18 +114,18 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension SearchUserViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        guard let searchText = searchBar.text?.replacingOccurrences(of: " ", with: ""),!searchText.isEmpty
-        else {
-            hideAllElements()
-            return
+        if let searchText = searchBar.text?.replacingOccurrences(of: " ", with: ""),!searchText.isEmpty
+        {
+            viewModel.searchUsers(query: searchText.lowercased())
         }
-        viewModel.searchUsers(query: searchText.lowercased())
+        
         updateUIPostSearch()
     }
     
     private func updateUIPostSearch() {
         if viewModel.results.count == 0 {
-            hideAllElements()
+            noResultLabel.isHidden = false
+            tableView.isHidden = true
         }
         else {
             tableView.isHidden = false

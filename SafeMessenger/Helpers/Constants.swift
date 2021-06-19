@@ -62,6 +62,8 @@ class Constants {
     
     static let ProfileImageSuffix = "_profile_image.png"
     
+    static let SegueHamburgerIdentifier = "hamburgerSegueIdentifier"
+    
     static let pngExtension = ".png"
     static let movExtension = ".mov"
 }

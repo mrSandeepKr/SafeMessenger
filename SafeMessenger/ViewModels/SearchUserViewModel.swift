@@ -8,8 +8,8 @@
 import Foundation
 
 class SearchUserViewModel {
-    private var usersSet = [SearchUserModel]()
-    var results = [SearchUserModel]()
+    private var usersSet = [ChatAppUserModel]()
+    var results = [ChatAppUserModel]()
     var buddyList = [BuddyUserModel]()
     private var areResultsFetched = false
     private let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""
@@ -57,6 +57,10 @@ class SearchUserViewModel {
             return (fn.hasPrefix(query) || sn.hasPrefix(query) || email.hasPrefix(query))
                 && (email != loggedInUserEmail.lowercased())
         }
+    }
+    
+    func showAllUsers() {
+        results = usersSet
     }
     
     func getConvoIdForUser(with email: String) -> String? {

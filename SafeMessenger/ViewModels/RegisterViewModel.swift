@@ -74,26 +74,20 @@ extension RegisterViewModel {
             let userInfo = ChatAppUserModel(firstName: firstName,
                                             secondName: secondName,
                                             email:email)
-            ApiHandler.shared.insertUserToDatabase(user: userInfo) { success in
-                guard success else {
-                    completion("Oops!! Failed to add user Info to Database Try Again.")
-                    // TODO: add a call to remove user form database
-                    return
-                }
-                print("RegisterViewModel: Added User Info to Database")
-                StorageManager.shared.uploadUserProfileImage(with: profileImageData,
-                                                             fileName: userInfo.profileImageString) { res in
-                    switch res {
-                    case .success(let downloadUrl):
-                        ApiHandler.shared.setUserLoggedInDefaults(user: userInfo,
-                                                                  downloadURL: downloadUrl)
-                        ApiHandler.shared.insertUserToSearchArray(user: SearchUserModel.getObject(for: userInfo,
-                                                                                                  imageUrlString: downloadUrl),
-                                                                  completion: {_ in})
-                        completion("")
-                    case .failure(_):
-                        completion("Oops!! Failed to upload your profile Image to Database")
-                    }
+            
+            print("RegisterViewModel: Added User Info to Database")
+            StorageManager.shared.uploadUserProfileImage(with: profileImageData,
+                                                         fileName: userInfo.profileImageString) { res in
+                switch res {
+                case .success(let downloadUrl):
+                    let userCopy = ChatAppUserModel.getObject(for: userInfo, imageUrlString: downloadUrl)
+                    ApiHandler.shared.insertUserToDatabase(user: userCopy) { _ in}
+                    ApiHandler.shared.setUserLoggedInDefaults(user: userCopy)
+                    ApiHandler.shared.insertUserToSearchArray(user: userCopy,
+                                                              completion: {_ in})
+                    completion("")
+                case .failure(_):
+                    completion("Oops!! Failed to upload your profile Image to Database")
                 }
             }
         }

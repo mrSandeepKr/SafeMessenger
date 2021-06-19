@@ -15,6 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseConfiguration.shared.setLoggerLevel(.min)
         FirebaseApp.configure()
+        _ = Database.database().reference()
         
         GIDSignIn.sharedInstance().delegate = self
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
@@ -62,7 +63,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                 let profileUploadCompletion: ResultStringCompletion = { res in
                     switch res {
                     case .success(let profileUrlString) :
-                        let searchUser = SearchUserModel.getObject(for: userInfo, imageUrlString: profileUrlString)
+                        let searchUser = ChatAppUserModel.getObject(for: userInfo, imageUrlString: profileUrlString)
+                        ApiHandler.shared.setUserImageURLInDatabase(email: userInfo.email,
+                                                                    imageURL: profileUrlString,
+                                                                    completion: {_ in})
                         ApiHandler.shared.insertUserToSearchArray(user: searchUser, completion: {_ in})
                         break
                     case .failure(_):

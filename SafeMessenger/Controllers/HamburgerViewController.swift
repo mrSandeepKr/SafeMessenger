@@ -7,12 +7,17 @@
 
 import UIKit
 
+protocol HamburgerViewProtocol: AnyObject {
+    func shouldShowProfileCard()
+}
+
 class HamburgerViewController: UIViewController {
     private var viewModel = HamburgerViewModel()
     private var logInObserver: NSObjectProtocol?
+    weak var delegate: HamburgerViewProtocol?
     
     private lazy var profileImageView : UIImageView = {
-        let image = UIImage(named: viewModel.profileImageName!)
+        let image = UIImage(named: viewModel.profileImageName)
         let imageView = UIImageView(image: image)
         imageView.layer.masksToBounds = true
         imageView.contentMode = .scaleAspectFill
@@ -47,10 +52,20 @@ class HamburgerViewController: UIViewController {
         return btn
     }()
     
+    private lazy var profileBtn: UIButton = {
+        let btn = UIButton()
+        btn.backgroundColor = .clear
+        btn.setTitle("Account", for: .normal)
+        btn.setTitleColor(.label, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        btn.addTarget(self, action: #selector(profileBtnTapped), for: .touchUpInside)
+        return btn
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.alpha = 0.99
-        view.backgroundColor = UIColor(patternImage: UIImage(named: viewModel.hamburgerBackgroundImageName!)!)
+        view.backgroundColor = UIColor(patternImage: UIImage(named: viewModel.hamburgerBackgroundImageName)!)
         
         logInObserver = NotificationCenter.default.addObserver(forName: .didLogInNotification,
                                                                object: nil,
@@ -65,6 +80,7 @@ class HamburgerViewController: UIViewController {
         view.addSubview(signOutBtn)
         view.addSubview(userNameLabel)
         view.addSubview(emailLabel)
+        view.addSubview(profileBtn)
         
         basicUISetUp()
     }
@@ -81,7 +97,6 @@ class HamburgerViewController: UIViewController {
                                   y: view.height - 80,
                                   width: 100,
                                   height: 40)
-        
         userNameLabel.sizeToFit()
         emailLabel.sizeToFit()
         userNameLabel.frame = CGRect(x: 0,
@@ -92,6 +107,11 @@ class HamburgerViewController: UIViewController {
                                   y: userNameLabel.bottom + 5,
                                   width: view.width,
                                   height: emailLabel.height)
+        
+        profileBtn.frame = CGRect(x: view.width * 0.05,
+                                  y: emailLabel.bottom + view.height * 0.025,
+                                  width: 100,
+                                  height: 40)
     }
     
     deinit {
@@ -114,6 +134,10 @@ extension HamburgerViewController {
                 print("HamburgerViewController: Sign out failed")
             }
         }
+    }
+    
+    @objc private func profileBtnTapped() {
+        delegate?.shouldShowProfileCard()
     }
     
     private func basicUISetUp() {

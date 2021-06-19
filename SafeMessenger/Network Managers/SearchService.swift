@@ -19,11 +19,11 @@ class SearchService {
     func fetchAllUsers(completion: @escaping FetchSearchUsersCompletion) {
         let ref = database.child(Constants.users)
         ref.observeSingleEvent(of: .value) { snapshot in
-            var userObjects = [SearchUserModel]()
+            var userObjects = [ChatAppUserModel]()
             for child in snapshot.children {
                 guard let base = child as? DataSnapshot,
                       let value = base.value as? UserDict,
-                      let user = SearchUserModel.getObject(from: value)
+                      let user = ChatAppUserModel.getObject(from: value)
                 else {
                     print("SearchService: Fetch All users Failed")
                     completion(.failure(SearchServiceError.FailedToFetchAllUsers))

@@ -10,8 +10,8 @@ import UIKit
 
 class HamburgerViewModel {
     // MARK: Properties
-    var profileImageName: String?
-    var hamburgerBackgroundImageName: String?
+    var profileImageName: String
+    var hamburgerBackgroundImageName: String
     
     init() {
         profileImageName = Constants.ImageNamePersonPlaceholder

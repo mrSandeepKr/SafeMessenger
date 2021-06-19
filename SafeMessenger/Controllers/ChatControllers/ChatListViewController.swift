@@ -12,7 +12,7 @@ class ChatListViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let table = UITableView()
         table.isHidden = true
-        table.rowHeight = UITableView.automaticDimension
+        table.tableFooterView = UIView(frame: .zero);
         return table
     }()
     
@@ -85,6 +85,12 @@ class ChatListViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         spinner.dismiss()
         viewModel.removeListerForConvo()
+    }
+    
+    deinit {
+        if let observer = onlineUserSetChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 }
 
