@@ -81,6 +81,10 @@ class ProfileViewController: UIViewController {
         
         NSLayoutConstraint.activate(getStaticConstraints())
         updateUI()
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"),
+                                                           style: .plain,
+                                                           target: self,
+                                                           action: #selector(backButtonTapped))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -184,5 +188,9 @@ extension ProfileViewController {
         ])
         
         return constraints
+    }
+    
+    @objc private func backButtonTapped() {
+        dismiss(animated: true, completion: nil)
     }
 }
