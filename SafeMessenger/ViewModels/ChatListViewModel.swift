@@ -36,7 +36,9 @@ class ChatListViewModel {
         ChatService.shared.observeAllConversation(with: loggedInUser) {[weak self] res in
             switch res {
             case .success(let convos):
-                self?.fetchedChats = convos
+                self?.fetchedChats = convos.sorted(by: { conv1, conv2 in
+                    return conv1.lastMessage.sentDate > conv2.lastMessage.sentDate
+                })
                 NotificationCenter.default.post(name: .onlineUserSetChangeNotification, object: nil)
                 completion(true)
                 break
