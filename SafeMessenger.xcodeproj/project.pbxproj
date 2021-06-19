@@ -37,6 +37,7 @@
 		6D87C413267BD331000554B8 /* LocationPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D87C412267BD331000554B8 /* LocationPickerViewController.swift */; };
 		6D87C415267C6523000554B8 /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D87C414267C6523000554B8 /* LocationModel.swift */; };
 		6D87C417267D4EAA000554B8 /* PresenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D87C416267D4EAA000554B8 /* PresenceManager.swift */; };
+		6D87C419267E1B24000554B8 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D87C418267E1B24000554B8 /* ProfileViewModel.swift */; };
 		6DA0FF002666807A00CA98DD /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA0FEFF2666807A00CA98DD /* ChatViewController.swift */; };
 		6DA0FF0226669F7200CA98DD /* ChatListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA0FF0126669F7200CA98DD /* ChatListViewModel.swift */; };
 		6DA0FF052666A4FD00CA98DD /* ChatListViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA0FF042666A4FC00CA98DD /* ChatListViewProtocol.swift */; };
@@ -94,6 +95,7 @@
 		6D87C412267BD331000554B8 /* LocationPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPickerViewController.swift; sourceTree = "<group>"; };
 		6D87C414267C6523000554B8 /* LocationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationModel.swift; sourceTree = "<group>"; };
 		6D87C416267D4EAA000554B8 /* PresenceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceManager.swift; sourceTree = "<group>"; };
+		6D87C418267E1B24000554B8 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		6DA0FEFF2666807A00CA98DD /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		6DA0FF0126669F7200CA98DD /* ChatListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListViewModel.swift; sourceTree = "<group>"; };
 		6DA0FF042666A4FC00CA98DD /* ChatListViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListViewProtocol.swift; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 				6DA0FF0A266BAE6400CA98DD /* SearchUserViewModel.swift */,
 				6DA0FF0E266CCB9900CA98DD /* ChatViewModel.swift */,
 				6D87C414267C6523000554B8 /* LocationModel.swift */,
+				6D87C418267E1B24000554B8 /* ProfileViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -482,6 +485,7 @@
 				6D186FEB2656F60F00CE46D9 /* ChatListViewController.swift in Sources */,
 				6DA0FF002666807A00CA98DD /* ChatViewController.swift in Sources */,
 				6D83E21D2662ACA600E93498 /* ChatAppUserModel.swift in Sources */,
+				6D87C419267E1B24000554B8 /* ProfileViewModel.swift in Sources */,
 				6DCB31AB266D0906004DEBD2 /* Utils.swift in Sources */,
 				6D18700B2656F88000CE46D9 /* ProfileViewController.swift in Sources */,
 				6DA0FF0926695AEC00CA98DD /* StorageManager.swift in Sources */,

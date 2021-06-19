@@ -320,10 +320,10 @@ extension ChatListMultiViewController: SearchUserViewProtocol {
 extension ChatListMultiViewController: HamburgerViewProtocol {
     func shouldShowProfileCard() {
         hideHamburgerViewWithAnimation {[weak self] in
-            let vc = ProfileViewController()
-            //vc.title = "profile"
-            vc.view.backgroundColor = .red
-            self?.navigationController?.pushViewController(vc, animated: true)
+            let vm = ProfileViewModel(isProfileOfLoggedInUser: true)
+            let vc = ProfileViewController(viewModel: vm)
+            let nav = UINavigationController(rootViewController: vc)
+            self?.present(nav, animated: true)
         }
     }
 }

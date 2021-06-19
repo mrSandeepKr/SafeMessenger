@@ -90,7 +90,7 @@ class ChatListTableViewCell: UITableViewCell {
         let imageSide = 0.15 * contentHeight
         let imageSize = contentHeight - (2 * imageSide)
         let presenceIconSize = 0.2 * imageSize
-        let presenceIconSide = 0.075 * imageSize
+        let presenceIconSide = 0.069 * imageSize
         
         chatIcon.layer.cornerRadius = imageSize / 2.0
         presenceIcon.layer.cornerRadius = presenceIconSize / 2.0

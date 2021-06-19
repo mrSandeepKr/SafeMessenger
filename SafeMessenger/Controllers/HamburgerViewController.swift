@@ -17,7 +17,7 @@ class HamburgerViewController: UIViewController {
     weak var delegate: HamburgerViewProtocol?
     
     private lazy var profileImageView : UIImageView = {
-        let image = UIImage(named: viewModel.profileImageName!)
+        let image = UIImage(named: viewModel.profileImageName)
         let imageView = UIImageView(image: image)
         imageView.layer.masksToBounds = true
         imageView.contentMode = .scaleAspectFill
@@ -65,7 +65,7 @@ class HamburgerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.alpha = 0.99
-        view.backgroundColor = UIColor(patternImage: UIImage(named: viewModel.hamburgerBackgroundImageName!)!)
+        view.backgroundColor = UIColor(patternImage: UIImage(named: viewModel.hamburgerBackgroundImageName)!)
         
         logInObserver = NotificationCenter.default.addObserver(forName: .didLogInNotification,
                                                                object: nil,
