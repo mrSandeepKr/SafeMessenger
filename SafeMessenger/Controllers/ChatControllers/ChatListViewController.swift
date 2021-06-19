@@ -17,6 +17,7 @@ class ChatListViewController: UIViewController {
     }()
     
     private lazy var spinner = JGProgressHUD(style: .dark)
+    private var onlineUserSetChangeObserver: NSObjectProtocol?
 
     private lazy var noChatsLabel: UILabel = {
         let label = UILabel()
@@ -49,6 +50,14 @@ class ChatListViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(noChatsLabel)
         setUpTableView()
+        
+        onlineUserSetChangeObserver = NotificationCenter.default.addObserver(forName: .onlineUserSetChangeNotification,
+                                                                             object: nil, queue: .main,
+                                                                             using: {[weak self] _ in
+                                                                                DispatchQueue.background(background: {[weak self] in
+                                                                                    self?.getOnlineResultsAndUpdatePresence()
+                                                                                })
+                                                                             })
     }
     
     override func viewDidLayoutSubviews() {
@@ -132,6 +141,19 @@ extension ChatListViewController {
     private func addChatListener() {
         viewModel.startListeningForChats {[weak self] success in
             self?.updateUIForFetch(if: success)
+        }
+    }
+    
+    private func getOnlineResultsAndUpdatePresence() {
+        let configList = viewModel.getCellsUpdateOnPresenceChange()
+        DispatchQueue.main.async { [weak self] in
+            for config in configList {
+                guard let cell = self?.tableView.cellForRow(at: config.indexpath) as? ChatListTableViewCell
+                else {
+                    continue
+                }
+                cell.updatePresenceIcon(isOnline: config.isOnline)
+            }
         }
     }
 }

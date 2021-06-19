@@ -10,7 +10,8 @@ import UIKit
 
 class ChatListTableViewCell: UITableViewCell {
     private let contentHeight: CGFloat = 80
-    private lazy var defaultPresenceImage = UIColor.systemGreen.image()
+    private lazy var defaultPresenceImage = UIColor.systemYellow.image()
+    private lazy var onlinePresenceImage = UIColor.systemGreen.image()
     
     private lazy var chatTitle: UILabel = {
         let label = UILabel()
@@ -52,7 +53,6 @@ class ChatListTableViewCell: UITableViewCell {
         let imageView = UIImageView(image: defaultPresenceImage)
         
         imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 1.0
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -75,6 +75,8 @@ class ChatListTableViewCell: UITableViewCell {
         chatTitle.font = .systemFont(ofSize: 19.5, weight: .regular)
         lastMsg.font = .systemFont(ofSize: 15, weight: .light)
         lastMsgTime.font = .systemFont(ofSize: 13, weight: .thin)
+        chatIcon.layer.borderColor = UIColor.label.cgColor
+        chatIcon.layer.borderWidth = 0.5
         presenceIcon.image = defaultPresenceImage
     }
     
@@ -143,7 +145,17 @@ extension ChatListTableViewCell {
         lastMsgTime.text = model.getLastMsgDateString()
         lastMsg.attributedText = model.getLastMessageAttributedText()
         model.updateImageView(for: chatIcon)
+        
         updateElementsIfNotRead(with: model)
+    }
+    
+    func updatePresenceIcon(isOnline: Bool) {
+        if isOnline {
+            presenceIcon.image = onlinePresenceImage
+        }
+        else {
+            presenceIcon.image = defaultPresenceImage
+        }
     }
     
     private func updateElementsIfNotRead(with model:ChatListTableViewCellViewModel) {
@@ -153,5 +165,7 @@ extension ChatListTableViewCell {
         chatTitle.font = .systemFont(ofSize: 19.5, weight: .bold)
         lastMsg.font = .systemFont(ofSize: 15, weight: .bold)
         lastMsgTime.font = .systemFont(ofSize: 13, weight: .bold)
+        chatIcon.layer.borderColor = UIColor.systemBlue.cgColor
+        chatIcon.layer.borderWidth = 2
     }
 }

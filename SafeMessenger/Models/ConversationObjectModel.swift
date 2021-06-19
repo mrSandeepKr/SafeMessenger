@@ -27,6 +27,15 @@ struct ConversationObject: Serialisable {
     func isLastMsgMarkedUnread() -> Bool {
         return !lastMessage.isRead
     }
+    
+    var recipient: String? {
+        guard let loggedInUser = Utils.shared.getLoggedInUserEmail(),
+              let recipient = members.first(where: {return $0 != loggedInUser})
+        else {
+            return nil
+        }
+        return recipient
+    }
 }
 
 extension ConversationObject{

@@ -56,6 +56,7 @@ extension PresenceManager {
             }
             print("PresenceManager: Fetch Presence Success")
             self.onlineUsers = onlineUsers
+            NotificationCenter.default.post(name: .onlineUserSetChangeNotification, object: nil, userInfo: nil)
             completion(.success(onlineUsers))
             return
         }
