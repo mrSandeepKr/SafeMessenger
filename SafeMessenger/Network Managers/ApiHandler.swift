@@ -90,6 +90,7 @@ extension ApiHandler {
     func signOutUser(completion: (Bool)->()) {
         do {
             GIDSignIn.sharedInstance().signOut()
+            PresenceManager.shared.moveOffline()
             try FirebaseAuth.Auth.auth().signOut()
             resetUserDefaults()
             completion(true)

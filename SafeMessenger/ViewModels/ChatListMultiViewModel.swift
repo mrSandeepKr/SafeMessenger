@@ -14,6 +14,9 @@ class ChatListMultiViewModel {
     
     init() {
         hamburgerBtnImagePlaceholder = Constants.ImageNamePersonPlaceholder
+        DispatchQueue.background(background: {[weak self] in
+            self?.moveOnline()
+        })
     }
     
     public var isLoggedIn: Bool {
@@ -22,6 +25,10 @@ class ChatListMultiViewModel {
     
     func updateHamburgerBtnImageView(for imageView: UIImageView) {
         StorageManager.shared.downloadImageURLandUpdateView(for: imageView, path: StorageManager.profileImagePath)
+    }
+    
+    func moveOnline() {
+        PresenceManager.shared.moveOnline()
     }
     
     func getChatViewModel(for convo: ConversationObject) -> ChatViewModel?  {

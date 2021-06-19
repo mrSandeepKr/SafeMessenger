@@ -58,6 +58,7 @@ class Constants {
     static let DbPathConversations = "conversations"
     static let DbPathMessages = "messages"
     static let DbPathUsers = "users"
+    static let DbPathOnlineUsers = "onlineUsers"
     
     static let ProfileImageSuffix = "_profile_image.png"
     

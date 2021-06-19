@@ -37,12 +37,28 @@ class ChatListViewModel {
             switch res {
             case .success(let convos):
                 self?.fetchedChats = convos
+                NotificationCenter.default.post(name: .onlineUserSetChangeNotification, object: nil)
                 completion(true)
                 break
             default:
                 completion(false)
             }
         }
+    }
+    
+    func getCellsUpdateOnPresenceChange() -> [(indexpath: IndexPath,isOnline: Bool)] {
+        let online =  PresenceManager.shared.onlineUsers
+        var res = [(IndexPath,Bool)]()
+        
+        for idx in (0..<fetchedChats.count) {
+            guard let recipient = fetchedChats[idx].recipient
+            else {
+                continue
+            }
+            let indexPath = IndexPath(row: idx, section: 0)
+            res.append((indexPath,online.contains(recipient)))
+        }
+        return res
     }
     
     func removeListerForConvo() {
