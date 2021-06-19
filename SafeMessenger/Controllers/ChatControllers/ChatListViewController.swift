@@ -12,7 +12,7 @@ class ChatListViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let table = UITableView()
         table.isHidden = true
-        table.rowHeight = UITableView.automaticDimension
+        table.tableFooterView = UIView(frame: .zero);
         return table
     }()
     

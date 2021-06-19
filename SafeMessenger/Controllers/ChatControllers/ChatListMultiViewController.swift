@@ -144,6 +144,17 @@ class ChatListMultiViewController: UIViewController {
                                                                        action: #selector(singleTapHamburgerBackground)))
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard segue.identifier == Constants.SegueHamburgerIdentifier else {
+            return
+        }
+        let hamburgerViewController = segue.destination as? HamburgerViewController
+        hamburgerViewController?.delegate = self
+    }
+}
+
+//MARK: Login & Hamburger Helpers
+extension ChatListMultiViewController {
     @objc private func hamburgerBtnTapped() {
         showHamburgerViewWithAnimation()
     }
@@ -152,16 +163,6 @@ class ChatListMultiViewController: UIViewController {
         hideHamburgerViewWithAnimation()
     }
     
-    @objc private func newChatButtonTapped() {
-        let vc = SearchUserViewController(viewModel: SearchUserViewModel())
-        vc.delegate = self
-        let nav = UINavigationController(rootViewController: vc)
-        navigationController?.present(nav, animated: true)
-    }
-}
-
-//MARK: Login & Hamburger Helpers
-extension ChatListMultiViewController {
     private func presetLoginScreen() {
         let vc = LogInViewController()
         let nav = UINavigationController(rootViewController: vc)
@@ -181,7 +182,7 @@ extension ChatListMultiViewController {
     }
     
     // Hamburger View Helper Methods
-    private func hideHamburgerViewWithAnimation() {
+    private func hideHamburgerViewWithAnimation(completion: (() -> Void)? = {}) {
         UIView.animate(
             withDuration: 0.1,
             animations: { [weak self] in
@@ -195,6 +196,7 @@ extension ChatListMultiViewController {
                     self?.view.layoutIfNeeded()
                 }) { [weak self] _ in
                 self?.hideHamburgerView()
+                completion?()
             }
             }
     }
@@ -284,6 +286,7 @@ extension ChatListMultiViewController {
     }
 }
 
+//MARK: ChatListViewProtocol, Helpers
 extension ChatListMultiViewController: ChatListViewProtocol {
     func didSelectChatFromChatList(with convo: ConversationObject) {
         guard let vm = viewModel.getChatViewModel(for: convo)
@@ -294,7 +297,15 @@ extension ChatListMultiViewController: ChatListViewProtocol {
     }
 }
 
+//MARK: SearchUserViewProtocol, Helpers
 extension ChatListMultiViewController: SearchUserViewProtocol {
+    @objc private func newChatButtonTapped() {
+        let vc = SearchUserViewController(viewModel: SearchUserViewModel())
+        vc.delegate = self
+        let nav = UINavigationController(rootViewController: vc)
+        navigationController?.present(nav, animated: true)
+    }
+    
     func openChatForUser(user: ChatAppUserModel, convoID: String?) {
         let memberEmail = user.email
         
@@ -306,3 +317,13 @@ extension ChatListMultiViewController: SearchUserViewProtocol {
     }
 }
 
+extension ChatListMultiViewController: HamburgerViewProtocol {
+    func shouldShowProfileCard() {
+        hideHamburgerViewWithAnimation {[weak self] in
+            let vc = ProfileViewController()
+            //vc.title = "profile"
+            vc.view.backgroundColor = .red
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+}
