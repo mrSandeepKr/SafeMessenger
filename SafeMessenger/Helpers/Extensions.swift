@@ -81,3 +81,12 @@ extension DispatchQueue {
         }
     }
 }
+
+extension UIColor {
+    func image(_ size: CGSize = CGSize(width: 10, height: 10)) -> UIImage {
+        return UIGraphicsImageRenderer(size: size).image { rendererContext in
+            self.setFill()
+            rendererContext.fill(CGRect(origin: .zero, size: size))
+        }
+    }
+}
