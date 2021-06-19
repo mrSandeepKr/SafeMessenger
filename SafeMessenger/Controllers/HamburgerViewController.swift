@@ -52,14 +52,14 @@ class HamburgerViewController: UIViewController {
         return btn
     }()
     
-    private lazy var profileBtn: UIButton = {
-        let btn = UIButton()
-        btn.backgroundColor = .clear
-        btn.setTitle("Account", for: .normal)
-        btn.setTitleColor(.label, for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
-        btn.addTarget(self, action: #selector(profileBtnTapped), for: .touchUpInside)
-        return btn
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.separatorStyle = .none
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reusableIdentifier)
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.backgroundColor = .clear
+        return tableView
     }()
     
     override func viewDidLoad() {
@@ -80,7 +80,7 @@ class HamburgerViewController: UIViewController {
         view.addSubview(signOutBtn)
         view.addSubview(userNameLabel)
         view.addSubview(emailLabel)
-        view.addSubview(profileBtn)
+        view.addSubview(tableView)
         
         basicUISetUp()
     }
@@ -108,10 +108,10 @@ class HamburgerViewController: UIViewController {
                                   width: view.width,
                                   height: emailLabel.height)
         
-        profileBtn.frame = CGRect(x: view.width * 0.05,
-                                  y: emailLabel.bottom + view.height * 0.025,
-                                  width: 100,
-                                  height: 40)
+        tableView.frame = CGRect(x: 0,
+                                 y: emailLabel.bottom + 30,
+                                 width: view.width,
+                                 height: 300)
     }
     
     deinit {
@@ -144,5 +144,40 @@ extension HamburgerViewController {
         viewModel.updateProfileImageView(for: profileImageView)
         userNameLabel.text = viewModel.userNameLabelString()
         emailLabel.text = viewModel.emailLabelString()
+    }
+}
+
+extension HamburgerViewController : UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return viewModel.tableViewData.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier)
+        else {
+            return UITableViewCell()
+        }
+        cell.backgroundColor = .clear
+        cell.textLabel?.attributedText = viewModel.getAttributedString(for: viewModel.tableViewData[indexPath.row])
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 75
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cellType = viewModel.tableViewData[indexPath.row]
+        tableView.deselectRow(at: indexPath, animated: true)
+        switch cellType {
+        case .account:
+            delegate?.shouldShowProfileCard()
+        case .about:
+            break
+        case .settings:
+            break
+        case .blockedContacts:
+            break
+        }
     }
 }

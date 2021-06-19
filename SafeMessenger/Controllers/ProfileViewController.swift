@@ -153,6 +153,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
             cell.textLabel?.text = "Block Contact"
             cell.textLabel?.textColor = .systemRed
             cell.textLabel?.font = .systemFont(ofSize:17, weight: .semibold)
+            cell.selectionStyle = .default
             return cell
         case .about:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: SubtitleTableViewCell.reusableIdentifier) as? SubtitleTableViewCell
@@ -160,6 +161,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
                 return SubtitleTableViewCell()
             }
             cell.configureCell(titleText: "About", subTitleText: viewModel.aboutString)
+            cell.selectionStyle = .none
             return cell
         }
     }

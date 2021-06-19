@@ -20,7 +20,7 @@ class SubtitleTableViewCell: UITableViewCell {
     private lazy var subTitle: UILabel = {
         let label = UILabel()
         label.numberOfLines = 3
-        label.textColor = .systemGray4
+        label.textColor = UIColor(cgColor: #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1))
         label.lineBreakMode = .byWordWrapping
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .justified
