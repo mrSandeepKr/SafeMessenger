@@ -9,9 +9,8 @@ import Foundation
 import UIKit
 
 enum ProfileActionType {
-    case blockedContactList
     case blockContact
-    case settings
+    case about
 }
 
 class ProfileViewModel {
@@ -41,10 +40,10 @@ class ProfileViewModel {
 extension ProfileViewModel {
     private func configureTableData() {
         if isProfileOfLoggedInUser {
-            tableData.append(.settings)
-            tableData.append(.blockedContactList)
+            tableData.append(.about)
         }
         else {
+            tableData.append(.about)
             tableData.append(.blockContact)
         }
     }

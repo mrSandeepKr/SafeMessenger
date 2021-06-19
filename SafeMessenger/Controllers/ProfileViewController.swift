@@ -52,11 +52,13 @@ class ProfileViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reusableIdentifier)
+        tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: SubtitleTableViewCell.reusableIdentifier)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.isHidden = true
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableFooterView = UIView(frame: .zero)
+        tableView.separatorStyle = .none
         return tableView
     }()
     
@@ -133,36 +135,33 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier)
-        else {
-            return UITableViewCell()
-        }
-        
         switch viewModel.tableData[indexPath.row] {
         case .blockContact :
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier)
+            else {
+                return UITableViewCell()
+            }
             cell.textLabel?.text = "Block Contact"
             cell.textLabel?.textColor = .systemRed
             cell.textLabel?.font = .systemFont(ofSize:17, weight: .semibold)
-            break
-        case .blockedContactList:
-            cell.textLabel?.text = "Blocked Contacts List"
-            cell.textLabel?.textColor = .systemRed
-            cell.textLabel?.font = .systemFont(ofSize:17, weight: .semibold)
-            break
-        case .settings:
-            let attachment = NSTextAttachment(image: UIImage(systemName: "gear")!)
-            let settings = NSAttributedString(string: " Settings")
-            let completeString = NSMutableAttributedString(attachment: attachment)
-            completeString.append(settings)
-            cell.textLabel?.attributedText = completeString
-            break
+            return cell
+        case .about:
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: SubtitleTableViewCell.reusableIdentifier) as? SubtitleTableViewCell
+            else {
+                return SubtitleTableViewCell()
+            }
+            cell.configureCell(titleText: "About", subTitleText: "Hi too busy to come to work")
+            return cell
         }
-
-        return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
+        switch viewModel.tableData[indexPath.row] {
+        case .about :
+            return (UITableView.automaticDimension > 70) ? UITableView.automaticDimension : 70
+        case .blockContact:
+            return UITableView.automaticDimension
+        }
     }
 }
 
