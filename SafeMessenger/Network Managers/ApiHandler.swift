@@ -13,6 +13,7 @@ import GoogleSignIn
 public enum ApiHandlerErrors: Error {
     case FailedSafeEmailGnrtn
     case FailedToGetUser
+    case FailedToGetAboutString
 }
 
 final class ApiHandler {
@@ -154,6 +155,25 @@ extension ApiHandler {
                 print("ApiHandler: logged In user  fetch - Failed")
                 break
             }
+        }
+    }
+    
+    func fetchAboutString(for email:String, completion: @escaping ResultStringCompletion) {
+        guard let safeEmail = Utils.shared.safeEmail(email: email) else {
+            completion(.failure(ApiHandlerErrors.FailedSafeEmailGnrtn))
+            return
+        }
+        let ref = database.child("\(safeEmail)/\(Constants.DbPathAboutString)")
+        ref.observeSingleEvent(of: .value) { snapshot in
+            guard let aboutString = snapshot.value as? String,
+                  !aboutString.isEmpty
+            else {
+                print("ApiHandler: Fetch About String Failed")
+                completion(.failure(ApiHandlerErrors.FailedToGetAboutString))
+                return
+            }
+            print("ApiHandler: Fetch About String Success")
+            completion(.success(aboutString))
         }
     }
 }

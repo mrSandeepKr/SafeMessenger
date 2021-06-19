@@ -128,6 +128,16 @@ extension ProfileViewController {
         tableView.isHidden = false
         tableView.reloadData()
         updatePresence()
+        viewModel.getAboutString(for: viewModel.personModel.email) {[weak self] res in
+            switch res {
+            case .success(let aboutString):
+                DispatchQueue.main.async {
+                    self?.tableView.reloadData()
+                }
+            case .failure(_):
+                break
+            }
+        }
     }
 }
 
@@ -152,7 +162,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
             else {
                 return SubtitleTableViewCell()
             }
-            cell.configureCell(titleText: "About", subTitleText: "Hi too busy to come to work")
+            cell.configureCell(titleText: "About", subTitleText: viewModel.aboutString)
             return cell
         }
     }

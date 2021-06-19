@@ -50,7 +50,7 @@ extension Utils {
     }
     
     func safeEmail(email: String?) -> String? {
-        guard let email = email else {
+        guard let email = email, !email.isEmpty else {
             print("Utils: no Email passed to safeEmail Converter")
             return nil
         }
