@@ -110,7 +110,7 @@ class ProfileViewController: UIViewController {
 
 extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        2
+        return viewModel.tableData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -118,18 +118,27 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
         else {
             return UITableViewCell()
         }
-        if indexPath.row == 1 {
+        
+        switch viewModel.tableData[indexPath.row] {
+        case .blockContact :
+            cell.textLabel?.text = "Block Contact"
+            cell.textLabel?.textColor = .systemRed
+            cell.textLabel?.font = .systemFont(ofSize:17, weight: .semibold)
+            break
+        case .blockedContactList:
             cell.textLabel?.text = "Blocked Contacts List"
             cell.textLabel?.textColor = .systemRed
             cell.textLabel?.font = .systemFont(ofSize:17, weight: .semibold)
-        }
-        else {
+            break
+        case .settings:
             let attachment = NSTextAttachment(image: UIImage(systemName: "gear")!)
             let settings = NSAttributedString(string: " Settings")
             let completeString = NSMutableAttributedString(attachment: attachment)
             completeString.append(settings)
             cell.textLabel?.attributedText = completeString
+            break
         }
+
         return cell
     }
     

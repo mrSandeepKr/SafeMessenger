@@ -34,7 +34,11 @@ class ChatViewController: MessagesViewController {
                     return
                 }
                 DispatchQueue.main.async {
-                    strongSelf.title = strongSelf.viewModel.memberModel?.firstName
+                    guard let btn = strongSelf.navigationItem.titleView as? UIButton
+                    else {
+                        return
+                    }
+                    btn.setTitle(strongSelf.viewModel.memberModel?.firstName, for: .normal)
                 }
             }
             
@@ -43,6 +47,23 @@ class ChatViewController: MessagesViewController {
         
         setUpMessageKitStuff()
         setUpRightBarButton()
+        setUpNavigationTitle()
+    }
+    
+    private func setUpNavigationTitle() {
+        let button =  UIButton(type: .custom)
+        button.setTitle(Constants.unknownUser, for: .normal)
+        button.addTarget(self, action: #selector(navigationTitleTapped), for: .touchUpInside)
+        button.frame = CGRect(x: 0, y: 0, width: 100, height: 40)
+        button.setTitleColor(.label, for: .normal)
+        navigationItem.titleView = button
+    }
+    
+    @objc private func navigationTitleTapped() {
+        let vm = ProfileViewModel(userModel: viewModel.memberModel!)
+        let vc = ProfileViewController(viewModel: vm)
+        let nav = UINavigationController(rootViewController: vc)
+        present(nav, animated: true)
     }
     
     override func viewDidAppear(_ animated: Bool) {

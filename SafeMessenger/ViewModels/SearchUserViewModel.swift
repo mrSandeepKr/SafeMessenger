@@ -59,6 +59,10 @@ class SearchUserViewModel {
         }
     }
     
+    func showAllUsers() {
+        results = usersSet
+    }
+    
     func getConvoIdForUser(with email: String) -> String? {
         return buddyList.first{return $0.email == email}?.convoId
     }
