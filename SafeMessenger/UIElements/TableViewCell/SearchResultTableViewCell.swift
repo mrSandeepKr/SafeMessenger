@@ -90,7 +90,7 @@ class SearchResultTableViewCell: UITableViewCell {
 }
 
 extension SearchResultTableViewCell {
-    func configureCell(with model:SearchUserModel) {
+    func configureCell(with model:ChatAppUserModel) {
         titleLabel.text = model.displayName
         subtitleLabel.text = model.email
         cellIcon.sd_setImage(with: model.imageURL)

@@ -8,8 +8,8 @@
 import Foundation
 
 class SearchUserViewModel {
-    private var usersSet = [SearchUserModel]()
-    var results = [SearchUserModel]()
+    private var usersSet = [ChatAppUserModel]()
+    var results = [ChatAppUserModel]()
     var buddyList = [BuddyUserModel]()
     private var areResultsFetched = false
     private let loggedInUserEmail = Utils.shared.getLoggedInUserEmail() ?? ""

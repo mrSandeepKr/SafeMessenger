@@ -14,17 +14,12 @@ class ProfileViewModel {
     let profileImageName = Constants.ImageNamePersonPlaceholder
     let isProfileOfLoggedInUser: Bool
     
-    var email: String?
-    var userName: String?
-    var imageURL: String?
+    let personModel: ChatAppUserModel
     
-    init(isProfileOfLoggedInUser: Bool = false) {
+    init(isProfileOfLoggedInUser: Bool = false, userModel: ChatAppUserModel) {
         offlinePresenceImage = UIColor.systemYellow.image()
         onlinePresenceImage = UIColor.systemGreen.image()
         self.isProfileOfLoggedInUser = isProfileOfLoggedInUser
-        
-        email = Utils.shared.getLoggedInUserEmail()
-        userName = Utils.shared.getLoggedInUserDisplayName()
-        imageURL = Utils.shared.getLoggedInUserDisplayURL()
+        personModel = userModel
     }
 }

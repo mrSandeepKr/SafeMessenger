@@ -63,7 +63,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                 let profileUploadCompletion: ResultStringCompletion = { res in
                     switch res {
                     case .success(let profileUrlString) :
-                        let searchUser = SearchUserModel.getObject(for: userInfo, imageUrlString: profileUrlString)
+                        let searchUser = ChatAppUserModel.getObject(for: userInfo, imageUrlString: profileUrlString)
+                        ApiHandler.shared.setUserImageURLInDatabase(email: userInfo.email,
+                                                                    imageURL: profileUrlString,
+                                                                    completion: {_ in})
                         ApiHandler.shared.insertUserToSearchArray(user: searchUser, completion: {_ in})
                         break
                     case .failure(_):

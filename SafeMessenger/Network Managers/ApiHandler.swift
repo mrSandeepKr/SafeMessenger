@@ -25,10 +25,7 @@ final class ApiHandler {
 extension ApiHandler {
     /// Adds user's firstName, Second Name to Database
     public func insertUserToDatabase(user: ChatAppUserModel, completion: @escaping SuccessCompletion) {
-        let userDict = [
-            Constants.firstName: user.firstName,
-            Constants.secondName: user.secondName
-        ]
+        let userDict = user.serialisedObject()
         database.child(user.safeEmail).setValue(userDict) { err, _ in
             guard err == nil else {
                 print("ApiHandler: User insertion to database Failed")
@@ -40,6 +37,20 @@ extension ApiHandler {
         }
     }
     
+    public func setUserImageURLInDatabase(email: String, imageURL: String, completion: @escaping SuccessCompletion) {
+        guard let safeEmail = Utils.shared.safeEmail(email: email)
+        else {
+            completion(false)
+            return
+        }
+        database.child(safeEmail).child(Constants.imageURL).setValue(imageURL) { err, _ in
+            guard err == nil else {
+                completion(false)
+                return
+            }
+            completion(true)
+        }
+    }
     /// Add user Info to user Array, This is required to enable the user search.
     /// User Array ->
     /// [
@@ -48,7 +59,7 @@ extension ApiHandler {
     ///     email : "sk@gmail.com"
     ///     ]
     /// ]
-    public func insertUserToSearchArray(user: SearchUserModel, completion: @escaping SuccessCompletion) {
+    public func insertUserToSearchArray(user: ChatAppUserModel, completion: @escaping SuccessCompletion) {
         let ref = self.database.child(Constants.DbPathUsers).childByAutoId()
         let newUser = user.serialisedObject()
         ref.setValue(newUser) { err, _ in
@@ -120,38 +131,27 @@ extension ApiHandler {
                 completion(.failure(ApiHandlerErrors.FailedToGetUser))
                 return
             }
-            guard let firstName = value[Constants.firstName] as? String,
-                  let secondName = value[Constants.secondName] as? String
+            guard let user = ChatAppUserModel.getObject(from: value)
             else {
                 print("ApiHandler: Fetch UserInfo Failed - unable to parse data")
                 completion(.failure(ApiHandlerErrors.FailedToGetUser))
                 return
             }
             print("ApiHandler: Fetch UserInfo Success")
-            completion(.success(ChatAppUserModel(firstName: firstName,
-                                                 secondName: secondName,
-                                                 email: email)))
+            completion(.success(user))
         }
     }
     
     func fetchLoggedInUserInfoAndSetDefaults(for email:String, completion:@escaping SuccessCompletion) {
-        fetchUserInfo(for: email) { res in
+        fetchUserInfo(for: email) {[weak self] res in
             switch res {
             case .success(let model):
-                StorageManager.shared.getDownloadURLString(for: model.profileImageRefPathForUser) {[weak self] res in
-                    switch res {
-                    case .success(let url):
-                        self?.setUserLoggedInDefaults(user: model, downloadURL: url)
-                        completion(true)
-                        print("ApiHandler: logged In user downloadURL fetch - Sucess")
-                        break
-                    default:
-                        print("ApiHandler: logged In user downloadURL fetch - Failed")
-                        break
-                    }
-                }
+                self?.setUserLoggedInDefaults(user: model)
+                completion(true)
+                print("ApiHandler: logged In user fetch - Sucess")
                 break
             default:
+                print("ApiHandler: logged In user  fetch - Failed")
                 break
             }
         }
@@ -184,11 +184,11 @@ extension ApiHandler {
         }
     }
     
-    func setUserLoggedInDefaults(user:ChatAppUserModel, downloadURL: String) {
+    func setUserLoggedInDefaults(user:ChatAppUserModel) {
         let dict = [
             UserDefaultConstant.userName: user.displayName,
             UserDefaultConstant.userEmail: user.email,
-            UserDefaultConstant.profileImageUrl: downloadURL,
+            UserDefaultConstant.profileImageUrl: user.imageURLString,
             UserDefaultConstant.isLoggedIn: true
         ] as [String : Any]
         

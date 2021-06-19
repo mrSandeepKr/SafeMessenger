@@ -102,7 +102,7 @@ extension SearchUserViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let selectedUser: SearchUserModel = viewModel.results[indexPath.row]
+        let selectedUser: ChatAppUserModel = viewModel.results[indexPath.row]
         dismiss(animated: true) {[weak self] in
             self?.delegate?.openChatForUser(user: selectedUser,
                                             convoID: self?.viewModel.getConvoIdForUser(with: selectedUser.email))

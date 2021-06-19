@@ -85,11 +85,13 @@ extension RegisterViewModel {
                                                              fileName: userInfo.profileImageString) { res in
                     switch res {
                     case .success(let downloadUrl):
-                        ApiHandler.shared.setUserLoggedInDefaults(user: userInfo,
-                                                                  downloadURL: downloadUrl)
-                        ApiHandler.shared.insertUserToSearchArray(user: SearchUserModel.getObject(for: userInfo,
-                                                                                                  imageUrlString: downloadUrl),
+                        let userCopy = ChatAppUserModel.getObject(for: userInfo, imageUrlString: downloadUrl)
+                        ApiHandler.shared.setUserLoggedInDefaults(user: userCopy)
+                        ApiHandler.shared.insertUserToSearchArray(user: userCopy,
                                                                   completion: {_ in})
+                        ApiHandler.shared.setUserImageURLInDatabase(email: userCopy.email,
+                                                                    imageURL: downloadUrl,
+                                                                    completion: {_ in})
                         completion("")
                     case .failure(_):
                         completion("Oops!! Failed to upload your profile Image to Database")

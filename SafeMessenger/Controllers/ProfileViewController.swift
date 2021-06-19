@@ -99,9 +99,9 @@ class ProfileViewController: UIViewController {
     }
     
     private func updateUI() {
-        userNameLabel.text = viewModel.userName
-        profileImageView.sd_setImage(with: URL(string: viewModel.imageURL!)!)
-        emailLabel.text = viewModel.email
+        userNameLabel.text = viewModel.personModel.displayName
+        profileImageView.sd_setImage(with: viewModel.personModel.imageURL)
+        emailLabel.text = viewModel.personModel.email
         presenceIcon.image = viewModel.onlinePresenceImage
         tableView.isHidden = false
         tableView.reloadData()
