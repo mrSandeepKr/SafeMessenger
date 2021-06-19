@@ -9,6 +9,7 @@ import UIKit
 
 class ProfileViewController: UIViewController {
     private let viewModel: ProfileViewModel
+    var onlineUserSetChangeObserver: NSObjectProtocol?
     
     private lazy var profileImageView : UIImageView = {
         let image = UIImage(named: viewModel.profileImageName)
@@ -81,6 +82,12 @@ class ProfileViewController: UIViewController {
         
         NSLayoutConstraint.activate(getStaticConstraints())
         updateUI()
+        onlineUserSetChangeObserver = NotificationCenter.default.addObserver(forName: .onlineUserSetChangeNotification,
+                                                                             object: nil,
+                                                                             queue: .main,
+                                                                             using: {[weak self] _ in
+                                                                                self?.updatePresence()
+                                                                             })
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.left"),
                                                            style: .plain,
                                                            target: self,
@@ -98,13 +105,25 @@ class ProfileViewController: UIViewController {
         navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
     }
     
+    deinit {
+        guard let observer = onlineUserSetChangeObserver else {
+            return
+        }
+        NotificationCenter.default.removeObserver(observer)
+    }
+    
+    private func updatePresence() {
+        presenceIcon.image = viewModel.isUserOnline ? viewModel.onlinePresenceImage : viewModel.offlinePresenceImage
+    }
+    
     private func updateUI() {
         userNameLabel.text = viewModel.personModel.displayName
         profileImageView.sd_setImage(with: viewModel.personModel.imageURL)
         emailLabel.text = viewModel.personModel.email
-        presenceIcon.image = viewModel.onlinePresenceImage
+        presenceIcon.image = viewModel.offlinePresenceImage
         tableView.isHidden = false
         tableView.reloadData()
+        updatePresence()
     }
 }
 

@@ -31,6 +31,11 @@ class ProfileViewModel {
         
         configureTableData()
     }
+    
+    var isUserOnline: Bool {
+        let onlineUsers = PresenceManager.shared.onlineUsers
+        return onlineUsers.contains(personModel.email)
+    }
 }
 
 extension ProfileViewModel {

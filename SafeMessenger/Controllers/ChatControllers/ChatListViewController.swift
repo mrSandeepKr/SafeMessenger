@@ -86,6 +86,12 @@ class ChatListViewController: UIViewController {
         spinner.dismiss()
         viewModel.removeListerForConvo()
     }
+    
+    deinit {
+        if let observer = onlineUserSetChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
 }
 
 extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
