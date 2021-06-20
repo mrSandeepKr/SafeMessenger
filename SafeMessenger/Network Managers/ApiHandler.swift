@@ -148,6 +148,7 @@ extension ApiHandler {
             switch res {
             case .success(let model):
                 self?.setUserLoggedInDefaults(user: model)
+                ProfileCardService.shared.fetchProfileCardDataSetDefaults(for: model.email)
                 completion(true)
                 print("ApiHandler: logged In user fetch - Sucess")
                 break

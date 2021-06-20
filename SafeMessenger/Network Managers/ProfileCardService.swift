@@ -38,6 +38,28 @@ extension ProfileCardService {
         }
     }
     
+    func fetchProfileCardDataSetDefaults(for email: String) {
+        guard let safeEmail = Utils.shared.safeEmail(email: email) else {
+            return
+        }
+        let ref = database.child(safeEmail)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            guard let value = snapshot.value as? [String:Any]
+            else {
+                return
+            }
+            if  let address = value[Constants.DbPathAddress] as? String {
+                UserDefaults.standard.setValue(address, forKey: Constants.DbPathAddress)
+            }
+            if   let  number = value[Constants.DbPathPhoneNumer] as? String {
+                UserDefaults.standard.setValue(number, forKey: Constants.DbPathPhoneNumer)
+            }
+            if   let  secondaryEmail =  value[Constants.DbPathSecondaryEmail] as? String {
+                UserDefaults.standard.setValue(secondaryEmail, forKey: Constants.DbPathSecondaryEmail)
+            }
+        }
+    }
+    
     func fetchProfileCardData(for email: String, completion: @escaping (Result<ProfileCardModel,Error>)-> Void) {
         guard let safeEmail = Utils.shared.safeEmail(email: email) else {
             return

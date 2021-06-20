@@ -71,7 +71,7 @@ class Constants {
     static let pngExtension = ".png"
     static let movExtension = ".mov"
     
-    static let defaultAboutString = "User hasn't set any status, ask him to do so :)"
+    static let defaultAboutString = "No Status"
     static let defaultAddressString = "No Address"
     static let defaultPhoneNumerString = "No Phone Number"
     static let defaultSecondaryEmail = "No Secondary Email"
