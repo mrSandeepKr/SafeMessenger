@@ -1,9 +1,3 @@
-<style>
- /* You know what a style block looks like.
-    Just drop your fancy image styles here and put this right in your Markdown, champ! */
-</style>
-<img src="ReadMeImages/ChatExp1.png"  width="335" height="700" style="border-radius:5px"/>
-
 #  <img src="/SafeMessenger/Resources/Assets.xcassets/AppIcon.appiconset/100.png" width="33" height="33"/> Safe Messenger
 
 Project is a an attempt to set up a Real Time Chat Application. The service is Firebase supported. 
@@ -36,15 +30,16 @@ The user can:
 
 <table>
 <tr>
-  <td><img src="ReadMeImages/ChatExp1.png"  width="335" height="700" style="border-radius:50px!important"/></td>
-  <td><img src="ReadMeImages/Hamburger.png"  width="335" height="700" /></td>
+  <td><kbd><img src="ReadMeImages/ChatExp1.png"  width="235" height="500" /></kbd>
+  <kbd><img src="ReadMeImages/ChatList.png"  width="235" height="500" /></kbd>
+  <kbd><img src="ReadMeImages/ProfileView.png"  width="235" height="500" /></kbd></td>
 </tr>
 </table>
 <table>
 <tr>
-  <td><img src="ReadMeImages/Login.png"  width="191" height="400" /></td>
-  <td><img src="ReadMeImages/RegisterView.png"  width="191" height="400" /></td>
-  <td><img src="ReadMeImages/ChatExp2.png"  width="191" height="400" /></td>
-  <td><img src="ReadMeImages/ProfileView.png"  width="191" height="400" /></td>
+  <td><kbd><img src="ReadMeImages/Login.png"  width="191" height="406" /></kbd>
+  <kbd><img src="ReadMeImages/RegisterView.png"  width="191" height="406" /></kbd>
+  <kbd><img src="ReadMeImages/ChatExp2.png"  width="191" height="406" /></kbd>
+  <kbd><img src="ReadMeImages/Hamburger.png"  width="191" height="406" /></kbd></td>
 </tr>
 </table>
