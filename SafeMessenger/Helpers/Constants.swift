@@ -59,6 +59,7 @@ class Constants {
     static let DbPathMessages = "messages"
     static let DbPathUsers = "users"
     static let DbPathOnlineUsers = "onlineUsers"
+    static let DbPathAboutString = "aboutString"
     
     static let ProfileImageSuffix = "_profile_image.png"
     
@@ -66,6 +67,8 @@ class Constants {
     
     static let pngExtension = ".png"
     static let movExtension = ".mov"
+    
+    static let defaultAboutString = "User hasn't set any status, ask him to do so :)"
 }
 
 class UserDefaultConstant {

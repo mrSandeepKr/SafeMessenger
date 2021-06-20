@@ -52,11 +52,13 @@ class ProfileViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reusableIdentifier)
+        tableView.register(SubtitleTableViewCell.self, forCellReuseIdentifier: SubtitleTableViewCell.reusableIdentifier)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.isHidden = true
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableFooterView = UIView(frame: .zero)
+        tableView.separatorStyle = .none
         return tableView
     }()
     
@@ -79,8 +81,8 @@ class ProfileViewController: UIViewController {
         view.addSubview(emailLabel)
         view.addSubview(presenceIcon)
         view.addSubview(tableView)
-        
         NSLayoutConstraint.activate(getStaticConstraints())
+        
         updateUI()
         onlineUserSetChangeObserver = NotificationCenter.default.addObserver(forName: .onlineUserSetChangeNotification,
                                                                              object: nil,
@@ -96,13 +98,11 @@ class ProfileViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        makeNavigationBarTransperant()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        navigationController?.navigationBar.shadowImage = nil
-        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        resetNavigationBarTrasperancy()
     }
     
     deinit {
@@ -111,7 +111,9 @@ class ProfileViewController: UIViewController {
         }
         NotificationCenter.default.removeObserver(observer)
     }
-    
+}
+
+extension ProfileViewController {
     private func updatePresence() {
         presenceIcon.image = viewModel.isUserOnline ? viewModel.onlinePresenceImage : viewModel.offlinePresenceImage
     }
@@ -124,6 +126,13 @@ class ProfileViewController: UIViewController {
         tableView.isHidden = false
         tableView.reloadData()
         updatePresence()
+        viewModel.getAboutString(for: viewModel.personModel.email) {[weak self] success in
+            if success {
+                DispatchQueue.main.async {
+                    self?.tableView.reloadData()
+                }
+            }
+        }
     }
 }
 
@@ -133,36 +142,35 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier)
-        else {
-            return UITableViewCell()
-        }
-        
         switch viewModel.tableData[indexPath.row] {
         case .blockContact :
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier)
+            else {
+                return UITableViewCell()
+            }
             cell.textLabel?.text = "Block Contact"
             cell.textLabel?.textColor = .systemRed
             cell.textLabel?.font = .systemFont(ofSize:17, weight: .semibold)
-            break
-        case .blockedContactList:
-            cell.textLabel?.text = "Blocked Contacts List"
-            cell.textLabel?.textColor = .systemRed
-            cell.textLabel?.font = .systemFont(ofSize:17, weight: .semibold)
-            break
-        case .settings:
-            let attachment = NSTextAttachment(image: UIImage(systemName: "gear")!)
-            let settings = NSAttributedString(string: " Settings")
-            let completeString = NSMutableAttributedString(attachment: attachment)
-            completeString.append(settings)
-            cell.textLabel?.attributedText = completeString
-            break
+            cell.selectionStyle = .default
+            return cell
+        case .about:
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: SubtitleTableViewCell.reusableIdentifier) as? SubtitleTableViewCell
+            else {
+                return SubtitleTableViewCell()
+            }
+            cell.configureCell(titleText: "About", subTitleText: viewModel.aboutString)
+            cell.selectionStyle = .none
+            return cell
         }
-
-        return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
+        switch viewModel.tableData[indexPath.row] {
+        case .about :
+            return (UITableView.automaticDimension > 70) ? UITableView.automaticDimension : 70
+        case .blockContact:
+            return UITableView.automaticDimension
+        }
     }
 }
 

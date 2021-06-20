@@ -13,6 +13,7 @@ import GoogleSignIn
 public enum ApiHandlerErrors: Error {
     case FailedSafeEmailGnrtn
     case FailedToGetUser
+    case FailedToGetAboutString
 }
 
 final class ApiHandler {
@@ -154,6 +155,50 @@ extension ApiHandler {
                 print("ApiHandler: logged In user  fetch - Failed")
                 break
             }
+        }
+    }
+}
+
+//MARK: About String
+extension ApiHandler {
+    private func getDBAboutStringPath(for safeEmail: String) -> String{
+        return "\(safeEmail)/\(Constants.DbPathAboutString)"
+    }
+    
+    func fetchAboutString(for email:String, completion: @escaping ResultStringCompletion) {
+        guard let safeEmail = Utils.shared.safeEmail(email: email) else {
+            completion(.failure(ApiHandlerErrors.FailedSafeEmailGnrtn))
+            return
+        }
+        let ref = database.child(getDBAboutStringPath(for: safeEmail))
+        ref.observeSingleEvent(of: .value) { snapshot in
+            guard let aboutString = snapshot.value as? String,
+                  !aboutString.isEmpty
+            else {
+                print("ApiHandler: Fetch About String Failed")
+                completion(.failure(ApiHandlerErrors.FailedToGetAboutString))
+                return
+            }
+            print("ApiHandler: Fetch About String Success")
+            completion(.success(aboutString))
+        }
+    }
+    
+    func setAboutString(for email: String,with about: String, completion: @escaping SuccessCompletion) {
+        guard let safeEmail = Utils.shared.safeEmail(email: email),
+              !about.isEmpty
+              else {
+            completion(false)
+            return
+        }
+        
+        let ref = database.child(getDBAboutStringPath(for: safeEmail))
+        ref.setValue(about) { err, _ in
+            guard err == nil else {
+                completion(false)
+                return
+            }
+            completion(true)
         }
     }
 }

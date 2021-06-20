@@ -9,9 +9,8 @@ import Foundation
 import UIKit
 
 enum ProfileActionType {
-    case blockedContactList
     case blockContact
-    case settings
+    case about
 }
 
 class ProfileViewModel {
@@ -21,6 +20,7 @@ class ProfileViewModel {
     let isProfileOfLoggedInUser: Bool
     let personModel: ChatAppUserModel
     
+    var aboutString: String
     var tableData = [ProfileActionType]()
     
     init(isProfileOfLoggedInUser: Bool = false, userModel: ChatAppUserModel) {
@@ -28,7 +28,7 @@ class ProfileViewModel {
         onlinePresenceImage = UIColor.systemGreen.image()
         self.isProfileOfLoggedInUser = isProfileOfLoggedInUser
         personModel = userModel
-        
+        aboutString = Constants.defaultAboutString
         configureTableData()
     }
     
@@ -36,15 +36,30 @@ class ProfileViewModel {
         let onlineUsers = PresenceManager.shared.onlineUsers
         return onlineUsers.contains(personModel.email)
     }
+    
+    func getAboutString(for email:String, completion: @escaping SuccessCompletion) {
+        DispatchQueue.background(background: {[weak self] in
+            ApiHandler.shared.fetchAboutString(for: self?.personModel.email ?? "") {[weak self] res in
+                switch res {
+                case .failure(_):
+                    completion(false)
+                    break
+                case .success(let aboutString):
+                    self?.aboutString = aboutString
+                    completion(true)
+                }
+            }
+        })
+    }
 }
 
 extension ProfileViewModel {
     private func configureTableData() {
         if isProfileOfLoggedInUser {
-            tableData.append(.settings)
-            tableData.append(.blockedContactList)
+            tableData.append(.about)
         }
         else {
+            tableData.append(.about)
             tableData.append(.blockContact)
         }
     }
