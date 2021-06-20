@@ -19,6 +19,7 @@ The user can:
     * Phone Number
     * Address
 6. Delete Conversation
+7. Have an experience on his present Theme
     
 ### Set Up
 1. `git clone https://github.com/mrSandeepKr/safeMessenger`
