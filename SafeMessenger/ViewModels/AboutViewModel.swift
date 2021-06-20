@@ -22,7 +22,7 @@ class AboutViewModel {
             guard let strongSelf = self else {
                 return
             }
-            ApiHandler.shared.fetchAboutString(for: strongSelf.loggedInUserEmail) {[weak strongSelf] res in
+            ProfileCardService.shared.fetchAboutString(for: strongSelf.loggedInUserEmail) {[weak strongSelf] res in
                 switch res {
                 case .success(let aboutStringFetched):
                     strongSelf?.aboutMessage = aboutStringFetched
@@ -37,11 +37,11 @@ class AboutViewModel {
     
     func setAboutString(aboutString: String,completion:@escaping SuccessCompletion) {
         DispatchQueue.background(background: {[weak self] in
-            guard let strongSelf = self else {
+            guard let strongSelf = self
+            else {
                 return
             }
-            ApiHandler.shared.setAboutString(for: strongSelf.loggedInUserEmail,
-                                             with: aboutString) {[weak strongSelf] success in
+            ProfileCardService.shared.setAboutString(info: aboutString) {[weak strongSelf] success in
                 if success {
                     strongSelf?.aboutMessage = aboutString
                 }

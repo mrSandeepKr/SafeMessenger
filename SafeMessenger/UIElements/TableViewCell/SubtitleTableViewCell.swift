@@ -41,14 +41,14 @@ class SubtitleTableViewCell: UITableViewCell {
     private func getStaticConstraints() -> [NSLayoutConstraint] {
         var constraints: [NSLayoutConstraint] = []
         constraints.append(contentsOf: [
-            title.topAnchor.constraint(equalTo: topAnchor),
+            title.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             title.heightAnchor.constraint(equalToConstant: 20),
             title.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
         constraints.append(contentsOf: [
-            subTitle.topAnchor.constraint(equalTo: title.bottomAnchor),
+            subTitle.topAnchor.constraint(equalTo: title.bottomAnchor, constant:  10),
             subTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             subTitle.bottomAnchor.constraint(equalTo: bottomAnchor),
             subTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -14)
@@ -60,6 +60,5 @@ class SubtitleTableViewCell: UITableViewCell {
     func configureCell(titleText: String, subTitleText: String) {
         title.text = titleText
         subTitle.text = subTitleText
-        NSLayoutConstraint.activate(getStaticConstraints())
     }
 }

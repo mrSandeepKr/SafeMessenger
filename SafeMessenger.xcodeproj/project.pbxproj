@@ -42,6 +42,7 @@
 		6D87C41F267F2013000554B8 /* AboutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D87C41E267F2013000554B8 /* AboutViewModel.swift */; };
 		6D87C422267F44C3000554B8 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D87C421267F44C3000554B8 /* SettingsViewController.swift */; };
 		6D87C424267F4FAE000554B8 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D87C423267F4FAE000554B8 /* SettingsViewModel.swift */; };
+		6D87C426267F60DE000554B8 /* ProfileCardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D87C425267F60DE000554B8 /* ProfileCardService.swift */; };
 		6DA0FF002666807A00CA98DD /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA0FEFF2666807A00CA98DD /* ChatViewController.swift */; };
 		6DA0FF0226669F7200CA98DD /* ChatListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA0FF0126669F7200CA98DD /* ChatListViewModel.swift */; };
 		6DA0FF052666A4FD00CA98DD /* ChatListViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA0FF042666A4FC00CA98DD /* ChatListViewProtocol.swift */; };
@@ -104,6 +105,7 @@
 		6D87C41E267F2013000554B8 /* AboutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewModel.swift; sourceTree = "<group>"; };
 		6D87C421267F44C3000554B8 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		6D87C423267F4FAE000554B8 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsViewModel.swift; path = SafeMessenger/ViewModels/SettingsViewModel.swift; sourceTree = SOURCE_ROOT; };
+		6D87C425267F60DE000554B8 /* ProfileCardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardService.swift; sourceTree = "<group>"; };
 		6DA0FEFF2666807A00CA98DD /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		6DA0FF0126669F7200CA98DD /* ChatListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListViewModel.swift; sourceTree = "<group>"; };
 		6DA0FF042666A4FC00CA98DD /* ChatListViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListViewProtocol.swift; sourceTree = "<group>"; };
@@ -299,6 +301,7 @@
 				6D87C40E267B41DE000554B8 /* SearchService.swift */,
 				6DA0FF0826695AEC00CA98DD /* StorageManager.swift */,
 				6D87C416267D4EAA000554B8 /* PresenceManager.swift */,
+				6D87C425267F60DE000554B8 /* ProfileCardService.swift */,
 			);
 			path = "Network Managers";
 			sourceTree = "<group>";
@@ -488,6 +491,7 @@
 				6D3BAC38265828A5007C5BDF /* CustomTextField.swift in Sources */,
 				6D1870052656F85600CE46D9 /* ImageViewerViewController.swift in Sources */,
 				6D1A43D2266269F60009C356 /* HamburgerViewModel.swift in Sources */,
+				6D87C426267F60DE000554B8 /* ProfileCardService.swift in Sources */,
 				6D1A43CE26623D130009C356 /* ChatListMultiViewController.swift in Sources */,
 				6D1870012656F82400CE46D9 /* LogInViewController.swift in Sources */,
 				6D1870092656F87600CE46D9 /* SearchUserViewController.swift in Sources */,

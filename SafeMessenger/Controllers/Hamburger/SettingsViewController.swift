@@ -77,7 +77,9 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let alert = viewModel.getAlert(for: viewModel.tableData[indexPath.row])
+        let alert = viewModel.getAlert(for: viewModel.tableData[indexPath.row]) {[weak self] success in
+            self?.getDataAndReloadTable()
+        }
         present(alert, animated: true)
     }
     
@@ -100,5 +102,10 @@ extension SettingsViewController {
     
     @objc private func backButtonTapped() {
         dismiss(animated: true)
+    }
+    
+    private func getDataAndReloadTable() {
+        viewModel.getUserSettingsData()
+        tableView.reloadData()
     }
 }
