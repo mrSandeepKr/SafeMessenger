@@ -30,16 +30,16 @@ The user can:
 
 <table>
 <tr>
-  <td><img src="ReadMeImages/ChatExp1.png"  width="335" height="690" /></td>
-  <td><img src="ReadMeImages/ChatList.png"  width="335" height="690" /></td>
-  <td><img src="ReadMeImages/ProfileView.png"  width="335" height="690" /></td>
+  <td><kbd><img src="ReadMeImages/ChatExp1.png"  width="235" height="500" /></kbd>
+  <kbd><img src="ReadMeImages/ChatList.png"  width="235" height="500" /></kbd>
+  <kbd><img src="ReadMeImages/ProfileView.png"  width="235" height="500" /></kbd></td>
 </tr>
 </table>
 <table>
 <tr>
-  <td><img src="ReadMeImages/Login.png"  width="191" height="400" /></td>
-  <td><img src="ReadMeImages/RegisterView.png"  width="191" height="400" /></td>
-  <td><img src="ReadMeImages/ChatExp2.png"  width="191" height="400" /></td>
-  <td><img src="ReadMeImages/Hamburger.png"  width="191" height="400" /></td>
+  <td><kbd><img src="ReadMeImages/Login.png"  width="191" height="406" /></kbd>
+  <kbd><img src="ReadMeImages/RegisterView.png"  width="191" height="406" /></kbd>
+  <kbd><img src="ReadMeImages/ChatExp2.png"  width="191" height="406" /></kbd>
+  <kbd><img src="ReadMeImages/Hamburger.png"  width="191" height="406" /></kbd></td>
 </tr>
 </table>
