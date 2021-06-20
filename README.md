@@ -37,9 +37,9 @@ The user can:
 </table>
 <table>
 <tr>
-  <td><kbd><img src="ReadMeImages/Login.png"  width="191" height="406" /></kbd>
-  <kbd><img src="ReadMeImages/RegisterView.png"  width="191" height="406" /></kbd>
-  <kbd><img src="ReadMeImages/ChatExp2.png"  width="191" height="406" /></kbd>
-  <kbd><img src="ReadMeImages/Hamburger.png"  width="191" height="406" /></kbd></td>
+  <td><kbd><img src="ReadMeImages/Login.png"  width="180" height="382.9" /></kbd>
+  <kbd><img src="ReadMeImages/RegisterView.png"  width="180" height="382.9" /></kbd>
+  <kbd><img src="ReadMeImages/ChatExp2.png"  width="180" height="382.9" /></kbd>
+  <kbd><img src="ReadMeImages/Hamburger.png"  width="180" height="382.9" /></kbd></td>
 </tr>
 </table>
