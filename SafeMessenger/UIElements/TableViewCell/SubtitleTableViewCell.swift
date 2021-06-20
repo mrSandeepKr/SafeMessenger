@@ -60,7 +60,6 @@ class SubtitleTableViewCell: UITableViewCell {
     func configureCell(titleText: String, subTitleText: String) {
         title.text = titleText
         subTitle.text = subTitleText
-        NSLayoutConstraint.deactivate(getStaticConstraints())
         NSLayoutConstraint.activate(getStaticConstraints())
     }
 }
