@@ -118,6 +118,9 @@ extension SearchUserViewController: UISearchBarDelegate {
         {
             viewModel.searchUsers(query: searchText.lowercased())
         }
+        else {
+            viewModel.results = []
+        }
         
         updateUIPostSearch()
     }
