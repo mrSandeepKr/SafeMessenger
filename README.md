@@ -1,7 +1,9 @@
 #  <img src="/SafeMessenger/Resources/Assets.xcassets/AppIcon.appiconset/100.png" width="33" height="33" /> Safe Messenger
 
-Project is a an attempt to follow MVVP in order to set up a Real Time Chat Application. The service is Firebase supported. 
+Project is a an attempt to set up a Real Time Chat Application. The service is Firebase supported. 
 Person can look-up existing Users by their email and name, see their Presence updating and Chat with them in Real Time.
+It was build keeping MVVM architecture on mind. The Controller, Views Just interact with the ViewModel and Model to get the Data to render.
+The Netork Managing is still something that needs improvement on as it using Singletons, the preferred mode would be Dependecy Injections but it seemed like an overkill.
 <br>
 The user can: 
 1. Create an account with his email or Log In with Google.
