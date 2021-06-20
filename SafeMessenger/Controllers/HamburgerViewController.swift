@@ -9,6 +9,7 @@ import UIKit
 
 protocol HamburgerViewProtocol: AnyObject {
     func shouldShowProfileCard()
+    func shouldShowAboutView()
 }
 
 class HamburgerViewController: UIViewController {
@@ -173,6 +174,7 @@ extension HamburgerViewController : UITableViewDelegate, UITableViewDataSource {
         case .account:
             delegate?.shouldShowProfileCard()
         case .about:
+            delegate?.shouldShowAboutView()
             break
         case .settings:
             break

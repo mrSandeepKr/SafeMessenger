@@ -98,13 +98,11 @@ class ProfileViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        makeNavigationBarTransperant()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        navigationController?.navigationBar.shadowImage = nil
-        navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        resetNavigationBarTrasperancy()
     }
     
     deinit {

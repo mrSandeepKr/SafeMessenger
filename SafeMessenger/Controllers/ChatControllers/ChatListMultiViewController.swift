@@ -318,16 +318,27 @@ extension ChatListMultiViewController: SearchUserViewProtocol {
 }
 
 extension ChatListMultiViewController: HamburgerViewProtocol {
-    func shouldShowProfileCard() {
+    
+    private func hideHamburgerViewAndLoad(vc: UIViewController) {
         hideHamburgerViewWithAnimation {[weak self] in
-            guard let userModel = ChatAppUserModel.getLoggedInUserModel()
-            else {
-                return
-            }
-            let vm = ProfileViewModel(isProfileOfLoggedInUser: true, userModel: userModel)
-            let vc = ProfileViewController(viewModel: vm)
             let nav = UINavigationController(rootViewController: vc)
             self?.present(nav, animated: true)
         }
+    }
+    
+    func shouldShowProfileCard() {
+        guard let userModel = ChatAppUserModel.getLoggedInUserModel()
+        else {
+            return
+        }
+        let vm = ProfileViewModel(isProfileOfLoggedInUser: true, userModel: userModel)
+        let vc = ProfileViewController(viewModel: vm)
+        hideHamburgerViewAndLoad(vc: vc)
+    }
+    
+    func shouldShowAboutView() {
+        let vm = AboutViewModel()
+        let vc = AboutViewController(viewModel: vm)
+        hideHamburgerViewAndLoad(vc: vc)
     }
 }

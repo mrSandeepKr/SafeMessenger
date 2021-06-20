@@ -157,13 +157,20 @@ extension ApiHandler {
             }
         }
     }
+}
+
+//MARK: About String
+extension ApiHandler {
+    private func getDBAboutStringPath(for safeEmail: String) -> String{
+        return "\(safeEmail)/\(Constants.DbPathAboutString)"
+    }
     
     func fetchAboutString(for email:String, completion: @escaping ResultStringCompletion) {
         guard let safeEmail = Utils.shared.safeEmail(email: email) else {
             completion(.failure(ApiHandlerErrors.FailedSafeEmailGnrtn))
             return
         }
-        let ref = database.child("\(safeEmail)/\(Constants.DbPathAboutString)")
+        let ref = database.child(getDBAboutStringPath(for: safeEmail))
         ref.observeSingleEvent(of: .value) { snapshot in
             guard let aboutString = snapshot.value as? String,
                   !aboutString.isEmpty
@@ -174,6 +181,24 @@ extension ApiHandler {
             }
             print("ApiHandler: Fetch About String Success")
             completion(.success(aboutString))
+        }
+    }
+    
+    func setAboutString(for email: String,with about: String, completion: @escaping SuccessCompletion) {
+        guard let safeEmail = Utils.shared.safeEmail(email: email),
+              !about.isEmpty
+              else {
+            completion(false)
+            return
+        }
+        
+        let ref = database.child(getDBAboutStringPath(for: safeEmail))
+        ref.setValue(about) { err, _ in
+            guard err == nil else {
+                completion(false)
+                return
+            }
+            completion(true)
         }
     }
 }
