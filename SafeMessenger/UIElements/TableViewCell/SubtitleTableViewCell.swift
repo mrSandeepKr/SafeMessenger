@@ -22,6 +22,7 @@ class SubtitleTableViewCell: UITableViewCell {
         label.numberOfLines = 3
         label.textColor = .secondaryLabel
         label.lineBreakMode = .byWordWrapping
+        label.font = .systemFont(ofSize: 14, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .justified
         return label
