@@ -142,7 +142,25 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: SubtitleTableViewCell.reusableIdentifier) as? SubtitleTableViewCell
+        else {
+            return SubtitleTableViewCell()
+        }
+        cell.selectionStyle = .none
+        
         switch viewModel.tableData[indexPath.row] {
+        case .about:
+            cell.configureCell(titleText: "About", subTitleText: viewModel.profileCardData.about)
+            return cell
+        case .address:
+            cell.configureCell(titleText: "Address", subTitleText: viewModel.profileCardData.address)
+            return cell
+        case .secondaryEmail:
+            cell.configureCell(titleText: "Secondary Email", subTitleText: viewModel.profileCardData.secondaryEmail)
+            return cell
+        case .phoneNumber:
+            cell.configureCell(titleText: "Phone Number", subTitleText: viewModel.profileCardData.number)
+            return cell
         case .blockContact :
             guard let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reusableIdentifier)
             else {
@@ -153,24 +171,11 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
             cell.textLabel?.font = .systemFont(ofSize:17, weight: .semibold)
             cell.selectionStyle = .default
             return cell
-        case .about:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: SubtitleTableViewCell.reusableIdentifier) as? SubtitleTableViewCell
-            else {
-                return SubtitleTableViewCell()
-            }
-            cell.configureCell(titleText: "About", subTitleText: viewModel.aboutString)
-            cell.selectionStyle = .none
-            return cell
         }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        switch viewModel.tableData[indexPath.row] {
-        case .about :
-            return (UITableView.automaticDimension > 70) ? UITableView.automaticDimension : 70
-        case .blockContact:
-            return UITableView.automaticDimension
-        }
+        return UITableView.automaticDimension
     }
 }
 
@@ -187,7 +192,7 @@ extension ProfileViewController {
         
         profileImageView.layer.cornerRadius = profileImageSize * 0.5
         presenceIcon.layer.cornerRadius = presenceIconSize * 0.5
-
+        
         constraints.append(contentsOf: [
             profileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: profileImageTopPadding),
             profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),

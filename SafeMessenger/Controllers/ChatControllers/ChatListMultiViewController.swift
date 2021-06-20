@@ -317,6 +317,7 @@ extension ChatListMultiViewController: SearchUserViewProtocol {
     }
 }
 
+//MARK: HamburgerViewProtocol
 extension ChatListMultiViewController: HamburgerViewProtocol {
     
     private func hideHamburgerViewAndLoad(vc: UIViewController) {
@@ -339,6 +340,12 @@ extension ChatListMultiViewController: HamburgerViewProtocol {
     func shouldShowAboutView() {
         let vm = AboutViewModel()
         let vc = AboutViewController(viewModel: vm)
+        hideHamburgerViewAndLoad(vc: vc)
+    }
+    
+    func showUserSettings() {
+        let vm = SettingsViewModel()
+        let vc = SettingsViewController(viewModel: vm)
         hideHamburgerViewAndLoad(vc: vc)
     }
 }

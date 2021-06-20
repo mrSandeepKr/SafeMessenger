@@ -72,6 +72,21 @@ extension Utils {
     func getLoggedInUserDisplayName() -> String? {
         return UserDefaults.standard.string(forKey: UserDefaultConstant.userName)
     }
+    
+    func getLoggedInUserAboutString() -> String? {
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.aboutString)
+    }
+    
+    func getLoggedInUserAddress() -> String? {
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.address)
+    }
+    
+    func getLoggedInUserPhoneNum() -> String? {
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.phoneNumer)
+    }
+    func getLoggedInUserSecondaryEmail() -> String? {
+        return UserDefaults.standard.string(forKey: UserDefaultConstant.secondaryEmail)
+    }
 }
 
 extension Utils {
